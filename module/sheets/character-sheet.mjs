@@ -130,6 +130,9 @@ export class FnmCharacterSheet extends FnmBaseActorSheet {
     // Linhas de Ofício (a ficha oficial traz três)
     context.oficiosView = sys.oficiosView ?? [];
 
+    // Atributo-chave em vigor, vindo do item da Especialização
+    context.atributoChaveNome = FNM.atributos[sys.atributoChave]?.nome ?? "—";
+
     // Treinamentos: 4 etapas por trilha
     context.treinamentosView = (sys.treinamentosView ?? []).map(t => ({
       ...t,

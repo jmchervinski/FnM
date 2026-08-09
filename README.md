@@ -60,8 +60,9 @@ Tudo abaixo é calculado ou executado pelo sistema, com a página do livro anota
 - **Defesa**, **Atenção**, **Iniciativa** e **Deslocamento** derivados
 - **CD Amaldiçoada** e **CD de Especialização**
 - **PV, PE e Estamina** somados a partir dos itens de Especialização, incluindo **Multiclasse**
-  (o 1º nível de uma nova especialização usa o valor de níveis subsequentes) e o modificador de
-  atributo somado uma única vez pelas especializações de técnica
+  (o 1º nível de uma nova especialização usa o valor de níveis subsequentes). Especialista em
+  Técnica, Controlador e Suporte somam ao máximo de PE o modificador do **atributo-chave escolhido
+  no item da especialização** — uma única vez, e só pela especialização principal (p. 21, 44 e 47)
 - **Dados de Vida** por tamanho, gastos no Descanso Curto
 - **Rolagens d20** com vantagem/desvantagem, bônus situacional e CD, com grau de sucesso na carta
 - **Sucesso crítico em TR** apenas para quem é Mestre no teste; 20 natural eleva o grau de sucesso
@@ -157,7 +158,10 @@ Foundry valida o submit inteiro de uma vez. Um único campo inválido faz ele de
 2. o mesmo `name=` repetido em duas partes — o `FormDataExtended` devolve um array em vez
    de um escalar e a validação reprova.
 
-Rode-o sempre que mexer em templates ou schemas.
+Ele também valida os nomes de ícone contra a lista do **Font Awesome 6 Free**: um ícone
+exclusivo do Pro, renomeado ou digitado errado renderiza como quadrado vazio na ficha.
+
+Rode-o sempre que mexer em templates, schemas ou ícones.
 
 `tools/build-packs.mjs` lê `tools/pack-data.mjs` e gera os compêndios LevelDB em `packs/`
 usando a CLI oficial do Foundry. Os `_id` são derivados do nome por hash, então permanecem

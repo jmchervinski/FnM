@@ -20,7 +20,7 @@
         </span>
         {{#unless grupo.disponivel}}<span class="aviso">fora do seu acesso</span>{{/unless}}
         <button type="button" class="mini-btn" data-action="itemCreate" data-type="feitico"
-                data-nivel="{{grupo.id}}" title="Criar um Feitiço deste nível">+</button>
+                data-nivel="{{grupo.id}}" title="Criar um Feitiço deste nível"><i class="fa-solid fa-plus"></i></button>
       </summary>
 
       <ol class="item-list">
@@ -33,10 +33,10 @@
             {{#if item.system.dano}} · {{item.system.dano}}{{/if}}
           </span>
           <div class="item-controls">
-            <a data-action="conjurarFeitico" title="Conjurar (gasta PE)"><i class="fas fa-hand-sparkles"></i></a>
-            <a data-action="itemChat" title="Enviar ao chat"><i class="fas fa-comment"></i></a>
-            <a data-action="itemEdit" title="Editar"><i class="fas fa-edit"></i></a>
-            <a data-action="itemDelete" title="Excluir"><i class="fas fa-trash"></i></a>
+            <a data-action="conjurarFeitico" title="Conjurar (gasta PE)"><i class="fa-solid fa-fire"></i></a>
+            <a data-action="itemChat" title="Enviar ao chat"><i class="fa-solid fa-comment"></i></a>
+            <a data-action="itemEdit" title="Editar"><i class="fa-solid fa-edit"></i></a>
+            <a data-action="itemDelete" title="Excluir"><i class="fa-solid fa-trash"></i></a>
           </div>
           <div class="item-descricao">
             <p>

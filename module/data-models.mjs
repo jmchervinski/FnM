@@ -506,7 +506,6 @@ export class CharacterDataModel extends BaseActorModel {
   _somarEspecializacoes() {
     const especs = (this.parent?.items ?? []).filter(i => i.type === "especializacao");
     const modCon = this.atributos.constituicao.mod;
-    const modTecnica = this.atributos[this.jujutsu.atributoTecnica]?.mod ?? 0;
 
     let pvBase = 0;
     let peBase = 0;
@@ -515,6 +514,8 @@ export class CharacterDataModel extends BaseActorModel {
     let primeira = true;
     let ehRestringido = false;
     let ehLutador = false;
+    let atributoChave = "";
+    let bonusAtributoPE = 0;
 
     // A especialização com mais níveis é tratada como a principal (1º nível)
     const ordenadas = [...especs].sort((a, b) => (b.system.niveis ?? 0) - (a.system.niveis ?? 0));
@@ -527,23 +528,38 @@ export class CharacterDataModel extends BaseActorModel {
       if (cfg.id === "restringido") ehRestringido = true;
       if (cfg.id === "lutador") ehLutador = true;
 
-      // 1º nível da especialização principal usa o valor fixo; os demais, o valor
-      // de níveis subsequentes. Em Multiclasse, o 1º nível da nova especialização
-      // já conta como subsequente (p. 47).
       if (primeira) {
+        // 1º nível da especialização principal usa o valor fixo de PV
         pvBase += cfg.pvPrimeiro + (niveis - 1) * cfg.pvFixo;
+
+        // O atributo-chave é escolhido no próprio item da especialização; cada
+        // especialização permite um conjunto diferente (Lutador: FOR ou DES;
+        // Especialista em Técnica: INT ou SAB; Controlador/Suporte: PRE ou SAB).
+        atributoChave =
+          item.system.atributoChave || this.jujutsu.atributoEspecializacao || cfg.atributosChave[0];
+
+        // Só a PRIMEIRA especialização soma o modificador ao máximo de PE, e ela
+        // soma o do seu atributo-chave — não o da técnica (p. 21 e 44).
+        // Multiclasse não concede esse bônus de novo (p. 47).
+        if (cfg.somaAtributo) {
+          bonusAtributoPE = this.atributos[atributoChave]?.mod ?? 0;
+          peBase += bonusAtributoPE;
+        }
         primeira = false;
       } else {
+        // Em Multiclasse, o 1º nível da nova especialização já conta como subsequente
         pvBase += niveis * cfg.pvFixo;
       }
 
       peBase += niveis * cfg.pe;
       estaminaBase += niveis * (cfg.estamina ?? 0);
-      // Especializações de técnica somam o modificador uma única vez (p. 21)
-      if (cfg.somaAtributo) peBase += modTecnica;
     }
 
     this.especializacaoPrincipal = ordenadas[0]?.system?.especializacao ?? "";
+    // Atributo-chave em vigor: vem do item da especialização, com o campo do
+    // Perfil Amaldiçoado como reserva para atores sem item de especialização.
+    this.atributoChave = atributoChave || this.jujutsu.atributoEspecializacao;
+    this.bonusAtributoPE = bonusAtributoPE;
     this.niveisEspecializacao = niveisTotais;
     this.ehRestringido = ehRestringido;
     this.ehLutador = ehLutador;
@@ -593,7 +609,8 @@ export class CharacterDataModel extends BaseActorModel {
     const bt = bonusTreinamento(this.nivel);
     const metade = metadeNivel(this.nivel);
     const modTecnica = this.atributos[this.jujutsu.atributoTecnica]?.mod ?? 0;
-    const modEspec = this.atributos[this.jujutsu.atributoEspecializacao]?.mod ?? 0;
+    // O atributo-chave vem do item da especialização (definido em _somarEspecializacoes)
+    const modEspec = this.atributos[this.atributoChave]?.mod ?? 0;
 
     this.bonusTreinamento = bt;
     this.metadeNivel = metade;

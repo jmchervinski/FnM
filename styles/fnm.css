@@ -1,23 +1,26 @@
 /*
  * Feiticeiros & Maldições para Foundry VTT (não-oficial).
- * Paleta inspirada na identidade do jujutsu: preto-tinta, roxo amaldiçoado,
+ * Paleta inspirada na identidade do jujutsu: azul-noite, azul amaldiçoado,
  * vermelho-sangue e o branco-osso do papel.
  */
 :root {
-  --fnm-tinta: #14121a;        /* preto-arroxeado do fundo */
-  --fnm-tinta-clara: #241f30;  /* superfícies elevadas */
-  --fnm-roxo: #6b3fa0;         /* energia amaldiçoada */
-  --fnm-roxo-claro: #a97fd6;
+  --fnm-tinta: #0d1522;        /* azul quase preto do fundo */
+  --fnm-tinta-clara: #16243a;  /* superfícies elevadas */
+  --fnm-azul: #1f4e79;         /* energia amaldiçoada */
+  --fnm-azul-claro: #5b8fc7;
   --fnm-sangue: #a3162b;       /* destaques e alertas */
   --fnm-osso: #ece8e1;         /* papel */
   --fnm-osso-escuro: #d6d0c6;
-  --fnm-cinza: #6f6a7a;
+  --fnm-cinza: #5f6b7a;       /* cinza azulado, para casar com a paleta */
   --fnm-verde: #3f8f5e;        /* energia reversa / cura */
   --fnm-dourado: #c9a227;
 }
 
 .fnm-sheet {
-  font-family: "Signika", "Georgia", serif;
+  /* As fontes de emoji vêm ANTES da genérica: uma família genérica sempre
+     resolve, então nada declarado depois dela seria consultado. */
+  font-family: "Signika", "Georgia", "Segoe UI Emoji", "Apple Color Emoji",
+    "Noto Color Emoji", serif;
   background: var(--fnm-osso);
   color: var(--fnm-tinta);
 }
@@ -52,22 +55,22 @@
 .fnm-sheet select:focus,
 .fnm-sheet textarea:focus {
   outline: none;
-  border-color: var(--fnm-roxo);
-  box-shadow: 0 0 4px var(--fnm-roxo-claro);
+  border-color: var(--fnm-azul);
+  box-shadow: 0 0 4px var(--fnm-azul-claro);
 }
 
 .fnm-sheet button {
   background: var(--fnm-tinta);
   color: var(--fnm-osso);
-  border: 1px solid var(--fnm-roxo);
+  border: 1px solid var(--fnm-azul);
   border-radius: 3px;
   cursor: pointer;
   padding: 0.25rem 0.6rem;
   font-family: inherit;
 }
 .fnm-sheet button:hover:not(:disabled) {
-  background: var(--fnm-roxo);
-  box-shadow: 0 0 6px var(--fnm-roxo-claro);
+  background: var(--fnm-azul);
+  box-shadow: 0 0 6px var(--fnm-azul-claro);
 }
 .fnm-sheet button:disabled {
   opacity: 0.4;
@@ -90,13 +93,13 @@
   background: linear-gradient(135deg, var(--fnm-tinta), var(--fnm-tinta-clara));
   color: var(--fnm-osso);
   padding: 0.6rem;
-  border-bottom: 3px solid var(--fnm-roxo);
+  border-bottom: 3px solid var(--fnm-azul);
 }
 
 .fnm-sheet .profile-img {
   width: 84px;
   height: 84px;
-  border: 2px solid var(--fnm-roxo);
+  border: 2px solid var(--fnm-azul);
   border-radius: 3px;
   object-fit: cover;
   cursor: pointer;
@@ -121,13 +124,13 @@
   font-size: 1.35rem;
   background: transparent;
   border: none;
-  border-bottom: 1px dashed var(--fnm-roxo-claro);
+  border-bottom: 1px dashed var(--fnm-azul-claro);
   color: var(--fnm-osso);
 }
 .fnm-sheet .fnm-marca {
   font-size: 1.6rem;
-  color: var(--fnm-roxo-claro);
-  text-shadow: 0 0 8px var(--fnm-roxo);
+  color: var(--fnm-azul-claro);
+  text-shadow: 0 0 8px var(--fnm-azul);
   flex: none;
 }
 
@@ -148,7 +151,7 @@
   max-width: 110px;
   background: rgba(255, 255, 255, 0.15);
   color: var(--fnm-osso);
-  border-color: var(--fnm-roxo);
+  border-color: var(--fnm-azul);
 }
 .fnm-sheet .linha-dados option {
   background: var(--fnm-tinta);
@@ -162,20 +165,20 @@
 }
 .fnm-sheet .derivado {
   background: rgba(255, 255, 255, 0.1);
-  border: 1px solid var(--fnm-roxo);
+  border: 1px solid var(--fnm-azul);
   border-radius: 3px;
   padding: 0.1rem 0.45rem;
   font-size: 0.75rem;
   white-space: nowrap;
 }
 .fnm-sheet .derivado b {
-  color: var(--fnm-roxo-claro);
+  color: var(--fnm-azul-claro);
 }
 .fnm-sheet .derivado.botao-inline {
   cursor: pointer;
 }
 .fnm-sheet .derivado.botao-inline:hover {
-  background: var(--fnm-roxo);
+  background: var(--fnm-azul);
 }
 .fnm-sheet .derivado.ativo {
   background: var(--fnm-verde);
@@ -186,8 +189,8 @@
 /* -------------------------------------------- */
 
 .fnm-sheet .sheet-tabs {
-  border-bottom: 2px solid var(--fnm-roxo);
-  background: rgba(107, 63, 160, 0.1);
+  border-bottom: 2px solid var(--fnm-azul);
+  background: rgba(31, 78, 121, 0.1);
   flex: none;
 }
 .fnm-sheet .sheet-tabs [data-tab] {
@@ -195,7 +198,7 @@
   font-size: 0.85rem;
 }
 .fnm-sheet .sheet-tabs [data-tab].active {
-  color: var(--fnm-roxo);
+  color: var(--fnm-azul);
   text-shadow: none;
   border-bottom: 3px solid var(--fnm-sangue);
   font-weight: bold;
@@ -214,7 +217,7 @@
 }
 .fnm-sheet .bloco legend {
   font-weight: bold;
-  color: var(--fnm-roxo);
+  color: var(--fnm-azul);
   text-transform: uppercase;
   font-size: 0.75rem;
   letter-spacing: 0.06em;
@@ -303,7 +306,7 @@
   gap: 0.4rem;
 }
 .fnm-sheet .atributo-box {
-  border: 1px solid var(--fnm-roxo);
+  border: 1px solid var(--fnm-azul);
   border-radius: 4px;
   background: rgba(255, 255, 255, 0.5);
   padding: 0.3rem;
@@ -316,7 +319,7 @@
   font-size: 0.7rem;
   font-weight: bold;
   letter-spacing: 0.08em;
-  color: var(--fnm-roxo);
+  color: var(--fnm-azul);
 }
 .fnm-sheet .atributo-valor {
   text-align: center;
@@ -334,8 +337,8 @@
   padding: 0.1rem 0;
 }
 .fnm-sheet .atributo-mod:hover {
-  background: var(--fnm-roxo);
-  text-shadow: 0 0 6px var(--fnm-roxo-claro);
+  background: var(--fnm-azul);
+  text-shadow: 0 0 6px var(--fnm-azul-claro);
 }
 
 /* -------------------------------------------- */
@@ -381,9 +384,9 @@
   transition: width 0.2s ease;
 }
 .fnm-sheet .barra-pv { background: var(--fnm-sangue); }
-.fnm-sheet .barra-pe { background: var(--fnm-roxo); }
+.fnm-sheet .barra-pe { background: var(--fnm-azul); }
 .fnm-sheet .barra-estamina { background: var(--fnm-dourado); }
-.fnm-sheet .barra-alma { background: var(--fnm-roxo-claro); }
+.fnm-sheet .barra-alma { background: var(--fnm-azul-claro); }
 
 .fnm-sheet .estado-alma {
   font-size: 0.7rem;
@@ -445,15 +448,15 @@
   padding: 0;
 }
 .fnm-sheet .pericia-linha:nth-child(odd) {
-  background: rgba(107, 63, 160, 0.06);
+  background: rgba(31, 78, 121, 0.06);
 }
 .fnm-sheet .pericia-linha .col-nome {
   cursor: pointer;
   font-weight: 500;
 }
 .fnm-sheet .pericia-linha .col-nome:hover {
-  color: var(--fnm-roxo);
-  text-shadow: 0 0 4px var(--fnm-roxo-claro);
+  color: var(--fnm-azul);
+  text-shadow: 0 0 4px var(--fnm-azul-claro);
 }
 .fnm-sheet .pericia-linha .col-total {
   text-align: center;
@@ -504,7 +507,7 @@
   cursor: pointer;
 }
 .fnm-sheet .resistencia-linha .teste-nome:hover {
-  color: var(--fnm-roxo);
+  color: var(--fnm-azul);
 }
 .fnm-sheet .resistencia-linha .teste-total {
   text-align: center;
@@ -551,14 +554,14 @@
 .fnm-sheet .pip {
   width: 13px;
   height: 13px;
-  border: 1px solid var(--fnm-roxo);
+  border: 1px solid var(--fnm-azul);
   border-radius: 2px;
   background: transparent;
   display: inline-block;
 }
 .fnm-sheet .pip.filled {
-  background: var(--fnm-roxo);
-  box-shadow: 0 0 4px var(--fnm-roxo-claro);
+  background: var(--fnm-azul);
+  box-shadow: 0 0 4px var(--fnm-azul-claro);
 }
 
 .fnm-sheet .perfil-derivados {
@@ -569,7 +572,7 @@
   font-size: 0.78rem;
 }
 .fnm-sheet .perfil-derivados span {
-  background: rgba(107, 63, 160, 0.12);
+  background: rgba(31, 78, 121, 0.12);
   border-radius: 3px;
   padding: 0.1rem 0.4rem;
 }
@@ -637,7 +640,7 @@
 .fnm-sheet .itens-header h3 {
   margin: 0;
   font-size: 0.85rem;
-  color: var(--fnm-roxo);
+  color: var(--fnm-azul);
   text-transform: uppercase;
   letter-spacing: 0.05em;
 }
@@ -657,10 +660,10 @@
   font-size: 0.8rem;
 }
 .fnm-sheet .item:hover {
-  background: rgba(107, 63, 160, 0.08);
+  background: rgba(31, 78, 121, 0.08);
 }
 .fnm-sheet .item.equipado {
-  border-left: 3px solid var(--fnm-roxo);
+  border-left: 3px solid var(--fnm-azul);
 }
 .fnm-sheet .item.inativo {
   opacity: 0.5;
@@ -675,7 +678,7 @@
   font-weight: 500;
 }
 .fnm-sheet .item-nome:hover {
-  color: var(--fnm-roxo);
+  color: var(--fnm-azul);
 }
 .fnm-sheet .item-tag {
   font-size: 0.68rem;
@@ -691,7 +694,7 @@
   cursor: pointer;
 }
 .fnm-sheet .item-controls a:hover {
-  color: var(--fnm-roxo);
+  color: var(--fnm-azul);
 }
 
 /* A descrição só aparece quando o item é expandido pelo clique no nome */
@@ -701,7 +704,7 @@
   font-size: 0.76rem;
   padding: 0.3rem 0.4rem;
   background: rgba(255, 255, 255, 0.5);
-  border-left: 3px solid var(--fnm-roxo-claro);
+  border-left: 3px solid var(--fnm-azul-claro);
   margin: 0.2rem 0;
 }
 .fnm-sheet .item.expanded .item-descricao {
@@ -709,7 +712,7 @@
 }
 
 .fnm-sheet .grupo-colapsavel {
-  border: 1px solid rgba(107, 63, 160, 0.35);
+  border: 1px solid rgba(31, 78, 121, 0.35);
   border-radius: 3px;
   margin-bottom: 0.35rem;
   background: rgba(255, 255, 255, 0.25);
@@ -719,7 +722,7 @@
   padding: 0.25rem 0.4rem;
   font-size: 0.8rem;
   font-weight: bold;
-  color: var(--fnm-roxo);
+  color: var(--fnm-azul);
   display: flex;
   align-items: center;
   gap: 0.4rem;
@@ -728,7 +731,7 @@
   opacity: 0.6;
 }
 .fnm-sheet .contador {
-  background: var(--fnm-roxo);
+  background: var(--fnm-azul);
   color: #fff;
   border-radius: 8px;
   font-size: 0.65rem;
@@ -772,7 +775,7 @@
   gap: 0.6rem;
   background: var(--fnm-tinta);
   padding: 0.5rem;
-  border-bottom: 3px solid var(--fnm-roxo);
+  border-bottom: 3px solid var(--fnm-azul);
   flex: none;
 }
 .fnm-item .sheet-header .profile-img {
@@ -784,7 +787,7 @@
   font-size: 1.1rem;
   background: transparent;
   border: none;
-  border-bottom: 1px dashed var(--fnm-roxo-claro);
+  border-bottom: 1px dashed var(--fnm-azul-claro);
   color: var(--fnm-osso);
 }
 .fnm-item .sheet-body {
@@ -824,11 +827,11 @@
   color: var(--fnm-osso);
   background: var(--fnm-tinta);
   padding: 0.3rem 0.5rem;
-  border-top: 2px solid var(--fnm-roxo);
+  border-top: 2px solid var(--fnm-azul);
 }
 
 .fnm-carta {
-  border-left: 3px solid var(--fnm-roxo);
+  border-left: 3px solid var(--fnm-azul);
   padding-left: 0.5rem;
 }
 .fnm-carta h3 {
@@ -836,8 +839,8 @@
   display: flex;
   align-items: center;
   gap: 0.4rem;
-  color: var(--fnm-roxo);
-  border-bottom: 1px solid var(--fnm-roxo-claro);
+  color: var(--fnm-azul);
+  border-bottom: 1px solid var(--fnm-azul-claro);
 }
 .fnm-carta h3 img {
   border: none;
@@ -858,7 +861,7 @@
   display: inline-block;
   min-width: 2rem;
   padding: 0.05rem 0.35rem;
-  background: rgba(107, 63, 160, 0.14);
+  background: rgba(31, 78, 121, 0.14);
   border-radius: 3px;
   font-weight: bold;
   text-align: center;
@@ -916,7 +919,7 @@
   margin-top: 0.5rem;
 }
 .fnm-sheet .derivado-caixa {
-  border: 1px solid var(--fnm-roxo);
+  border: 1px solid var(--fnm-azul);
   border-radius: 4px;
   background: rgba(255, 255, 255, 0.5);
   padding: 0.3rem;
@@ -926,12 +929,12 @@
   gap: 0.15rem;
 }
 .fnm-sheet .derivado-caixa.clicavel { cursor: pointer; }
-.fnm-sheet .derivado-caixa.clicavel:hover { background: rgba(107, 63, 160, 0.18); }
+.fnm-sheet .derivado-caixa.clicavel:hover { background: rgba(31, 78, 121, 0.18); }
 .fnm-sheet .derivado-caixa .rotulo {
   font-size: 0.62rem;
   text-transform: uppercase;
   letter-spacing: 0.05em;
-  color: var(--fnm-roxo);
+  color: var(--fnm-azul);
 }
 .fnm-sheet .derivado-caixa .valor { font-size: 1.15rem; font-weight: bold; }
 .fnm-sheet .derivado-caixa label { font-size: 0.62rem; color: var(--fnm-cinza); }
@@ -959,7 +962,7 @@
 .fnm-sheet .ataques-cabecalho span:first-child { text-align: left; }
 .fnm-sheet .ataque-linha { padding: 0.12rem 0; }
 .fnm-sheet .ataque-nome { cursor: pointer; font-weight: 500; }
-.fnm-sheet .ataque-nome:hover { color: var(--fnm-roxo); text-shadow: 0 0 4px var(--fnm-roxo-claro); }
+.fnm-sheet .ataque-nome:hover { color: var(--fnm-azul); text-shadow: 0 0 4px var(--fnm-azul-claro); }
 .fnm-sheet .ataque-total {
   text-align: center;
   font-weight: bold;
@@ -998,7 +1001,7 @@
   font-size: 0.6rem;
   font-weight: bold;
   letter-spacing: 0.04em;
-  color: var(--fnm-roxo);
+  color: var(--fnm-azul);
 }
 .fnm-sheet .rd-item input { width: 100%; text-align: center; font-size: 0.75rem; }
 .fnm-sheet .rd-total { font-size: 0.62rem; color: var(--fnm-cinza); }
@@ -1018,7 +1021,7 @@
   min-width: 1.4rem;
   text-align: center;
   font-weight: bold;
-  background: rgba(107, 63, 160, 0.14);
+  background: rgba(31, 78, 121, 0.14);
   border-radius: 3px;
 }
 .fnm-sheet .usos-max { color: var(--fnm-cinza); }
@@ -1031,7 +1034,7 @@
   gap: 0.3rem;
 }
 .fnm-sheet .oficio-nome a { cursor: pointer; font-weight: 500; }
-.fnm-sheet .oficio-nome a:hover { color: var(--fnm-roxo); }
+.fnm-sheet .oficio-nome a:hover { color: var(--fnm-azul); }
 .fnm-sheet .oficio-nome input { flex: 1; font-size: 0.72rem; }
 
 /* Inventário */
@@ -1042,7 +1045,7 @@
   gap: 0.75rem;
   font-size: 0.8rem;
   padding: 0.3rem 0.4rem;
-  background: rgba(107, 63, 160, 0.08);
+  background: rgba(31, 78, 121, 0.08);
   border-radius: 3px;
   margin-bottom: 0.4rem;
 }
@@ -1065,8 +1068,8 @@
   padding: 0.4rem 0.5rem;
 }
 .fnm-sheet .treinamento-caixa.concluido {
-  border-color: var(--fnm-roxo);
-  background: rgba(107, 63, 160, 0.12);
+  border-color: var(--fnm-azul);
+  background: rgba(31, 78, 121, 0.12);
 }
 .fnm-sheet .treinamento-caixa header {
   display: flex;
@@ -1074,11 +1077,11 @@
   align-items: baseline;
   gap: 0.4rem;
 }
-.fnm-sheet .treinamento-nome { font-weight: bold; font-size: 0.82rem; color: var(--fnm-roxo); }
+.fnm-sheet .treinamento-nome { font-weight: bold; font-size: 0.82rem; color: var(--fnm-azul); }
 .fnm-sheet .treinamento-etapas { font-size: 0.68rem; color: var(--fnm-cinza); }
 .fnm-sheet .treinamento-caixa .pip-track { margin: 0.3rem 0; }
 .fnm-sheet .pip-clicavel { cursor: pointer; }
-.fnm-sheet .pip-clicavel:hover { background: var(--fnm-roxo-claro); }
+.fnm-sheet .pip-clicavel:hover { background: var(--fnm-azul-claro); }
 .fnm-sheet .treinamento-completo {
   font-size: 0.68rem;
   color: var(--fnm-cinza);

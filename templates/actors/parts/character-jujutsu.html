@@ -11,7 +11,8 @@
           {{/each}}
         </select>
       </label>
-      <label>Atributo Chave da Especialização
+      <label title="Usado apenas se nenhum item de Especialização definir o atributo-chave">
+        Atributo Chave (reserva)
         <select name="system.jujutsu.atributoEspecializacao">
           {{#each atributos as |a|}}
           <option value="{{a.id}}" {{#if (eq a.id ../system.jujutsu.atributoEspecializacao)}}selected{{/if}}>{{a.nome}}</option>
@@ -31,7 +32,14 @@
       <span>CD Especialização <b>{{system.cdEspecializacao}}</b></span>
       <span>Ataque Amaldiçoado <b>{{sinal system.ataqueAmaldicoado}}</b></span>
     </div>
-    <p class="dica">CD = 10 + metade do nível + modificador de atributo + Bônus de Treinamento (p. 198/280).</p>
+    <p class="dica">
+      CD = 10 + metade do nível + modificador de atributo + Bônus de Treinamento (p. 198/280).
+      O <b>atributo-chave em vigor</b> é
+      <b>{{atributoChaveNome}}</b>, definido no item da sua
+      Especialização — é ele que a CD de Especialização usa e, para Especialista em Técnica,
+      Controlador e Suporte, é o modificador dele que entra uma vez no máximo de PE
+      {{#if system.bonusAtributoPE}}(atualmente {{sinal system.bonusAtributoPE}} PE){{/if}} (p. 21 e 44).
+    </p>
   </fieldset>
 
   {{!-- Níveis de Aptidão de 0 a 5 (p. 173) --}}
@@ -56,7 +64,7 @@
     <legend>Técnica Amaldiçoada</legend>
     <header class="itens-header">
       <span></span>
-      <button type="button" data-action="itemCreate" data-type="tecnica"><i class="fas fa-plus"></i> Técnica</button>
+      <button type="button" data-action="itemCreate" data-type="tecnica"><i class="fa-solid fa-plus"></i> Técnica</button>
     </header>
     <ol class="item-list">
       {{#each itens.tecnica as |item|}}
@@ -65,9 +73,9 @@
         <a class="item-nome" data-action="itemExpand">{{item.name}}</a>
         <span class="item-tag">{{item.system.tipo}}</span>
         <div class="item-controls">
-          <a data-action="itemChat"><i class="fas fa-comment"></i></a>
-          <a data-action="itemEdit"><i class="fas fa-edit"></i></a>
-          <a data-action="itemDelete"><i class="fas fa-trash"></i></a>
+          <a data-action="itemChat"><i class="fa-solid fa-comment"></i></a>
+          <a data-action="itemEdit"><i class="fa-solid fa-edit"></i></a>
+          <a data-action="itemDelete"><i class="fa-solid fa-trash"></i></a>
         </div>
         <div class="item-descricao">
           {{{item.system.funcionamento}}}
@@ -109,7 +117,7 @@
     <legend>Aptidões Amaldiçoadas</legend>
     <header class="itens-header">
       <span class="dica">Uma aptidão por nível, exceto Restringidos (p. 172).</span>
-      <button type="button" data-action="itemCreate" data-type="aptidao"><i class="fas fa-plus"></i> Aptidão</button>
+      <button type="button" data-action="itemCreate" data-type="aptidao"><i class="fa-solid fa-plus"></i> Aptidão</button>
     </header>
     {{#each aptidoesPorCategoria as |grupo|}}
     <details class="grupo-colapsavel" data-colapso="apt-{{grupo.categoria}}" open>

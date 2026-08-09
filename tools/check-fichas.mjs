@@ -136,6 +136,20 @@ function camposDe(arquivo) {
   return [...limpo.matchAll(/(?:name|target)="system\.([^"]+)"/g)].map(m => m[1]);
 }
 
+/**
+ * Ícones permitidos — todos existem no Font Awesome 6 Free Solid, que é o que o
+ * Foundry distribui. Um nome fora desta lista (ou exclusivo do FA Pro) aparece
+ * como quadrado vazio na ficha. Ao usar um ícone novo, confirme que ele é free
+ * e acrescente-o aqui.
+ */
+const ICONES_PERMITIDOS = new Set([
+  "arrow-up", "asterisk", "bed", "bolt", "clock", "comment", "crosshairs",
+  "dice-d20", "edit", "fire", "ghost", "hand-fist", "heart", "lock", "minus",
+  "plus", "power-off", "shield-alt", "skull", "suitcase", "trash"
+]);
+/** Prefixos de estilo do Font Awesome, que não são nomes de ícone. */
+const ESTILOS_FA = new Set(["solid", "regular", "brands", "light", "thin", "duotone", "sharp"]);
+
 let problemas = 0;
 const falha = msg => {
   console.log(`❌ ${msg}`);
@@ -182,7 +196,20 @@ for (const arq of arquivos) {
   }
 }
 
-/* -------- 2. Nenhum name= repetido dentro da mesma ficha -------- */
+/* -------- 2. Todo ícone existe no Font Awesome 6 Free -------- */
+for (const arq of arquivos) {
+  const txt = fs.readFileSync(arq, "utf8");
+  for (const m of txt.matchAll(/\bfa-([a-z0-9-]+)/g)) {
+    const nome = m[1];
+    if (ESTILOS_FA.has(nome) || ICONES_PERMITIDOS.has(nome)) continue;
+    falha(
+      `${path.basename(arq)}: ícone "fa-${nome}" não está na lista de ícones ` +
+        `permitidos (Font Awesome 6 Free) — renderiza como quadrado vazio`
+    );
+  }
+}
+
+/* -------- 3. Nenhum name= repetido dentro da mesma ficha -------- */
 for (const [ficha, partes] of Object.entries(FICHAS)) {
   const todas = partes.flatMap(p => [p, ...(PARCIAIS[p] ?? [])]);
   const vistos = new Map();

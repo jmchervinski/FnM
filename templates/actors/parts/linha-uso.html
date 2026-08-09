@@ -11,20 +11,20 @@
   <a class="item-nome" data-action="itemExpand">{{item.name}}</a>
   {{#if item.system.usos.max}}
   <span class="usos-controle" title="Usos restantes / máximo">
-    <a class="mini-btn" data-action="gastarUso" title="Gastar um uso">−</a>
+    <a class="mini-btn" data-action="gastarUso" title="Gastar um uso"><i class="fa-solid fa-minus"></i></a>
     <span class="usos-valor">{{item.system.usos.value}}</span>
     <span class="divisor">/</span>
     <span class="usos-max">{{item.system.usos.max}}</span>
-    <a class="mini-btn" data-action="recuperarUso" title="Recuperar um uso">+</a>
+    <a class="mini-btn" data-action="recuperarUso" title="Recuperar um uso"><i class="fa-solid fa-plus"></i></a>
   </span>
   {{else}}
   <span class="usos-controle vazio-usos">—</span>
   {{/if}}
   <span class="item-tag">{{#if item.system.custoPE}}{{item.system.custoPE}} PE{{/if}}</span>
   <div class="item-controls">
-    <a data-action="itemChat" title="Enviar ao chat"><i class="fas fa-comment"></i></a>
-    <a data-action="itemEdit" title="Editar"><i class="fas fa-edit"></i></a>
-    <a data-action="itemDelete" title="Excluir"><i class="fas fa-trash"></i></a>
+    <a data-action="itemChat" title="Enviar ao chat"><i class="fa-solid fa-comment"></i></a>
+    <a data-action="itemEdit" title="Editar"><i class="fa-solid fa-edit"></i></a>
+    <a data-action="itemDelete" title="Excluir"><i class="fa-solid fa-trash"></i></a>
   </div>
   <div class="item-descricao">{{{item.system.description}}}</div>
 </li>

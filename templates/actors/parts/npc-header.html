@@ -4,7 +4,7 @@
   <div class="ficha-cabecalho-conteudo">
     <div class="ficha-titulo">
       <input class="nome-personagem" name="name" type="text" value="{{actor.name}}" placeholder="Nome" />
-      <span class="fnm-marca">呪</span>
+      <span class="fnm-marca"><i class="fa-solid fa-hand-fist"></i></span>
     </div>
 
     <div class="linha-dados">
@@ -34,7 +34,7 @@
       <span class="derivado">BT <b>{{sinal system.bonusTreinamento}}</b></span>
       <span class="derivado">DEF <b>{{system.combate.defesa}}</b></span>
       <span class="derivado">ATN <b>{{system.combate.atencao}}</b></span>
-      <span class="derivado botao-inline" data-action="rolarIniciativa">INI <b>{{sinal system.combate.iniciativa}}</b> 🎲</span>
+      <span class="derivado botao-inline" data-action="rolarIniciativa">INI <b>{{sinal system.combate.iniciativa}}</b> <i class="fa-solid fa-dice-d20"></i></span>
       <span class="derivado">DESL <b>{{system.combate.deslocamentoAtual}}m</b></span>
       <span class="derivado">CD <b>{{system.cdAmaldicoada}}</b></span>
     </div>

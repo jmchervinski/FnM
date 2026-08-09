@@ -28,7 +28,7 @@
     <legend>Feitiços</legend>
     <header class="itens-header">
       <span></span>
-      <button type="button" data-action="itemCreate" data-type="feitico"><i class="fas fa-plus"></i> Feitiço</button>
+      <button type="button" data-action="itemCreate" data-type="feitico"><i class="fa-solid fa-plus"></i> Feitiço</button>
     </header>
     <ol class="item-list">
       {{#each itens.feitico as |item|}}
@@ -36,10 +36,10 @@
         <a class="item-nome" data-action="itemExpand">{{item.name}}</a>
         <span class="item-tag">{{item.system.nivelLabel}} · {{item.system.custoEfetivo}} PE · {{item.system.conjuracao}}</span>
         <div class="item-controls">
-          <a data-action="conjurarFeitico" title="Conjurar"><i class="fas fa-hand-sparkles"></i></a>
-          <a data-action="itemChat"><i class="fas fa-comment"></i></a>
-          <a data-action="itemEdit"><i class="fas fa-edit"></i></a>
-          <a data-action="itemDelete"><i class="fas fa-trash"></i></a>
+          <a data-action="conjurarFeitico" title="Conjurar"><i class="fa-solid fa-fire"></i></a>
+          <a data-action="itemChat"><i class="fa-solid fa-comment"></i></a>
+          <a data-action="itemEdit"><i class="fa-solid fa-edit"></i></a>
+          <a data-action="itemDelete"><i class="fa-solid fa-trash"></i></a>
         </div>
         <div class="item-descricao">{{{item.system.description}}}</div>
       </li>
