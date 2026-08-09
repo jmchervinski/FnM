@@ -17,10 +17,7 @@
 }
 
 .fnm-sheet {
-  /* As fontes de emoji vêm ANTES da genérica: uma família genérica sempre
-     resolve, então nada declarado depois dela seria consultado. */
-  font-family: "Signika", "Georgia", "Segoe UI Emoji", "Apple Color Emoji",
-    "Noto Color Emoji", serif;
+  font-family: "Signika", "Georgia", serif;
   background: var(--fnm-osso);
   color: var(--fnm-tinta);
 }

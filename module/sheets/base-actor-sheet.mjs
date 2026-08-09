@@ -171,7 +171,7 @@ export class FnmBaseActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) 
     await roll.evaluate();
     await roll.toMessage({
       speaker: ChatMessage.getSpeaker({ actor: this.actor }),
-      flavor: "⚡ <b>Iniciativa</b> (1d20 + Destreza)"
+      flavor: "<b>Iniciativa</b> (1d20 + Destreza)"
     });
   }
 

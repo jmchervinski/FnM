@@ -115,10 +115,10 @@ export class FnmActor extends Actor {
       }
 
       veredito = critico
-        ? "🌟 Sucesso Crítico"
+        ? "Sucesso Crítico"
         : sucesso
-          ? "✅ Sucesso"
-          : "❌ Falha";
+          ? "Sucesso"
+          : "Falha";
       veredito = ` — CD ${cd}: ${veredito}`;
     }
 
@@ -278,7 +278,7 @@ export class FnmActor extends Actor {
     ];
     if (critico) {
       linhas.push(
-        `🌟 <b>Acerto Crítico!</b> Um crítico sempre acerta e dobra os dados de dano (p. 307).` +
+        `<b>Acerto Crítico!</b> Um crítico sempre acerta e dobra os dados de dano (p. 307).` +
           (sys.grupo && FNM.gruposArma[sys.grupo]
             ? `<br><i>Efeito de crítico (${FNM.gruposArma[sys.grupo].nome}):</i> ${FNM.gruposArma[sys.grupo].critico}`
             : "")
@@ -286,7 +286,7 @@ export class FnmActor extends Actor {
     }
     if (desastre) {
       linhas.push(
-        "💥 <b>Desastre!</b> O ataque sempre erra e o alvo pode atacá-lo como reação (p. 307)."
+        "<b>Desastre!</b> O ataque sempre erra e o alvo pode atacá-lo como reação (p. 307)."
       );
     }
     if (cdAlvoInformada(dados.cd)) {
@@ -296,7 +296,7 @@ export class FnmActor extends Actor {
 
     await roll.toMessage({
       speaker: ChatMessage.getSpeaker({ actor: this }),
-      flavor: `⚔️ <b>${item.name}</b>${rotuloVantagem(dados.vantagem)}<br>${linhas.join("<br>")}`
+      flavor: `<b>${item.name}</b>${rotuloVantagem(dados.vantagem)}<br>${linhas.join("<br>")}`
     });
 
     return { roll, critico, desastre, chaveAttr };
@@ -328,7 +328,7 @@ export class FnmActor extends Actor {
     await roll.toMessage({
       speaker: ChatMessage.getSpeaker({ actor: this }),
       flavor:
-        `🩸 <b>Dano — ${item.name}</b>${critico ? " (Crítico)" : ""}` +
+        `<b>Dano — ${item.name}</b>${critico ? " (Crítico)" : ""}` +
         (tipo ? ` · ${tipo}` : "")
     });
     return roll;
@@ -385,7 +385,7 @@ export class FnmActor extends Actor {
     await roll.evaluate();
     await roll.toMessage({
       speaker: ChatMessage.getSpeaker({ actor: this }),
-      flavor: `🩸 <b>Dano Desarmado</b>${critico ? " (Crítico)" : ""} · Impacto`
+      flavor: `<b>Dano Desarmado</b>${critico ? " (Crítico)" : ""} · Impacto`
     });
     return resultado;
   }
@@ -443,7 +443,7 @@ export class FnmActor extends Actor {
     let custoTotal = custo;
     if (s.alma?.custoExtra) {
       linhas.push(
-        `⚠️ <b>Alma ${s.alma.estado}:</b> +${s.alma.custoExtra} PE no custo (p. 312).`
+        `<b>Alma ${s.alma.estado}:</b> +${s.alma.custoExtra} PE no custo (p. 312).`
       );
     }
 
@@ -464,7 +464,7 @@ export class FnmActor extends Actor {
     await ChatMessage.create({
       speaker: ChatMessage.getSpeaker({ actor: this }),
       content:
-        `<div class="fnm-carta"><h3>🌀 ${item.name}</h3>` +
+        `<div class="fnm-carta"><h3>${item.name}</h3>` +
         `<p>${linhas.join("<br>")}</p>` +
         (sys.description ? `<div class="fnm-carta-desc">${sys.description}</div>` : "") +
         `</div>`
@@ -488,7 +488,7 @@ export class FnmActor extends Actor {
       const tipo = FNM.tiposDano[sys.tipoDano]?.nome ?? "";
       await roll.toMessage({
         speaker: ChatMessage.getSpeaker({ actor: this }),
-        flavor: `🩸 <b>Dano — ${item.name}</b>${tipo ? ` · ${tipo}` : ""}`
+        flavor: `<b>Dano — ${item.name}</b>${tipo ? ` · ${tipo}` : ""}`
       });
     }
 
@@ -556,13 +556,13 @@ export class FnmActor extends Actor {
 
     // Ferimento Complexo: metade da vida máxima ou mais, com mínimo 50 (p. 313)
     if (dano >= Math.max(50, Math.ceil(s.recursos.pv.max / 2))) {
-      linhas.push("⚠️ Dano massivo: o alvo recebe um <b>Ferimento Complexo</b> (p. 313-314).");
+      linhas.push("<b>Dano massivo:</b> o alvo recebe um Ferimento Complexo (p. 313-314).");
     }
     // Dano que ultrapassa o máximo de vida em negativo mata na hora (p. 313)
     if (novoPV <= -s.recursos.pv.max) {
-      linhas.push("💀 A vida caiu além do negativo do máximo: <b>morte imediata</b>, sem Portas da Morte.");
+      linhas.push("A vida caiu além do negativo do máximo: <b>morte imediata</b>, sem Portas da Morte.");
     } else if (novoPV <= 0 && s.recursos.pv.value > 0) {
-      linhas.push("💀 A vida chegou a 0: o personagem entra nas <b>Portas da Morte</b> (p. 313).");
+      linhas.push("A vida chegou a 0: o personagem entra nas <b>Portas da Morte</b> (p. 313).");
     }
 
     await this.update(atualizacoes);
@@ -642,7 +642,7 @@ export class FnmActor extends Actor {
       atualizacoes["system.morte.falhas"] = 0;
       texto += " <b>Estabilizado!</b> O personagem volta com 1 PV.";
     } else if (falhas >= 3) {
-      texto += " 💀 <b>O personagem morre.</b>";
+      texto += " <b>O personagem morre.</b>";
     } else {
       texto += ` (Sucessos ${sucessos}/3 · Falhas ${falhas}/3)`;
     }
@@ -650,7 +650,7 @@ export class FnmActor extends Actor {
     await this.update(atualizacoes);
     await roll.toMessage({
       speaker: ChatMessage.getSpeaker({ actor: this }),
-      flavor: `☠️ <b>Portas da Morte</b> — ${texto}`
+      flavor: `<b>Portas da Morte</b> — ${texto}`
     });
     return roll;
   }
@@ -710,7 +710,7 @@ export class FnmActor extends Actor {
         );
         await roll.toMessage({
           speaker: ChatMessage.getSpeaker({ actor: this }),
-          flavor: `🛏️ <b>Dados de Vida</b> (+${modCon} de Constituição por dado)`
+          flavor: `<b>Dados de Vida</b> (+${modCon} de Constituição por dado)`
         });
       }
     }
@@ -718,7 +718,7 @@ export class FnmActor extends Actor {
     await this.update(atualizacoes);
     return ChatMessage.create({
       speaker: ChatMessage.getSpeaker({ actor: this }),
-      content: `🛏️ <b>${this.name}</b> realiza um <b>Descanso Curto</b>.<br>${linhas.join("<br>")}`
+      content: `<b>${this.name}</b> realiza um <b>Descanso Curto</b>.<br>${linhas.join("<br>")}`
     });
   }
 
@@ -743,7 +743,7 @@ export class FnmActor extends Actor {
     return ChatMessage.create({
       speaker: ChatMessage.getSpeaker({ actor: this }),
       content:
-        `🌙 <b>${this.name}</b> realiza um <b>Descanso Longo</b>: PV, PE e Dados de Vida ` +
+        `<b>${this.name}</b> realiza um <b>Descanso Longo</b>: PV, PE e Dados de Vida ` +
         `restaurados; falhas nas Portas da Morte removidas` +
         (s.exaustao > 0 ? `; exaustão ${s.exaustao} → ${s.exaustao - 1}` : "") +
         `.`

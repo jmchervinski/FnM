@@ -152,7 +152,7 @@ const ESTILOS_FA = new Set(["solid", "regular", "brands", "light", "thin", "duot
 
 let problemas = 0;
 const falha = msg => {
-  console.log(`❌ ${msg}`);
+  console.log(`ERRO  ${msg}`);
   problemas++;
 };
 
@@ -209,7 +209,52 @@ for (const arq of arquivos) {
   }
 }
 
-/* -------- 3. Nenhum name= repetido dentro da mesma ficha -------- */
+/* -------- 3. Nenhum emoji no código, nos templates ou no CSS -------- */
+
+/**
+ * O sistema não usa emoji: ícones vêm do Font Awesome e ênfase vem de <b>.
+ * Emoji dependem da fonte do sistema operacional e viram quadrado vazio quando
+ * a pilha de fontes não tem um fallback colorido.
+ *
+ * Pontuação tipográfica e sinais matemáticos são texto, não emoji.
+ */
+const PONTUACAO_OK = new Set(
+  [
+    0x2010, 0x2011, 0x2013, 0x2014, 0x2018, 0x2019, 0x201c, 0x201d, 0x2022,
+    0x2026, 0x2032, 0x2033, 0x2039, 0x203a, 0x2044, 0x2192, 0x2212, 0x2264,
+    0x2265, 0x00ab, 0x00bb, 0x00a9, 0x00ae, 0x2122
+  ]
+);
+const EXT_CODIGO = [".mjs", ".html", ".css", ".json"];
+
+const arquivosCodigo = [];
+const walkCodigo = d => {
+  for (const e of fs.readdirSync(d, { withFileTypes: true })) {
+    if (["node_modules", ".git", "packs", "packs-src"].includes(e.name)) continue;
+    const p = path.join(d, e.name);
+    if (e.isDirectory()) walkCodigo(p);
+    else if (EXT_CODIGO.some(x => e.name.endsWith(x))) arquivosCodigo.push(p);
+  }
+};
+walkCodigo(ROOT);
+
+for (const arq of arquivosCodigo) {
+  const linhas = fs.readFileSync(arq, "utf8").split("\n");
+  linhas.forEach((linha, i) => {
+    for (const ch of linha) {
+      const cp = ch.codePointAt(0);
+      if (cp < 0x2000 || PONTUACAO_OK.has(cp)) continue;
+      falha(
+        `${path.relative(ROOT, arq).replace(/\\/g, "/")}:${i + 1}: ` +
+          `caractere U+${cp.toString(16).toUpperCase().padStart(4, "0")} — ` +
+          `o sistema não usa emoji (use Font Awesome ou <b>)`
+      );
+      return;
+    }
+  });
+}
+
+/* -------- 4. Nenhum name= repetido dentro da mesma ficha -------- */
 for (const [ficha, partes] of Object.entries(FICHAS)) {
   const todas = partes.flatMap(p => [p, ...(PARCIAIS[p] ?? [])]);
   const vistos = new Map();
@@ -235,7 +280,7 @@ for (const [ficha, partes] of Object.entries(FICHAS)) {
 
 console.log(
   problemas === 0
-    ? "✅ Fichas consistentes: todos os campos existem no schema e nenhum está duplicado."
+    ? "OK    Fichas consistentes: todos os campos existem no schema e nenhum está duplicado."
     : `\n${problemas} problema(s) encontrado(s).`
 );
 process.exit(problemas ? 1 : 0);

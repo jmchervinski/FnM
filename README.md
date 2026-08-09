@@ -158,8 +158,13 @@ Foundry valida o submit inteiro de uma vez. Um único campo inválido faz ele de
 2. o mesmo `name=` repetido em duas partes — o `FormDataExtended` devolve um array em vez
    de um escalar e a validação reprova.
 
-Ele também valida os nomes de ícone contra a lista do **Font Awesome 6 Free**: um ícone
-exclusivo do Pro, renomeado ou digitado errado renderiza como quadrado vazio na ficha.
+Ele valida ainda mais duas coisas:
+
+- os **nomes de ícone** contra a lista do Font Awesome 6 Free — um ícone exclusivo do Pro,
+  renomeado ou digitado errado renderiza como quadrado vazio na ficha;
+- a **ausência de emoji** no código, nos templates e no CSS. O sistema não usa emoji:
+  ícones vêm do Font Awesome e a ênfase vem de `<b>`. Emoji dependem da fonte do sistema
+  operacional e viram quadrado vazio quando a pilha de fontes não tem um fallback colorido.
 
 Rode-o sempre que mexer em templates, schemas ou ícones.
 
