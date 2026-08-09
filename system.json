@@ -70,6 +70,15 @@
       "flags": {}
     },
     {
+      "name": "fnm-habilidades",
+      "label": "F&M: Habilidades de Especialização",
+      "system": "fnm",
+      "path": "packs/fnm-habilidades",
+      "type": "Item",
+      "ownership": { "PLAYER": "OBSERVER", "ASSISTANT": "OWNER" },
+      "flags": {}
+    },
+    {
       "name": "fnm-aptidoes",
       "label": "F&M: Aptidões Amaldiçoadas",
       "system": "fnm",
@@ -113,6 +122,7 @@
       "packs": [
         "fnm-origens",
         "fnm-especializacoes",
+        "fnm-habilidades",
         "fnm-aptidoes",
         "fnm-armas",
         "fnm-regras",

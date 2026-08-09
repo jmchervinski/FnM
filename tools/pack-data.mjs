@@ -6,7 +6,22 @@
  * inteiro: veja o README para o que já está incluído e o que falta.
  */
 import crypto from "node:crypto";
+import fs from "node:fs";
+import path from "node:path";
 import { FNM } from "../module/config.mjs";
+
+/**
+ * Habilidades de Especialização, transcritas do capítulo 4 do Livro de Regras
+ * v2.5.2 por tools/extrai-habilidades.py. Cada entrada traz o nível em que a
+ * habilidade fica disponível e se ela é uma Habilidade Base (recebida
+ * automaticamente) ou uma habilidade escolhida da lista da especialização.
+ */
+const HABILIDADES_ESPEC = JSON.parse(
+  fs.readFileSync(
+    path.join(import.meta.dirname, "dados/habilidades-especializacao.json"),
+    "utf8"
+  )
+);
 
 /**
  * IDs determinísticos derivados do nome: o mesmo item mantém o mesmo _id entre
@@ -496,6 +511,36 @@ export const PACKS = {
         ajustes: { ...semAjustes }
       }
     }))
+  },
+
+  "fnm-habilidades": {
+    // Uma pasta por especialização, para navegar as 364 habilidades
+    folders: HABILIDADES_ESPEC.map((e, i) => ({
+      _id: id(`pasta-hab-${e.chave}`),
+      name: e.nome,
+      sort: (i + 1) * 100
+    })),
+    items: HABILIDADES_ESPEC.flatMap(e =>
+      e.habilidades.map(h => ({
+        _id: id(`hab-${e.chave}-${h.nome}`),
+        name: h.nome,
+        type: "habilidade",
+        img: h.base ? "icons/svg/upgrade.svg" : "icons/svg/book.svg",
+        folder: id(`pasta-hab-${e.chave}`),
+        system: {
+          description:
+            `<p><i>${e.nome} — ${h.base ? "Habilidade Base" : "Habilidade de Especialização"}` +
+            `, ${h.nivel}º nível.</i></p>` +
+            h.descricao,
+          especializacao: e.nome,
+          nivelRequerido: h.nivel,
+          custoPE: 0,
+          acao: "",
+          usos: { value: 0, max: 0 },
+          ajustes: { ...semAjustes }
+        }
+      }))
+    )
   },
 
   "fnm-armas": {

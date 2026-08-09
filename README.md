@@ -105,6 +105,7 @@ A ficha do sistema segue o layout do arquivo oficial, campo a campo:
 | --- | --- |
 | **Origens** | As 7 origens e as 4 heranças de clã |
 | **Especializações** | As 6 especializações, com PV, PE, treinamentos e habilidades base |
+| **Habilidades de Especialização** | As 364 habilidades do capítulo 4, em uma pasta por especialização, com o nível de cada uma |
 | **Aptidões Amaldiçoadas** | Amostra transcrita das Aptidões de Aura |
 | **Armas e Equipamentos** | A tabela completa de Armas Simples, a Distância e de Arremesso |
 | **Referência de Regras** | Diário com testes e CDs, ações em combate, condições, tipos de dano, tabelas de criação de Feitiços, alma, morte, exaustão e descansos |
@@ -117,7 +118,6 @@ A ficha do sistema segue o layout do arquivo oficial, campo a campo:
 O livro tem 369 páginas. O **motor de regras está completo** para o uso de mesa, mas os
 compêndios são uma semente. Ainda não foram transcritos:
 
-- As **habilidades de especialização** nível a nível (capítulo 4, p. 49-128)
 - A maior parte das **Aptidões Amaldiçoadas** — só as de Aura foram transcritas (capítulo 8)
 - Os **Talentos** gerais e de origem (capítulo 7)
 - As tabelas de **Armas Complexas**, uniformes, escudos e kits de ferramentas (capítulos 5 e 6)
@@ -169,7 +169,21 @@ Ele valida ainda mais duas coisas:
 Rode-o sempre que mexer em templates, schemas ou ícones.
 
 `tools/build-packs.mjs` lê `tools/pack-data.mjs` e gera os compêndios LevelDB em `packs/`
-usando a CLI oficial do Foundry. Os `_id` são derivados do nome por hash, então permanecem
+usando a CLI oficial do Foundry.
+
+As Habilidades de Especialização vêm de `tools/dados/habilidades-especializacao.json`,
+gerado por `tools/extrai-habilidades.py` a partir do texto do livro. O JSON é versionado,
+então só é preciso rodar o extrator para atualizar as regras:
+
+```bash
+pdftotext -layout -enc UTF-8 "Livro de Regras v2.5.2.pdf" fnm.txt
+python tools/extrai-habilidades.py fnm.txt
+npm run build:packs
+```
+
+O capítulo 4 é diagramado em duas colunas, e o extrator detecta a calha entre elas para
+separar o texto. As faixas de página estão no topo do script; se a paginação mudar em uma
+versão futura do livro, ajuste-as. Os `_id` são derivados do nome por hash, então permanecem
 estáveis entre builds — links de compêndio nos mundos não quebram.
 
 ```
