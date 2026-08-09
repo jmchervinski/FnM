@@ -19,8 +19,12 @@ export class FnmBaseActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) 
       rolarPericia: FnmBaseActorSheet.onRolarPericia,
       rolarResistencia: FnmBaseActorSheet.onRolarResistencia,
       rolarAtributo: FnmBaseActorSheet.onRolarAtributo,
+      rolarOficio: FnmBaseActorSheet.onRolarOficio,
+      rolarAtaqueBase: FnmBaseActorSheet.onRolarAtaqueBase,
       rolarDesarmado: FnmBaseActorSheet.onRolarDesarmado,
       rolarIniciativa: FnmBaseActorSheet.onRolarIniciativa,
+      gastarUso: FnmBaseActorSheet.onGastarUso,
+      recuperarUso: FnmBaseActorSheet.onRecuperarUso,
       atacarArma: FnmBaseActorSheet.onAtacarArma,
       danoArma: FnmBaseActorSheet.onDanoArma,
       conjurarFeitico: FnmBaseActorSheet.onConjurarFeitico,
@@ -134,8 +138,32 @@ export class FnmBaseActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) 
     await this.actor.rolarAtributo(target.dataset.atributo);
   }
 
+  static async onRolarOficio(event, target) {
+    await this.actor.rolarOficio(Number(target.dataset.idx));
+  }
+
+  static async onRolarAtaqueBase(event, target) {
+    await this.actor.rolarAtaqueBase(target.dataset.ataque);
+  }
+
   static async onRolarDesarmado() {
     await this.actor.rolarDesarmado();
+  }
+
+  /** Consome um uso de uma habilidade/talento/aptidão (colunas Atual/Máx.). */
+  static async onGastarUso(event, target) {
+    const item = this.#itemDe(target);
+    if (!item?.system?.usos) return;
+    const atual = item.system.usos.value;
+    if (atual <= 0) return ui.notifications.warn(`${item.name} não tem usos restantes.`);
+    await item.update({ "system.usos.value": atual - 1 });
+  }
+
+  static async onRecuperarUso(event, target) {
+    const item = this.#itemDe(target);
+    if (!item?.system?.usos) return;
+    const { value, max } = item.system.usos;
+    await item.update({ "system.usos.value": Math.min(max, value + 1) });
   }
 
   static async onRolarIniciativa() {

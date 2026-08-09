@@ -54,6 +54,8 @@
       <label>Nível requerido <input type="number" name="system.nivelRequerido" value="{{system.nivelRequerido}}" min="1" max="20" /></label>
       <label>Custo em PE <input type="number" name="system.custoPE" value="{{system.custoPE}}" min="0" /></label>
       <label>Ação <input type="text" name="system.acao" value="{{system.acao}}" placeholder="Ação Comum, Reação…" /></label>
+      <label title="Usos restantes">Usos — Atual <input type="number" name="system.usos.value" value="{{system.usos.value}}" min="0" /></label>
+      <label title="0 = uso ilimitado">Usos — Máx. <input type="number" name="system.usos.max" value="{{system.usos.max}}" min="0" /></label>
     </div>
     {{/if}}
 
@@ -65,6 +67,9 @@
           <option value="Origem" {{#if (eq system.categoria "Origem")}}selected{{/if}}>Origem</option>
         </select>
       </label>
+      <label>Custo em PE <input type="number" name="system.custoPE" value="{{system.custoPE}}" min="0" /></label>
+      <label title="Usos restantes">Usos — Atual <input type="number" name="system.usos.value" value="{{system.usos.value}}" min="0" /></label>
+      <label title="0 = uso ilimitado">Usos — Máx. <input type="number" name="system.usos.max" value="{{system.usos.max}}" min="0" /></label>
       <label class="largo">Pré-requisito
         <input type="text" name="system.prerequisito" value="{{system.prerequisito}}" placeholder="Ex.: Força 16, nível 4" />
       </label>
@@ -93,6 +98,8 @@
       </label>
       <label>Custo em PE <input type="number" name="system.custoPE" value="{{system.custoPE}}" min="0" /></label>
       <label>Ação <input type="text" name="system.acao" value="{{system.acao}}" /></label>
+      <label title="Usos restantes">Usos — Atual <input type="number" name="system.usos.value" value="{{system.usos.value}}" min="0" /></label>
+      <label title="0 = uso ilimitado">Usos — Máx. <input type="number" name="system.usos.max" value="{{system.usos.max}}" min="0" /></label>
       <label class="largo">Pré-requisito
         <input type="text" name="system.prerequisito" value="{{system.prerequisito}}" placeholder="Ex.: Presença 16 e Nível 8" />
       </label>
@@ -269,6 +276,8 @@
       <label>Bônus de ataque <input type="number" name="system.bonusAtaque" value="{{system.bonusAtaque}}" step="1" /></label>
       <label>Bônus de dano <input type="number" name="system.bonusDano" value="{{system.bonusDano}}" step="1" /></label>
       <label>Quantidade <input type="number" name="system.quantidade" value="{{system.quantidade}}" min="0" /></label>
+      <label>Peso (kg) <input type="number" name="system.peso" value="{{system.peso}}" min="0" step="0.1" /></label>
+      <label>Preço <input type="text" name="system.preco" value="{{system.preco}}" /></label>
       <label class="largo">Propriedades
         <input type="text" name="system.propriedades" value="{{system.propriedades}}"
                placeholder="Fineza, leve, marcial, versátil…" />
@@ -307,6 +316,8 @@
       <label>Espaços <input type="number" name="system.espacos" value="{{system.espacos}}" min="0" /></label>
       <label>Custo <input type="number" name="system.custo" value="{{system.custo}}" min="0" /></label>
       <label>Quantidade <input type="number" name="system.quantidade" value="{{system.quantidade}}" min="0" /></label>
+      <label>Peso (kg) <input type="number" name="system.peso" value="{{system.peso}}" min="0" step="0.1" /></label>
+      <label>Preço <input type="text" name="system.preco" value="{{system.preco}}" /></label>
       <label class="checkbox">
         <input type="checkbox" name="system.equipado" {{#if system.equipado}}checked{{/if}} /> Equipado
       </label>

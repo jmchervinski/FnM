@@ -68,9 +68,12 @@
   <div class="colunas">
     <fieldset class="bloco">
       <legend>Nível &amp; Experiência</legend>
+      {{!-- Nível e Experiência são editados no cabeçalho. Repetir os campos aqui
+            colocaria dois inputs com o mesmo name no mesmo formulário, o que
+            invalidaria o submit inteiro da ficha. --}}
       <div class="perfil-grid">
-        <label>Nível <input type="number" name="system.detalhes.nivel" value="{{system.detalhes.nivel}}" min="1" max="20" /></label>
-        <label>Experiência <input type="number" name="system.detalhes.experiencia" value="{{system.detalhes.experiencia}}" min="0" /></label>
+        <label>Nível atual <span class="valor-somente-leitura">{{system.detalhes.nivel}}</span></label>
+        <label>Experiência <span class="valor-somente-leitura">{{system.detalhes.experiencia}}</span></label>
       </div>
       <button type="button" data-action="subirNivel">⬆️ Subir de Nível</button>
       <p class="dica">
@@ -78,31 +81,11 @@
       </p>
     </fieldset>
 
-    <fieldset class="bloco">
-      <legend>Dados de Vida</legend>
-      <p class="dica">Um Dado de Vida por nível, do tamanho da especialização daquele nível (p. 20).</p>
-      <ol class="dados-vida-lista">
-        {{#each dadosVidaView as |d|}}
-        <li class="dado-vida-linha">
-          <input type="text" name="system.dadosVida.{{d.idx}}.dado" value="{{d.dado}}" placeholder="d8" />
-          <label>Total <input type="number" name="system.dadosVida.{{d.idx}}.total" value="{{d.total}}" min="0" /></label>
-          <label>Gastos <input type="number" name="system.dadosVida.{{d.idx}}.gastos" value="{{d.gastos}}" min="0" /></label>
-          <span class="restantes">{{d.restantes}} disponíveis</span>
-          <a class="mini-btn" data-action="removerDadoVida" data-idx="{{d.idx}}" title="Remover"><i class="fas fa-trash"></i></a>
-        </li>
-        {{/each}}
-      </ol>
-      <button type="button" data-action="adicionarDadoVida"><i class="fas fa-plus"></i> Adicionar tipo de Dado de Vida</button>
-    </fieldset>
+
   </div>
 
-  {{!-- Habilidades de Especialização e Talentos --}}
-  <div class="colunas">
-    <fieldset class="bloco">
-      {{> "systems/fnm/templates/actors/parts/actor-itens.html" titulo="Habilidades de Especialização" tipo="habilidade" itens=itens.habilidade}}
-    </fieldset>
-    <fieldset class="bloco">
-      {{> "systems/fnm/templates/actors/parts/actor-itens.html" titulo="Talentos" tipo="talento" itens=itens.talento}}
-    </fieldset>
-  </div>
+  <p class="dica">
+    As <b>Habilidades de Especialização</b> e os <b>Talentos</b> ficam na aba
+    <b>Ficha Pessoal</b>, no quadro "Habilidades e Talentos", com o contador de usos.
+  </p>
 </div>

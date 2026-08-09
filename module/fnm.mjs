@@ -151,7 +151,8 @@ async function preloadHandlebarsTemplates() {
     "systems/fnm/templates/actors/parts/actor-itens.html",
     "systems/fnm/templates/actors/parts/actor-recursos.html",
     "systems/fnm/templates/actors/parts/actor-atributos.html",
-    "systems/fnm/templates/actors/parts/actor-footer.html"
+    "systems/fnm/templates/actors/parts/actor-footer.html",
+    "systems/fnm/templates/actors/parts/linha-uso.html"
   ];
   return foundry.applications.handlebars.loadTemplates(paths);
 }

@@ -35,12 +35,52 @@
         <span class="col-attr">{{p.abrevAtributo}}</span>
         <span class="col-total">{{sinal p.total}}</span>
         <input class="col-outros" type="number" name="system.pericias.{{p.key}}.outros" value="{{p.outros}}" step="1" />
-        {{#if p.temSubcategoria}}
-        <input class="col-especialidade" type="text" name="system.pericias.{{p.key}}.especialidade"
-               value="{{p.especialidade}}" placeholder="Ferreiro, Alfaiate…" title="Subcategoria de Ofício" />
-        {{/if}}
       </li>
       {{/each}}
     </ol>
   </fieldset>
+
+  {{!-- A ficha oficial traz três linhas de Ofício. Esta parte é compartilhada
+        com a ficha de NPC, que não tem o campo, por isso o guard. --}}
+  {{#if ehPersonagem}}
+  {{#if oficiosView}}
+  <fieldset class="bloco pericias-bloco">
+    <legend>Ofícios</legend>
+    <div class="pericias-cabecalho">
+      <span class="col-prof">T / M</span>
+      <span class="col-nome">Subcategoria</span>
+      <span class="col-attr">Attr</span>
+      <span class="col-total">Bônus</span>
+      <span class="col-outros">Outros</span>
+    </div>
+    <ol class="pericias-lista">
+      {{#each oficiosView as |o|}}
+      <li class="pericia-linha">
+        <span class="col-prof">
+          <input type="checkbox" name="system.oficios.{{o.idx}}.treinado" {{#if o.treinado}}checked{{/if}} title="Treinado" />
+          <input type="checkbox" name="system.oficios.{{o.idx}}.mestre" {{#if o.mestre}}checked{{/if}} title="Mestre" />
+        </span>
+        <span class="col-nome oficio-nome">
+          <a data-action="rolarOficio" data-idx="{{o.idx}}" title="Rolar Ofício">Ofício</a>
+          <input type="text" name="system.oficios.{{o.idx}}.especialidade" value="{{o.especialidade}}"
+                 placeholder="Ferreiro, Alfaiate, Alquimia…" />
+        </span>
+        <span class="col-attr">INT</span>
+        <span class="col-total">{{sinal o.total}}</span>
+        <input class="col-outros" type="number" name="system.oficios.{{o.idx}}.outros" value="{{o.outros}}" step="1" />
+        <a class="mini-btn" data-action="removerOficio" data-idx="{{o.idx}}" title="Remover"><i class="fas fa-trash"></i></a>
+      </li>
+      {{/each}}
+    </ol>
+    <button type="button" data-action="adicionarOficio"><i class="fas fa-plus"></i> Adicionar Ofício</button>
+    <p class="dica">Ofício só pode ser usado se você for Treinado, e cada linha exige escolher uma subcategoria (p. 287).</p>
+  </fieldset>
+  {{else}}
+  <fieldset class="bloco">
+    <legend>Ofícios</legend>
+    <p class="vazio">Nenhuma linha de Ofício. A ficha oficial traz três.</p>
+    <button type="button" data-action="adicionarOficio"><i class="fas fa-plus"></i> Adicionar Ofício</button>
+  </fieldset>
+  {{/if}}
+  {{/if}}
 </div>

@@ -9,7 +9,10 @@ export class FnmCharacterSheet extends FnmBaseActorSheet {
     actions: {
       subirNivel: FnmCharacterSheet.onSubirNivel,
       adicionarDadoVida: FnmCharacterSheet.onAdicionarDadoVida,
-      removerDadoVida: FnmCharacterSheet.onRemoverDadoVida
+      removerDadoVida: FnmCharacterSheet.onRemoverDadoVida,
+      adicionarOficio: FnmCharacterSheet.onAdicionarOficio,
+      removerOficio: FnmCharacterSheet.onRemoverOficio,
+      etapaTreinamento: FnmCharacterSheet.onEtapaTreinamento
     }
   };
 
@@ -32,31 +35,32 @@ export class FnmCharacterSheet extends FnmBaseActorSheet {
       template: "systems/fnm/templates/actors/parts/character-feiticos.html",
       scrollable: [""]
     },
-    inventario: {
-      template: "systems/fnm/templates/actors/parts/character-inventario.html",
+    registro: {
+      template: "systems/fnm/templates/actors/parts/character-registro.html",
       scrollable: [""]
     },
     progressao: {
       template: "systems/fnm/templates/actors/parts/character-progressao.html",
       scrollable: [""]
     },
-    conceito: {
-      template: "systems/fnm/templates/actors/parts/character-conceito.html",
+    treinamentos: {
+      template: "systems/fnm/templates/actors/parts/character-treinamentos.html",
       scrollable: [""]
     },
     footer: { template: "systems/fnm/templates/actors/parts/actor-footer.html" }
   };
 
+  /** As abas espelham as páginas do Modelo de Ficha oficial v2.5. */
   static TABS = {
     primary: {
       tabs: [
-        { id: "principal", label: "Principal" },
+        { id: "principal", label: "Ficha Pessoal" },
         { id: "pericias", label: "Perícias" },
         { id: "jujutsu", label: "Perfil Amaldiçoado" },
         { id: "feiticos", label: "Feitiços" },
-        { id: "inventario", label: "Inventário" },
+        { id: "registro", label: "Registro e Inventário" },
         { id: "progressao", label: "Progressão" },
-        { id: "conceito", label: "Conceito" }
+        { id: "treinamentos", label: "Treinamentos" }
       ],
       initial: "principal"
     }
@@ -68,6 +72,8 @@ export class FnmCharacterSheet extends FnmBaseActorSheet {
     const sys = this.actor.system;
 
     context.tabs = this._prepareTabs("primary");
+    // A parte de Perícias é compartilhada com a ficha de NPC, que não tem Ofícios
+    context.ehPersonagem = true;
     context.origens = FNM.origens;
     context.claes = FNM.claes;
     context.graus = FNM.graus;
@@ -92,12 +98,43 @@ export class FnmCharacterSheet extends FnmBaseActorSheet {
       }))
       .filter(g => g.itens.length);
 
-    // Somatório de espaços ocupados no inventário (p. 129)
-    const espacos = [...(context.itens.arma ?? []), ...(context.itens.equipamento ?? [])].reduce(
+    // Somatório de espaços ocupados no inventário, contra o Limite de Espaços (p. 129)
+    const carga = [...(context.itens.arma ?? []), ...(context.itens.equipamento ?? [])];
+    context.espacosOcupados = carga.reduce(
       (n, i) => n + (i.system.espacos ?? 0) * (i.system.quantidade ?? 1),
       0
     );
-    context.espacosOcupados = espacos;
+    context.pesoTotal = carga.reduce(
+      (n, i) => n + (i.system.peso ?? 0) * (i.system.quantidade ?? 1),
+      0
+    );
+    context.limiteEspacos = sys.inventario?.limiteEspacos ?? 0;
+    context.sobrecarregado =
+      context.limiteEspacos > 0 && context.espacosOcupados > context.limiteEspacos;
+
+    // Grade de Redução de Dano por tipo, como no quadro "RDs" da ficha
+    context.rdView = FNM.tiposComRD.map(tipo => ({
+      id: tipo,
+      ...FNM.tiposDano[tipo],
+      valor: sys.combate.rd?.[tipo] ?? 0,
+      total: sys.combate.rdPorTipo?.[tipo] ?? 0
+    }));
+
+    // As três linhas de Jogadas de Ataque
+    context.ataquesView = Object.entries(FNM.tiposAtaque).map(([id, cfg]) => ({
+      id,
+      ...cfg,
+      ...(sys.ataques?.[id] ?? {})
+    }));
+
+    // Linhas de Ofício (a ficha oficial traz três)
+    context.oficiosView = sys.oficiosView ?? [];
+
+    // Treinamentos: 4 etapas por trilha
+    context.treinamentosView = (sys.treinamentosView ?? []).map(t => ({
+      ...t,
+      pips: Array.fromRange(4).map(i => ({ value: i + 1, filled: t.etapas >= i + 1 }))
+    }));
 
     // Dados de Vida, para a aba de Progressão
     context.dadosVidaView = (sys.dadosVida ?? []).map((d, idx) => ({
@@ -123,10 +160,17 @@ export class FnmCharacterSheet extends FnmBaseActorSheet {
         relativeTo: this.actor
       });
 
-    if (partId === "conceito") {
+    if (partId === "registro") {
       context.enrichedBiografia = await enriquecer(this.actor.system.biografia);
+      context.enrichedAparencia = await enriquecer(this.actor.system.aparencia?.descricao);
       context.enrichedDominio = await enriquecer(this.actor.system.aspectos?.dominioInato);
       context.enrichedAnotacoes = await enriquecer(this.actor.system.anotacoes);
+    }
+    if (partId === "jujutsu") {
+      context.enrichedExpansao = await enriquecer(this.actor.system.jujutsu?.expansao?.descricao);
+      context.enrichedTecnicaMaxima = await enriquecer(
+        this.actor.system.jujutsu?.tecnicaMaxima?.descricao
+      );
     }
     return context;
   }
@@ -180,5 +224,28 @@ export class FnmCharacterSheet extends FnmBaseActorSheet {
     const pool = foundry.utils.deepClone(this.actor.system.dadosVida ?? []);
     pool.splice(idx, 1);
     await this.actor.update({ "system.dadosVida": pool });
+  }
+
+  static async onAdicionarOficio() {
+    const lista = foundry.utils.deepClone(this.actor.system.oficios ?? []);
+    lista.push({ especialidade: "", treinado: false, mestre: false, outros: 0 });
+    await this.actor.update({ "system.oficios": lista });
+  }
+
+  static async onRemoverOficio(event, target) {
+    const lista = foundry.utils.deepClone(this.actor.system.oficios ?? []);
+    lista.splice(Number(target.dataset.idx), 1);
+    await this.actor.update({ "system.oficios": lista });
+  }
+
+  /**
+   * Marca as etapas de um treinamento. Clicar na etapa já preenchida mais alta
+   * desmarca até ela − 1, como as trilhas de quadradinhos da ficha oficial.
+   */
+  static async onEtapaTreinamento(event, target) {
+    const id = target.dataset.treinamento;
+    const valor = Number(target.dataset.value);
+    const atual = this.actor.system.treinamentos?.[id] ?? 0;
+    await this.actor.update({ [`system.treinamentos.${id}`]: atual === valor ? valor - 1 : valor });
   }
 }

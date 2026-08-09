@@ -29,13 +29,45 @@ const atributo = (initial = 10) =>
     value: new NumberField({ required: true, integer: true, min: 1, max: 30, initial })
   });
 
-/** Recurso com valor atual, máximo e um ajuste manual somado à fórmula. */
+/**
+ * Recurso no formato da ficha oficial: ATUAIS / PERDIDOS / MÁXIMOS.
+ * `perdidos` reduz o máximo (é o que o Dano na Alma e a Exaustão consomem) e
+ * `ajuste` é o campo livre de homebrew somado à fórmula.
+ */
 const recurso = (max = 0) =>
   new SchemaField({
     value: new NumberField({ required: true, integer: true, initial: max }),
+    perdidos: new NumberField({ required: true, integer: true, min: 0, initial: 0 }),
     max: new NumberField({ required: true, integer: true, min: 0, initial: max }),
     ajuste: new NumberField({ required: true, integer: true, initial: 0 })
   });
+
+/** Grade de Redução de Dano por tipo, como na ficha oficial. */
+const rdSchema = () => {
+  const campos = { geral: new NumberField({ required: true, integer: true, initial: 0 }) };
+  for (const tipo of FNM.tiposComRD) {
+    campos[tipo] = new NumberField({ required: true, integer: true, initial: 0 });
+  }
+  return new SchemaField(campos);
+};
+
+/** As três linhas de Jogadas de Ataque da ficha (corpo a corpo, distância, amaldiçoado). */
+const ataquesSchema = () => {
+  const campos = {};
+  for (const [id, cfg] of Object.entries(FNM.tiposAtaque)) {
+    campos[id] = new SchemaField({
+      treinado: new BooleanField({ required: true, initial: cfg.sempreTreinado === true }),
+      outros: new NumberField({ required: true, integer: true, initial: 0 }),
+      atributo: new StringField({
+        required: true,
+        blank: true,
+        initial: cfg.atributo,
+        choices: ["", ...Object.keys(FNM.atributos)]
+      })
+    });
+  }
+  return new SchemaField(campos);
+};
 
 /** Proficiência de perícia/resistência: treinado, mestre e bônus avulsos. */
 const proficiencia = () =>
@@ -67,6 +99,15 @@ const resistenciasSchema = () => {
   return new SchemaField(campos);
 };
 
+/** Etapas concluídas (0 a 4) de cada um dos onze treinamentos. */
+const treinamentosSchema = () => {
+  const campos = {};
+  for (const t of FNM.treinamentos) {
+    campos[t.id] = new NumberField({ required: true, integer: true, min: 0, max: 4, initial: 0 });
+  }
+  return new SchemaField(campos);
+};
+
 /** Níveis de Aptidão (AU, CL, BAR, DOM, ER), de 0 a 5. */
 const aptidoesSchema = () => {
   const campos = {};
@@ -95,12 +136,15 @@ class BaseActorModel extends foundry.abstract.TypeDataModel {
         pv: recurso(10),
         pvTemporario: new NumberField({ required: true, integer: true, min: 0, initial: 0 }),
         pe: recurso(0),
+        peTemporario: new NumberField({ required: true, integer: true, min: 0, initial: 0 }),
         estamina: recurso(0),
         integridade: recurso(10)
       }),
       pericias: periciasSchema(),
       resistencias: resistenciasSchema(),
       combate: new SchemaField({
+        // Decomposição da Defesa como na ficha: Base 10 + Equip. + Destreza + Nível/2 + Outros
+        defesaEquip: new NumberField({ required: true, integer: true, initial: 0 }),
         defesaOutros: new NumberField({ required: true, integer: true, initial: 0 }),
         // NPCs de livro trazem Defesa fixa; quando > 0 e valoresManuais estiver
         // ligado, este valor substitui a fórmula 10 + DES + metade do nível.
@@ -109,8 +153,9 @@ class BaseActorModel extends foundry.abstract.TypeDataModel {
         atencaoOutros: new NumberField({ required: true, integer: true, initial: 0 }),
         deslocamento: new NumberField({ required: true, min: 0, initial: 9 }),
         deslocamentoExtra: new StringField({ required: true, blank: true }),
-        reducaoDano: new NumberField({ required: true, integer: true, min: 0, initial: 0 })
+        rd: rdSchema()
       }),
+      ataques: ataquesSchema(),
       // Exaustão de 0 a 6 (p. 324). O nível 6 é morte.
       exaustao: new NumberField({ required: true, integer: true, min: 0, max: 6, initial: 0 }),
       // Portas da Morte (p. 313)
@@ -204,6 +249,7 @@ class BaseActorModel extends foundry.abstract.TypeDataModel {
       10 +
       this.atributos.destreza.mod +
       metadeNivel(nivel) +
+      c.defesaEquip +
       c.defesaOutros +
       itens.defesa +
       this.penalidadeGlobal;
@@ -213,7 +259,12 @@ class BaseActorModel extends foundry.abstract.TypeDataModel {
 
     c.iniciativa = this.atributos.destreza.mod + c.iniciativaOutros + this.penalidadeGlobal;
 
-    c.reducaoDanoTotal = c.reducaoDano + itens.reducaoDano;
+    // RD geral (somando equipamentos) e a grade por tipo de dano
+    c.reducaoDanoTotal = c.rd.geral + itens.reducaoDano;
+    c.rdPorTipo = {};
+    for (const tipo of FNM.tiposComRD) {
+      c.rdPorTipo[tipo] = c.reducaoDanoTotal + (c.rd[tipo] ?? 0);
+    }
 
     // Cada nível de exaustão reduz 1,5 m de deslocamento (p. 324)
     c.deslocamentoAtual = Math.max(
@@ -223,11 +274,38 @@ class BaseActorModel extends foundry.abstract.TypeDataModel {
   }
 
   /**
+   * As três Jogadas de Ataque da ficha: atributo + metade do nível +
+   * Bônus de Treinamento (se treinado) + outros (p. 279).
+   */
+  _prepararAtaques() {
+    const metade = metadeNivel(this.nivel);
+    const bt = bonusTreinamento(this.nivel);
+    this.ataquesView = {};
+    for (const [id, cfg] of Object.entries(FNM.tiposAtaque)) {
+      const a = this.ataques[id];
+      // O Ataque Amaldiçoado segue o atributo da técnica, salvo escolha explícita
+      const padrao =
+        id === "amaldicoado" ? this.jujutsu?.atributoTecnica || cfg.atributo : cfg.atributo;
+      const chave = a.atributo || padrao;
+      const mod = this.atributos[chave]?.mod ?? 0;
+      a.nome = cfg.nome;
+      a.modAtributo = mod;
+      a.total = mod + metade + (a.treinado ? bt : 0) + a.outros + this.penalidadeGlobal;
+      this.ataquesView[id] = a;
+    }
+  }
+
+  /**
    * Estado da Alma derivado da Integridade (p. 312). A Integridade máxima é
    * sempre igual ao máximo de Pontos de Vida.
    */
   _prepararAlma() {
-    this.recursos.integridade.max = Math.max(0, this.recursos.pv.max);
+    // Integridade máxima acompanha o máximo de PV (p. 19), descontando o que
+    // tiver sido perdido só na alma.
+    this.recursos.integridade.max = Math.max(
+      0,
+      this.recursos.pv.max - this.recursos.integridade.perdidos
+    );
     const estado = estadoDaAlma(this.recursos.integridade.value, this.recursos.integridade.max);
     this.alma = {
       estado: estado.nome,
@@ -277,6 +355,7 @@ class BaseActorModel extends foundry.abstract.TypeDataModel {
     // Percepção precisa estar pronta antes da Atenção
     this._prepararTestes();
     this._prepararCombate();
+    this._prepararAtaques();
     this._prepararEstado();
 
     // Valores que todas as fichas exibem, inclusive as que não têm jujutsu
@@ -318,6 +397,7 @@ export class CharacterDataModel extends BaseActorModel {
         cla: new StringField({ required: true, blank: true }),
         idade: new NumberField({ required: true, integer: true, min: 0, initial: 16 }),
         escola: new StringField({ required: true, blank: true }),
+        campanha: new StringField({ required: true, blank: true }),
         jogador: new StringField({ required: true, blank: true }),
         // Atributo escolhido na criação para ganhar perícias extras (p. 283)
         atributoPericias: new StringField({
@@ -341,9 +421,42 @@ export class CharacterDataModel extends BaseActorModel {
           initial: "forca",
           choices: ["", ...Object.keys(FNM.atributos)]
         }),
+        // A ficha traz duas caixas de CD com a mesma fórmula, permitindo bônus
+        // distintos: CD Técnica (Feitiços) e CD Amaldiçoada (Aptidões).
+        cdTecnicaOutros: new NumberField({ required: true, integer: true, initial: 0 }),
         cdOutros: new NumberField({ required: true, integer: true, initial: 0 }),
-        aptidoes: aptidoesSchema()
+        aptidoes: aptidoesSchema(),
+        // Expansão de Domínio e Técnica Máxima, da página Perfil Amaldiçoado
+        expansao: new SchemaField({
+          nome: new StringField({ required: true, blank: true }),
+          tipo: new StringField({ required: true, blank: true }),
+          descricao: new HTMLField({ required: true, blank: true })
+        }),
+        tecnicaMaxima: new SchemaField({
+          nome: new StringField({ required: true, blank: true }),
+          descricao: new HTMLField({ required: true, blank: true })
+        })
       }),
+      // Fontes de PV extra listadas na ficha oficial (quadro "EXTRA")
+      pvExtra: new SchemaField({
+        kamo: new NumberField({ required: true, integer: true, initial: 0 }),
+        robustez: new NumberField({ required: true, integer: true, initial: 0 }),
+        descontoExaustao: new NumberField({ required: true, integer: true, initial: 0 }),
+        vigorInfinito: new NumberField({ required: true, integer: true, initial: 0 }),
+        outros: new NumberField({ required: true, integer: true, initial: 0 })
+      }),
+      // A ficha traz três linhas de Ofício, cada uma com sua subcategoria
+      oficios: new ArrayField(
+        new SchemaField({
+          especialidade: new StringField({ required: true, blank: true }),
+          treinado: new BooleanField({ required: true, initial: false }),
+          mestre: new BooleanField({ required: true, initial: false }),
+          outros: new NumberField({ required: true, integer: true, initial: 0 })
+        }),
+        { required: true, initial: [] }
+      ),
+      // Página "Treinamentos": 4 etapas por treinamento
+      treinamentos: treinamentosSchema(),
       // Dados de Vida gastos/disponíveis por tamanho de dado (p. 20, 335)
       dadosVida: new ArrayField(
         new SchemaField({
@@ -360,6 +473,22 @@ export class CharacterDataModel extends BaseActorModel {
         ligacoes: new StringField({ required: true, blank: true }),
         complicacoes: new StringField({ required: true, blank: true }),
         dominioInato: new HTMLField({ required: true, blank: true })
+      }),
+      // Bloco "Aparência" da página Registro e Inventário
+      aparencia: new SchemaField({
+        altura: new StringField({ required: true, blank: true }),
+        peso: new StringField({ required: true, blank: true }),
+        genero: new StringField({ required: true, blank: true }),
+        cabelos: new StringField({ required: true, blank: true }),
+        olhos: new StringField({ required: true, blank: true }),
+        pele: new StringField({ required: true, blank: true }),
+        roupas: new StringField({ required: true, blank: true }),
+        marca: new StringField({ required: true, blank: true }),
+        descricao: new HTMLField({ required: true, blank: true })
+      }),
+      inventario: new SchemaField({
+        // A ficha oficial parte de um Limite de Espaços igual a 8
+        limiteEspacos: new NumberField({ required: true, integer: true, min: 0, initial: 8 })
       }),
       anotacoes: new HTMLField({ required: true, blank: true })
     };
@@ -434,14 +563,30 @@ export class CharacterDataModel extends BaseActorModel {
 
     const totais = this._somarEspecializacoes();
     const aj = this.ajustesItens;
-    this.recursos.pv.max = Math.max(1, totais.pv + aj.pv + this.recursos.pv.ajuste);
-    this.recursos.pe.max = Math.max(0, totais.pe + aj.pe + this.recursos.pe.ajuste);
-    this.recursos.estamina.max = Math.max(0, totais.estamina + this.recursos.estamina.ajuste);
+
+    // Quadro "EXTRA" da ficha: fontes avulsas de PV máximo
+    const extra = Object.values(this.pvExtra).reduce((n, v) => n + v, 0);
+    this.pvExtraTotal = extra;
+
+    // MÁXIMOS = derivado + extras + ajuste − PERDIDOS (coluna da ficha oficial)
+    this.recursos.pv.max = Math.max(
+      1,
+      totais.pv + extra + aj.pv + this.recursos.pv.ajuste - this.recursos.pv.perdidos
+    );
+    this.recursos.pe.max = Math.max(
+      0,
+      totais.pe + aj.pe + this.recursos.pe.ajuste - this.recursos.pe.perdidos
+    );
+    this.recursos.estamina.max = Math.max(
+      0,
+      totais.estamina + this.recursos.estamina.ajuste - this.recursos.estamina.perdidos
+    );
 
     this._prepararAlma();
     this._prepararPenalidades();
     this._prepararTestes();
     this._prepararCombate();
+    this._prepararAtaques();
     this._prepararEstado();
 
     // Valores de jujutsu (p. 198): CDs de técnica e de especialização
@@ -452,14 +597,36 @@ export class CharacterDataModel extends BaseActorModel {
 
     this.bonusTreinamento = bt;
     this.metadeNivel = metade;
-    this.cdAmaldicoada = 10 + metade + modTecnica + bt + this.jujutsu.cdOutros + this.penalidadeGlobal;
+    // As duas caixas de CD da ficha compartilham a fórmula e diferem só nos "Outros"
+    const cdBase = 10 + metade + modTecnica + bt + this.penalidadeGlobal;
+    this.cdTecnica = cdBase + this.jujutsu.cdTecnicaOutros;
+    this.cdAmaldicoada = cdBase + this.jujutsu.cdOutros;
     this.cdEspecializacao = 10 + metade + modEspec + bt + this.penalidadeGlobal;
 
     // Ataque Amaldiçoado: sempre treinado (p. 279)
-    this.ataqueAmaldicoado = modTecnica + metade + bt + this.penalidadeGlobal;
+    this.ataqueAmaldicoado = this.ataques.amaldicoado.total;
 
     this.danoDesarmado = this.ehLutador ? danoDesarmadoLutador(this.nivel) : danoDesarmado(this.nivel);
     this.niveisFeiticoDisponiveis = feiticosAcessiveis(this.nivel);
+
+    // Linhas de Ofício: mesmo cálculo das demais perícias (atributo Inteligência)
+    this.oficiosView = (this.oficios ?? []).map((o, idx) => ({
+      idx,
+      ...o,
+      total:
+        this.atributos.inteligencia.mod +
+        metade +
+        bonusProficiencia(this.nivel, o) +
+        o.outros +
+        this.penalidadeGlobal
+    }));
+
+    // Treinamentos: 4 etapas concluídas liberam o Treinamento Completo
+    this.treinamentosView = FNM.treinamentos.map(t => ({
+      ...t,
+      etapas: this.treinamentos?.[t.id] ?? 0,
+      concluido: (this.treinamentos?.[t.id] ?? 0) >= 4
+    }));
 
     // Perícias adicionais concedidas pelo atributo escolhido na criação (p. 283)
     this.periciasExtras = Math.max(0, this.atributos[this.detalhes.atributoPericias]?.mod ?? 0);
@@ -577,6 +744,13 @@ export class InvocacaoDataModel extends BaseActorModel {
 /*  Base comum aos itens                        */
 /* -------------------------------------------- */
 
+/** Contador de usos "Atual / Máx." das listas de habilidades da ficha oficial. */
+const usosSchema = () =>
+  new SchemaField({
+    value: new NumberField({ required: true, integer: true, min: 0, initial: 0 }),
+    max: new NumberField({ required: true, integer: true, min: 0, initial: 0 })
+  });
+
 class BaseItemModel extends foundry.abstract.TypeDataModel {
   static defineSchema() {
     return {
@@ -637,7 +811,9 @@ export class HabilidadeDataModel extends BaseItemModel {
       especializacao: new StringField({ required: true, blank: true }),
       nivelRequerido: new NumberField({ required: true, integer: true, min: 1, max: 20, initial: 1 }),
       custoPE: new NumberField({ required: true, integer: true, min: 0, initial: 0 }),
-      acao: new StringField({ required: true, blank: true })
+      acao: new StringField({ required: true, blank: true }),
+      // Colunas "Atual / Máx." da lista de Habilidades e Talentos da ficha
+      usos: usosSchema()
     };
   }
 }
@@ -651,7 +827,9 @@ export class TalentoDataModel extends BaseItemModel {
         initial: "Geral",
         choices: ["Geral", "Origem"]
       }),
-      prerequisito: new StringField({ required: true, blank: true })
+      prerequisito: new StringField({ required: true, blank: true }),
+      custoPE: new NumberField({ required: true, integer: true, min: 0, initial: 0 }),
+      usos: usosSchema()
     };
   }
 }
@@ -674,7 +852,8 @@ export class AptidaoDataModel extends BaseItemModel {
       nivelAptidao: new NumberField({ required: true, integer: true, min: 0, max: 5, initial: 0 }),
       prerequisito: new StringField({ required: true, blank: true }),
       custoPE: new NumberField({ required: true, integer: true, min: 0, initial: 0 }),
-      acao: new StringField({ required: true, blank: true })
+      acao: new StringField({ required: true, blank: true }),
+      usos: usosSchema()
     };
   }
 }
@@ -799,7 +978,10 @@ export class ArmaDataModel extends BaseItemModel {
       equipada: new BooleanField({ required: true, initial: false }),
       bonusAtaque: new NumberField({ required: true, integer: true, initial: 0 }),
       bonusDano: new NumberField({ required: true, integer: true, initial: 0 }),
-      quantidade: new NumberField({ required: true, integer: true, min: 0, initial: 1 })
+      quantidade: new NumberField({ required: true, integer: true, min: 0, initial: 1 }),
+      // Colunas PESO e PREÇO do inventário da ficha oficial
+      peso: new NumberField({ required: true, min: 0, initial: 0 }),
+      preco: new StringField({ required: true, blank: true })
     };
   }
 }
@@ -813,7 +995,9 @@ export class EquipamentoDataModel extends BaseItemModel {
       espacos: new NumberField({ required: true, integer: true, min: 0, initial: 1 }),
       custo: new NumberField({ required: true, integer: true, min: 0, initial: 1 }),
       quantidade: new NumberField({ required: true, integer: true, min: 0, initial: 1 }),
-      equipado: new BooleanField({ required: true, initial: false })
+      equipado: new BooleanField({ required: true, initial: false }),
+      peso: new NumberField({ required: true, min: 0, initial: 0 }),
+      preco: new StringField({ required: true, blank: true })
     };
   }
 }

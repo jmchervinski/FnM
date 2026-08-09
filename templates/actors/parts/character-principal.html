@@ -5,16 +5,109 @@
     {{> "systems/fnm/templates/actors/parts/actor-recursos.html"}}
   </div>
 
+  {{!-- Quadro "EXTRA" da ficha: fontes avulsas de PV máximo --}}
+  <fieldset class="bloco pv-extra-bloco">
+    <legend>PV Extra <span class="soma">(total {{sinal system.pvExtraTotal}})</span></legend>
+    <div class="campos-grid">
+      <label title="Valor do Sangue, do Clã Kamo">Kamo
+        <input type="number" name="system.pvExtra.kamo" value="{{system.pvExtra.kamo}}" step="1" /></label>
+      <label>Robustez
+        <input type="number" name="system.pvExtra.robustez" value="{{system.pvExtra.robustez}}" step="1" /></label>
+      <label title="Perda de PV máximo causada pela Exaustão (use valor negativo)">Desc. Exaustão
+        <input type="number" name="system.pvExtra.descontoExaustao" value="{{system.pvExtra.descontoExaustao}}" step="1" /></label>
+      <label>Vigor Infinito
+        <input type="number" name="system.pvExtra.vigorInfinito" value="{{system.pvExtra.vigorInfinito}}" step="1" /></label>
+      <label>Outros
+        <input type="number" name="system.pvExtra.outros" value="{{system.pvExtra.outros}}" step="1" /></label>
+      <label title="Ajuste livre somado ao máximo de PE">PE máx. ±
+        <input type="number" name="system.recursos.pe.ajuste" value="{{system.recursos.pe.ajuste}}" step="1" /></label>
+    </div>
+  </fieldset>
+
+  {{!-- Defesa, Atenção, Iniciativa e Deslocamento, com a decomposição da ficha --}}
+  <div class="colunas">
+    <fieldset class="bloco defesa-bloco">
+      <legend>Defesa <span class="valor-destaque">{{system.combate.defesa}}</span></legend>
+      <div class="decomposicao">
+        <span>Base <b>10</b></span>
+        <span>Destreza <b>{{sinal system.atributos.destreza.mod}}</b></span>
+        <span>Nível/2 <b>{{sinal system.metadeNivel}}</b></span>
+      </div>
+      <div class="campos-grid">
+        <label>Equip.
+          <input type="number" name="system.combate.defesaEquip" value="{{system.combate.defesaEquip}}" step="1" /></label>
+        <label>Outros
+          <input type="number" name="system.combate.defesaOutros" value="{{system.combate.defesaOutros}}" step="1" /></label>
+      </div>
+
+      <div class="derivados-linha">
+        <div class="derivado-caixa">
+          <span class="rotulo">Atenção</span>
+          <span class="valor">{{system.combate.atencao}}</span>
+          <label>Outros <input type="number" name="system.combate.atencaoOutros" value="{{system.combate.atencaoOutros}}" step="1" /></label>
+        </div>
+        <div class="derivado-caixa clicavel" data-action="rolarIniciativa" title="Rolar Iniciativa">
+          <span class="rotulo">Iniciativa</span>
+          <span class="valor">{{sinal system.combate.iniciativa}}</span>
+          <label>Outros <input type="number" name="system.combate.iniciativaOutros" value="{{system.combate.iniciativaOutros}}" step="1" /></label>
+        </div>
+        <div class="derivado-caixa">
+          <span class="rotulo">Deslocamento</span>
+          <span class="valor">{{system.combate.deslocamentoAtual}}m</span>
+          <label>Base <input type="number" name="system.combate.deslocamento" value="{{system.combate.deslocamento}}" min="0" step="1.5" /></label>
+        </div>
+        <div class="derivado-caixa">
+          <span class="rotulo">CD Especialização</span>
+          <span class="valor">{{system.cdEspecializacao}}</span>
+          <small>10 + atributo-chave + treino + nível/2</small>
+        </div>
+      </div>
+      <label class="campo-largo">Outros deslocamentos
+        <input type="text" name="system.combate.deslocamentoExtra" value="{{system.combate.deslocamentoExtra}}"
+               placeholder="Ex.: Voo 12m, Escalada 6m" />
+      </label>
+    </fieldset>
+
+    {{!-- As três Jogadas de Ataque da ficha oficial --}}
+    <fieldset class="bloco ataques-bloco">
+      <legend>Jogadas de Ataque</legend>
+      <div class="ataques-cabecalho">
+        <span>Tipo</span><span>Atributo</span><span>T</span><span>Outros</span><span>Total</span>
+      </div>
+      {{#each ataquesView as |a|}}
+      <div class="ataque-linha">
+        <a class="ataque-nome" data-action="rolarAtaqueBase" data-ataque="{{a.id}}"
+           title="Rolar jogada de ataque {{a.nome}}">{{a.nome}}</a>
+        <select name="system.ataques.{{a.id}}.atributo">
+          {{#each ../atributos as |at|}}
+          <option value="{{at.id}}" {{#if (eq at.id ../a.atributo)}}selected{{/if}}>{{at.abrev}}</option>
+          {{/each}}
+        </select>
+        <input type="checkbox" name="system.ataques.{{a.id}}.treinado" {{#if a.treinado}}checked{{/if}}
+               title="Treinado" />
+        <input type="number" name="system.ataques.{{a.id}}.outros" value="{{a.outros}}" step="1" />
+        <span class="ataque-total">{{sinal a.total}}</span>
+      </div>
+      {{/each}}
+      <div class="combate-botoes">
+        <button type="button" data-action="rolarDesarmado" title="Ataque desarmado com Força">
+          👊 Desarmado ({{system.danoDesarmado}})
+        </button>
+      </div>
+      <p class="dica">O Ataque Amaldiçoado é sempre treinado e usa o atributo da técnica (p. 279).</p>
+    </fieldset>
+  </div>
+
   {{!-- Testes de Resistência (p. 280) --}}
   <fieldset class="bloco resistencias-bloco">
     <legend>Testes de Resistência</legend>
     <div class="resistencias-grid">
       {{#each resistenciasView as |r|}}
       <div class="resistencia-linha">
-        <label class="prof-toggles" title="Treinado soma o BT; Mestre soma 1,5x o BT (p. 278)">
+        <span class="prof-toggles">
           <input type="checkbox" name="system.resistencias.{{r.key}}.treinado" {{#if r.treinado}}checked{{/if}} title="Treinado" />
           <input type="checkbox" name="system.resistencias.{{r.key}}.mestre" {{#if r.mestre}}checked{{/if}} title="Mestre" />
-        </label>
+        </span>
         <a class="teste-nome" data-action="rolarResistencia" data-resistencia="{{r.key}}"
            title="Rolar TR de {{r.nome}}">{{r.nome}}</a>
         <span class="teste-attr">{{r.abrevAtributo}}</span>
@@ -27,49 +120,33 @@
     <p class="dica">Sucesso crítico em TR (ultrapassar a CD em 10+) exige ser <b>Mestre</b> no teste (p. 281).</p>
   </fieldset>
 
-  {{!-- Combate: Defesa, ataques rápidos e Portas da Morte --}}
-  <div class="colunas">
-    <fieldset class="bloco combate-bloco">
-      <legend>Combate</legend>
-      <div class="combate-grid">
-        <label>Defesa (bônus extras)
-          <input type="number" name="system.combate.defesaOutros" value="{{system.combate.defesaOutros}}" step="1" />
-        </label>
-        <label>Iniciativa (bônus extras)
-          <input type="number" name="system.combate.iniciativaOutros" value="{{system.combate.iniciativaOutros}}" step="1" />
-        </label>
-        <label>Atenção (bônus extras)
-          <input type="number" name="system.combate.atencaoOutros" value="{{system.combate.atencaoOutros}}" step="1" />
-        </label>
-        <label>Deslocamento base (m)
-          <input type="number" name="system.combate.deslocamento" value="{{system.combate.deslocamento}}" min="0" step="1.5" />
-        </label>
-        <label class="largo">Outros deslocamentos
-          <input type="text" name="system.combate.deslocamentoExtra" value="{{system.combate.deslocamentoExtra}}"
-                 placeholder="Ex.: Voo 12m, Escalada 6m" />
-        </label>
-      </div>
-      <div class="combate-botoes">
-        <button type="button" data-action="rolarDesarmado" title="Ataque desarmado ({{system.danoDesarmado}} + Força)">
-          👊 Desarmado ({{system.danoDesarmado}})
-        </button>
-        <button type="button" data-action="rolarIniciativa">⚡ Iniciativa</button>
-      </div>
-      <p class="dica">Redução de Dano total: <b>{{system.combate.reducaoDanoTotal}}</b>. Sequência de ataques: cada 2 ataques seguidos reduzem a Defesa do alvo em 1, até -5 (p. 310).</p>
-    </fieldset>
+  {{!-- Grade de Redução de Dano por tipo --}}
+  <fieldset class="bloco rd-bloco">
+    <legend>Redução de Dano</legend>
+    <label class="rd-geral">Geral
+      <input type="number" name="system.combate.rd.geral" value="{{system.combate.rd.geral}}" step="1" />
+      <small>somada a todos os tipos</small>
+    </label>
+    <div class="rd-grade">
+      {{#each rdView as |rd|}}
+      <label class="rd-item" title="{{rd.nome}} — total {{rd.total}}">
+        <span class="rd-sigla">{{rd.abrev}}</span>
+        <input type="number" name="system.combate.rd.{{rd.id}}" value="{{rd.valor}}" step="1" />
+        <span class="rd-total">{{rd.total}}</span>
+      </label>
+      {{/each}}
+    </div>
+  </fieldset>
 
+  {{!-- Estado, Portas da Morte, Exaustão e Dados de Vida --}}
+  <div class="colunas">
     <fieldset class="bloco morte-bloco">
       <legend>Estado &amp; Portas da Morte</legend>
       <p class="estado-atual estado-{{system.estado}}">Estado: <b>{{system.estado}}</b></p>
-
       <div class="morte-linha">
-        <label>Sucessos</label>
-        <input type="number" name="system.morte.sucessos" value="{{system.morte.sucessos}}" min="0" max="3" />
-        <label>Falhas</label>
-        <input type="number" name="system.morte.falhas" value="{{system.morte.falhas}}" min="0" max="3" />
-        <button type="button" data-action="testeDeMorte" {{#unless system.morrendo}}disabled{{/unless}}>
-          ☠️ Rolar
-        </button>
+        <label>Sucessos <input type="number" name="system.morte.sucessos" value="{{system.morte.sucessos}}" min="0" max="3" /></label>
+        <label>Falhas <input type="number" name="system.morte.falhas" value="{{system.morte.falhas}}" min="0" max="3" /></label>
+        <button type="button" data-action="testeDeMorte" {{#unless system.morrendo}}disabled{{/unless}}>☠️ Rolar</button>
       </div>
       <p class="dica">1 = duas falhas · 2-9 = uma falha · 10-19 = um sucesso · 20 = dois sucessos (p. 313).</p>
 
@@ -85,11 +162,29 @@
         {{/each}}
       </ol>
     </fieldset>
+
+    <fieldset class="bloco">
+      <legend>Dados de Vida</legend>
+      <p class="dica">Um Dado de Vida por nível, do tamanho da especialização daquele nível (p. 20).
+        Gastos no Descanso Curto, somando Constituição a cada dado.</p>
+      <ol class="dados-vida-lista">
+        {{#each dadosVidaView as |d|}}
+        <li class="dado-vida-linha">
+          <input type="text" name="system.dadosVida.{{d.idx}}.dado" value="{{d.dado}}" placeholder="d8" />
+          <label>Dados <input type="number" name="system.dadosVida.{{d.idx}}.total" value="{{d.total}}" min="0" /></label>
+          <label>Gastos <input type="number" name="system.dadosVida.{{d.idx}}.gastos" value="{{d.gastos}}" min="0" /></label>
+          <span class="restantes">{{d.restantes}} disp.</span>
+          <a class="mini-btn" data-action="removerDadoVida" data-idx="{{d.idx}}" title="Remover"><i class="fas fa-trash"></i></a>
+        </li>
+        {{/each}}
+      </ol>
+      <button type="button" data-action="adicionarDadoVida"><i class="fas fa-plus"></i> Adicionar tipo de dado</button>
+    </fieldset>
   </div>
 
-  {{!-- Armas equipadas, com ataque e dano direto --}}
+  {{!-- Quadro "ATAQUES" da ficha: arma, bônus, dano, crít., tipo, alcance, propriedades --}}
   <fieldset class="bloco armas-bloco">
-    <legend>Armas</legend>
+    <legend>Ataques</legend>
     <header class="itens-header">
       <span class="dica">Shift + clique no dano usa a versão versátil (duas mãos).</span>
       <button type="button" data-action="itemCreate" data-type="arma"><i class="fas fa-plus"></i> Arma</button>
@@ -99,14 +194,15 @@
       <li class="item arma-item" data-item-id="{{item.id}}">
         <img class="item-img" src="{{item.img}}" width="24" height="24" />
         <a class="item-nome" data-action="itemExpand">{{item.name}}</a>
-        <span class="item-tag">{{item.system.dano}}{{#if item.system.danoVersatil}}/{{item.system.danoVersatil}}{{/if}}
-          · crít {{item.system.critico}}</span>
+        <span class="item-tag">
+          {{item.system.dano}}{{#if item.system.danoVersatil}}/{{item.system.danoVersatil}}{{/if}}
+          · crít {{item.system.critico}}
+          {{#if item.system.alcance}} · {{item.system.alcance}}{{/if}}
+        </span>
         <div class="item-controls">
           <a data-action="atacarArma" title="Jogada de ataque"><i class="fas fa-crosshairs"></i></a>
           <a data-action="danoArma" title="Rolagem de dano"><i class="fas fa-burst"></i></a>
-          <a data-action="itemToggle" title="{{#if item.system.equipada}}Desequipar{{else}}Equipar{{/if}}">
-            <i class="fas {{#if item.system.equipada}}fa-hand-fist{{else}}fa-hand{{/if}}"></i>
-          </a>
+          <a data-action="itemToggle" title="Equipar/desequipar"><i class="fas fa-hand"></i></a>
           <a data-action="itemChat" title="Enviar ao chat"><i class="fas fa-comment"></i></a>
           <a data-action="itemEdit" title="Editar"><i class="fas fa-edit"></i></a>
           <a data-action="itemDelete" title="Excluir"><i class="fas fa-trash"></i></a>
@@ -116,6 +212,27 @@
           {{{item.system.description}}}
         </div>
       </li>
+      {{/each}}
+    </ol>
+    {{#unless itens.arma.length}}<p class="vazio">Nenhuma arma registrada.</p>{{/unless}}
+  </fieldset>
+
+  {{!-- Quadro "HABILIDADES E TALENTOS": Nome / Atual / Máx. / Custo --}}
+  <fieldset class="bloco">
+    <legend>Habilidades e Talentos</legend>
+    <header class="itens-header">
+      <span class="dica">As colunas Atual/Máx. controlam usos por descanso.</span>
+      <span>
+        <button type="button" data-action="itemCreate" data-type="habilidade"><i class="fas fa-plus"></i> Habilidade</button>
+        <button type="button" data-action="itemCreate" data-type="talento"><i class="fas fa-plus"></i> Talento</button>
+      </span>
+    </header>
+    <ol class="item-list">
+      {{#each itens.habilidade as |item|}}
+      {{> "systems/fnm/templates/actors/parts/linha-uso.html" item=item}}
+      {{/each}}
+      {{#each itens.talento as |item|}}
+      {{> "systems/fnm/templates/actors/parts/linha-uso.html" item=item}}
       {{/each}}
     </ol>
   </fieldset>

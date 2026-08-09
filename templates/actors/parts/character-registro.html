@@ -1,0 +1,127 @@
+<div class="tab registro {{tab.cssClass}}" data-group="primary" data-tab="registro">
+
+  {{!-- Bloco "APARÊNCIA" da página Registro e Inventário --}}
+  <div class="colunas">
+    <fieldset class="bloco">
+      <legend>Aparência</legend>
+      <div class="campos-grid">
+        {{!-- Idade é editada no cabeçalho; aqui é só leitura, para não duplicar o campo --}}
+        <label>Idade <span class="valor-somente-leitura">{{system.detalhes.idade}}</span></label>
+        <label>Altura <input type="text" name="system.aparencia.altura" value="{{system.aparencia.altura}}" /></label>
+        <label>Peso <input type="text" name="system.aparencia.peso" value="{{system.aparencia.peso}}" /></label>
+        <label>Gênero <input type="text" name="system.aparencia.genero" value="{{system.aparencia.genero}}" /></label>
+        <label>Cabelos <input type="text" name="system.aparencia.cabelos" value="{{system.aparencia.cabelos}}" /></label>
+        <label>Olhos <input type="text" name="system.aparencia.olhos" value="{{system.aparencia.olhos}}" /></label>
+        <label>Pele <input type="text" name="system.aparencia.pele" value="{{system.aparencia.pele}}" /></label>
+        <label>Roupas <input type="text" name="system.aparencia.roupas" value="{{system.aparencia.roupas}}" /></label>
+        <label>Marca <input type="text" name="system.aparencia.marca" value="{{system.aparencia.marca}}" /></label>
+      </div>
+      <label class="campo-largo">Descrição da aparência</label>
+      {{editor enrichedAparencia target="system.aparencia.descricao" button=true engine="prosemirror" editable=editable}}
+    </fieldset>
+
+    {{!-- Aspectos Pessoais (p. 15-16) --}}
+    <fieldset class="bloco aspectos-bloco">
+      <legend>Aspectos Pessoais</legend>
+      <label class="campo-largo">Traços de Personalidade
+        <textarea name="system.aspectos.personalidade" rows="3"
+                  placeholder="Descritivos, personalidade e comportamentos.">{{system.aspectos.personalidade}}</textarea>
+      </label>
+      <label class="campo-largo">Ideais
+        <textarea name="system.aspectos.ideais" rows="3"
+                  placeholder="Princípios, valores e metas que guiam suas decisões.">{{system.aspectos.ideais}}</textarea>
+      </label>
+      <label class="campo-largo">Ligações
+        <textarea name="system.aspectos.ligacoes" rows="3"
+                  placeholder="Conexões e laços valiosos para o personagem.">{{system.aspectos.ligacoes}}</textarea>
+      </label>
+      <label class="campo-largo">Complicações
+        <textarea name="system.aspectos.complicacoes" rows="3"
+                  placeholder="Fraquezas, obstáculos e fragilidades.">{{system.aspectos.complicacoes}}</textarea>
+      </label>
+    </fieldset>
+  </div>
+
+  {{!-- Domínio Inato: o "espaço interior" do personagem (p. 21) --}}
+  <fieldset class="bloco">
+    <legend>Domínio Inato</legend>
+    <p class="dica">O "espaço interior" do personagem, refletindo mente e alma em um ambiente metafísico.</p>
+    {{editor enrichedDominio target="system.aspectos.dominioInato" button=true engine="prosemirror" editable=editable}}
+  </fieldset>
+
+  {{!-- Inventário, com Espaços Ocupados x Limite de Espaços --}}
+  <fieldset class="bloco inventario-bloco">
+    <legend>Inventário</legend>
+    <div class="inventario-resumo {{#if sobrecarregado}}sobrecarregado{{/if}}">
+      <span>Espaços Ocupados <b>{{espacosOcupados}}</b></span>
+      <label>Limite de Espaços
+        <input type="number" name="system.inventario.limiteEspacos" value="{{system.inventario.limiteEspacos}}" min="0" />
+      </label>
+      <span>Peso total <b>{{pesoTotal}}</b></span>
+      {{#if sobrecarregado}}<span class="aviso">⚠️ Acima do limite de espaços</span>{{/if}}
+    </div>
+
+    <header class="itens-header">
+      <span></span>
+      <span>
+        <button type="button" data-action="itemCreate" data-type="arma"><i class="fas fa-plus"></i> Arma</button>
+        <button type="button" data-action="itemCreate" data-type="equipamento"><i class="fas fa-plus"></i> Equipamento</button>
+      </span>
+    </header>
+
+    <ol class="item-list">
+      {{#each itens.arma as |item|}}
+      <li class="item {{#if item.system.equipada}}equipado{{/if}}" data-item-id="{{item.id}}">
+        <img class="item-img" src="{{item.img}}" width="24" height="24" />
+        <a class="item-nome" data-action="itemExpand">{{item.name}}</a>
+        <span class="item-tag">
+          x{{item.system.quantidade}} · {{item.system.espacos}} esp.
+          {{#if item.system.peso}} · {{item.system.peso}} kg{{/if}}
+          {{#if item.system.preco}} · {{item.system.preco}}{{/if}}
+        </span>
+        <div class="item-controls">
+          <a data-action="itemToggle" title="Equipar/desequipar"><i class="fas fa-hand"></i></a>
+          <a data-action="itemChat"><i class="fas fa-comment"></i></a>
+          <a data-action="itemEdit"><i class="fas fa-edit"></i></a>
+          <a data-action="itemDelete"><i class="fas fa-trash"></i></a>
+        </div>
+        <div class="item-descricao">{{{item.system.description}}}</div>
+      </li>
+      {{/each}}
+      {{#each itens.equipamento as |item|}}
+      <li class="item {{#if item.system.equipado}}equipado{{/if}}" data-item-id="{{item.id}}">
+        <img class="item-img" src="{{item.img}}" width="24" height="24" />
+        <a class="item-nome" data-action="itemExpand">{{item.name}}</a>
+        <span class="item-tag">
+          {{item.system.tipo}}{{#if item.system.grau}} · {{item.system.grau}}{{/if}}
+          · x{{item.system.quantidade}} · {{item.system.espacos}} esp.
+          {{#if item.system.peso}} · {{item.system.peso}} kg{{/if}}
+          {{#if item.system.preco}} · {{item.system.preco}}{{/if}}
+        </span>
+        <div class="item-controls">
+          <a data-action="itemToggle" title="Equipar/desequipar"><i class="fas fa-shirt"></i></a>
+          <a data-action="itemChat"><i class="fas fa-comment"></i></a>
+          <a data-action="itemEdit"><i class="fas fa-edit"></i></a>
+          <a data-action="itemDelete"><i class="fas fa-trash"></i></a>
+        </div>
+        <div class="item-descricao">{{{item.system.description}}}</div>
+      </li>
+      {{/each}}
+    </ol>
+    {{#unless itens.arma.length}}{{#unless itens.equipamento.length}}
+    <p class="vazio">Inventário vazio. Todo personagem começa com dois equipamentos de custo 1,
+      um uniforme comum e um kit de ferramentas (p. 131).</p>
+    {{/unless}}{{/unless}}
+  </fieldset>
+
+  <fieldset class="bloco">
+    <legend>Biografia</legend>
+    {{editor enrichedBiografia target="system.biografia" button=true engine="prosemirror" editable=editable}}
+  </fieldset>
+
+  <fieldset class="bloco">
+    <legend>Anotações</legend>
+    <p class="dica">Use este espaço para o funcionamento das suas habilidades, talentos e outros.</p>
+    {{editor enrichedAnotacoes target="system.anotacoes" button=true engine="prosemirror" editable=editable}}
+  </fieldset>
+</div>

@@ -9,8 +9,12 @@
 
     <div class="linha-dados">
       <label>Jogador <input type="text" name="system.detalhes.jogador" value="{{system.detalhes.jogador}}" /></label>
+      <label>Campanha <input type="text" name="system.detalhes.campanha" value="{{system.detalhes.campanha}}" /></label>
       <label>Nível
         <input type="number" name="system.detalhes.nivel" value="{{system.detalhes.nivel}}" min="1" max="20" />
+      </label>
+      <label title="Bônus de Treinamento, derivado do nível">Treinamento
+        <span class="valor-somente-leitura">{{sinal system.bonusTreinamento}}</span>
       </label>
       <label>Grau
         <select name="system.detalhes.grau">
@@ -22,6 +26,7 @@
       </label>
       <label>Idade <input type="number" name="system.detalhes.idade" value="{{system.detalhes.idade}}" min="0" /></label>
       <label>Escola <input type="text" name="system.detalhes.escola" value="{{system.detalhes.escola}}" /></label>
+      <label>Experiência <input type="number" name="system.detalhes.experiencia" value="{{system.detalhes.experiencia}}" min="0" /></label>
     </div>
 
     <div class="linha-derivados">

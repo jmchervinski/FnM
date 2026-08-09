@@ -259,22 +259,69 @@ export function custoSustento(nivelFeitico) {
 /* -------------------------------------------- */
 
 FNM.tiposDano = {
-  cortante: { nome: "Cortante", categoria: "Físico" },
-  perfurante: { nome: "Perfurante", categoria: "Físico" },
-  impacto: { nome: "Impacto", categoria: "Físico" },
-  acido: { nome: "Ácido", categoria: "Elemental" },
-  congelante: { nome: "Congelante", categoria: "Elemental" },
-  chocante: { nome: "Chocante", categoria: "Elemental" },
-  queimante: { nome: "Queimante", categoria: "Elemental" },
-  sonico: { nome: "Sônico", categoria: "Elemental" },
-  alma: { nome: "Dano na Alma", categoria: "Etéreo" },
-  energiaReversa: { nome: "Energia Reversa", categoria: "Etéreo" },
-  energetico: { nome: "Energético", categoria: "Etéreo" },
-  psiquico: { nome: "Psíquico", categoria: "Etéreo" },
-  radiante: { nome: "Radiante", categoria: "Etéreo" },
-  necrotico: { nome: "Necrótico", categoria: "Biológico" },
-  venenoso: { nome: "Venenoso", categoria: "Biológico" }
+  cortante: { nome: "Cortante", abrev: "COR", categoria: "Físico" },
+  impacto: { nome: "Impacto", abrev: "IMP", categoria: "Físico" },
+  perfurante: { nome: "Perfurante", abrev: "PER", categoria: "Físico" },
+  congelante: { nome: "Congelante", abrev: "CON", categoria: "Elemental" },
+  queimante: { nome: "Queimante", abrev: "QUE", categoria: "Elemental" },
+  chocante: { nome: "Chocante", abrev: "CHO", categoria: "Elemental" },
+  sonico: { nome: "Sônico", abrev: "SON", categoria: "Elemental" },
+  acido: { nome: "Ácido", abrev: "ÁCI", categoria: "Elemental" },
+  energetico: { nome: "Energético", abrev: "ENE", categoria: "Etéreo" },
+  psiquico: { nome: "Psíquico", abrev: "PSI", categoria: "Etéreo" },
+  radiante: { nome: "Radiante", abrev: "RAD", categoria: "Etéreo" },
+  energiaReversa: { nome: "Energia Reversa", abrev: "REV", categoria: "Etéreo" },
+  necrotico: { nome: "Necrótico", abrev: "NEC", categoria: "Biológico" },
+  venenoso: { nome: "Venenoso", abrev: "VEN", categoria: "Biológico" },
+  // Dano na Alma atravessa defesas e resistências, então não tem linha de RD
+  alma: { nome: "Dano na Alma", abrev: "ALM", categoria: "Etéreo", semReducao: true }
 };
+
+/**
+ * Tipos que ganham uma linha própria de Redução de Dano na ficha, na mesma
+ * ordem da grade de RDs do Modelo de Ficha oficial v2.5.
+ */
+FNM.tiposComRD = Object.entries(FNM.tiposDano)
+  .filter(([, t]) => !t.semReducao)
+  .map(([id]) => id);
+
+/* -------------------------------------------- */
+/*  Jogadas de Ataque (p. 279)                  */
+/* -------------------------------------------- */
+
+/**
+ * As três linhas de "Jogadas de Ataque" da ficha oficial. `atributo` é o padrão
+ * do livro; a ficha permite trocá-lo (armas com Fineza, técnicas etc.).
+ */
+FNM.tiposAtaque = {
+  corpoACorpo: { nome: "Corpo a Corpo", atributo: "forca" },
+  distancia: { nome: "A Distância", atributo: "destreza" },
+  // O Ataque Amaldiçoado usa o atributo da técnica e você é sempre treinado nele
+  amaldicoado: { nome: "Amaldiçoado", atributo: "inteligencia", sempreTreinado: true }
+};
+
+/* -------------------------------------------- */
+/*  Treinamentos (p. 338)                       */
+/* -------------------------------------------- */
+
+/**
+ * Os onze treinamentos da página "Treinamentos" do Modelo de Ficha oficial.
+ * Cada um tem 4 etapas; concluir as quatro libera o Treinamento Completo,
+ * cujo texto está transcrito da própria ficha.
+ */
+FNM.treinamentos = [
+  { id: "agilidade", nome: "Treino de Agilidade", completo: "Com grande velocidade e agilidade, você se torna rápido e capaz de um nível superior de mobilidade e esquivas. Sua margem necessária para conseguir um sucesso crítico em um TR de Reflexos reduz em 2. Seu Deslocamento aumenta em 4,5 metros." },
+  { id: "barreiras", nome: "Treino de Barreiras", completo: "Toda parede que você criar com Técnicas de Barreira recebe RD igual ao seu Nível de Aptidão em Barreiras." },
+  { id: "compreensao", nome: "Treino de Compreensão", completo: "Você chega muito perto de compreender profundamente a energia amaldiçoada, tornando-se familiar com ela e entendendo melhor uma parte dela. Você aumenta um nível de aptidão a sua escolha em 1." },
+  { id: "controleEnergia", nome: "Controle de Energia", completo: "Em uma situação de combate, imerso no fervor da batalha, você consegue gerar energia: durante uma cena de combate, no começo de toda rodada, você ganha PE Temporário igual a metade do seu bônus de maestria." },
+  { id: "dominios", nome: "Treino de Domínios", completo: "Você se torna um mestre das expansões, entendo o como conseguir a moldar perfeitamente diante a sua vontade e necessidade do momento. Você recebe a aptidão amaldiçoada Modificação Completa." },
+  { id: "energiaReversa", nome: "Energia Reversa", completo: "Você pode usar a aptidão amaldiçoada Regeneração Aprimorada para curar sua exaustão de técnica após usar expansão de domínio, reduzindo em um turno para 2 pontos de energia reversa gastos." },
+  { id: "luta", nome: "Treino de Luta", completo: "Você recebe acesso ao efeito de crítico de ataques desarmados (pugilato). Além disso, você pode, uma vez por rodada, escolher realizar uma rolagem de Luta com vantagem, seja ela para um ataque ou para uma manobra." },
+  { id: "manejoArma", nome: "Manejo de Arma", completo: "Enquanto estiver manejando a arma escolhida, ela recebe uma propriedade de ferramenta amaldiçoada adicional." },
+  { id: "pericia", nome: "Treino de Perícia", completo: "Caso realize um teste da perícia escolhida e obtenha um resultado menor do que 5 no d20, você pode o rolar novamente e manter o melhor resultado." },
+  { id: "potencialFisico", nome: "Potencial Físico", completo: "Durante uma cena de combate, no começo de toda rodada, você recupera uma quantidade de pontos de vigor igual a metade do seu bônus de maestria." },
+  { id: "resistencia", nome: "Treino de Resistência", completo: "Sua margem necessária para conseguir um sucesso crítico em um TR de Fortitude reduz em 2. Uma vez por cena, você ignora a primeira falha em testes de morte. Seus pontos de vida máximos aumentam em mais 10." }
+];
 
 /* -------------------------------------------- */
 /*  Condições (p. 317-319)                      */

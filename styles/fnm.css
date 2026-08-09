@@ -848,3 +848,243 @@
   border-top: 1px dashed var(--fnm-cinza);
   font-size: 0.9em;
 }
+
+/* -------------------------------------------- */
+/*  Blocos alinhados à ficha oficial v2.5       */
+/* -------------------------------------------- */
+
+/* Valores derivados exibidos sem input, para não duplicar campos no formulário */
+.fnm-sheet .valor-somente-leitura {
+  display: inline-block;
+  min-width: 2rem;
+  padding: 0.05rem 0.35rem;
+  background: rgba(107, 63, 160, 0.14);
+  border-radius: 3px;
+  font-weight: bold;
+  text-align: center;
+}
+
+/* Recursos no formato ATUAIS / PERDIDOS / MÁXIMOS / TEMP. */
+.fnm-sheet .recursos-cabecalho,
+.fnm-sheet .recurso-linha {
+  display: grid;
+  grid-template-columns: 1fr 56px 56px 48px 56px;
+  align-items: center;
+  gap: 0.3rem;
+  font-size: 0.8rem;
+}
+.fnm-sheet .recursos-cabecalho {
+  font-size: 0.62rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--fnm-cinza);
+  text-align: center;
+  border-bottom: 1px solid var(--fnm-cinza);
+  padding-bottom: 0.15rem;
+  margin-bottom: 0.25rem;
+}
+.fnm-sheet .recursos-cabecalho span:first-child { text-align: left; }
+.fnm-sheet .recurso-linha { margin-bottom: 0.4rem; }
+
+.fnm-sheet .pv-extra-bloco .soma {
+  font-weight: normal;
+  color: var(--fnm-cinza);
+  text-transform: none;
+  letter-spacing: 0;
+}
+
+/* Defesa e valores derivados */
+.fnm-sheet .valor-destaque {
+  background: var(--fnm-tinta);
+  color: var(--fnm-osso);
+  border-radius: 3px;
+  padding: 0 0.4rem;
+  margin-left: 0.3rem;
+}
+.fnm-sheet .decomposicao {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  font-size: 0.72rem;
+  color: var(--fnm-cinza);
+  margin-bottom: 0.35rem;
+}
+.fnm-sheet .derivados-linha {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  gap: 0.4rem;
+  margin-top: 0.5rem;
+}
+.fnm-sheet .derivado-caixa {
+  border: 1px solid var(--fnm-roxo);
+  border-radius: 4px;
+  background: rgba(255, 255, 255, 0.5);
+  padding: 0.3rem;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+}
+.fnm-sheet .derivado-caixa.clicavel { cursor: pointer; }
+.fnm-sheet .derivado-caixa.clicavel:hover { background: rgba(107, 63, 160, 0.18); }
+.fnm-sheet .derivado-caixa .rotulo {
+  font-size: 0.62rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--fnm-roxo);
+}
+.fnm-sheet .derivado-caixa .valor { font-size: 1.15rem; font-weight: bold; }
+.fnm-sheet .derivado-caixa label { font-size: 0.62rem; color: var(--fnm-cinza); }
+.fnm-sheet .derivado-caixa input { width: 100%; text-align: center; }
+.fnm-sheet .derivado-caixa small { font-size: 0.58rem; color: var(--fnm-cinza); }
+
+/* Jogadas de Ataque */
+.fnm-sheet .ataques-cabecalho,
+.fnm-sheet .ataque-linha {
+  display: grid;
+  grid-template-columns: 1fr 60px 26px 52px 48px;
+  align-items: center;
+  gap: 0.3rem;
+  font-size: 0.8rem;
+}
+.fnm-sheet .ataques-cabecalho {
+  font-size: 0.62rem;
+  text-transform: uppercase;
+  color: var(--fnm-cinza);
+  border-bottom: 1px solid var(--fnm-cinza);
+  padding-bottom: 0.15rem;
+  margin-bottom: 0.25rem;
+  text-align: center;
+}
+.fnm-sheet .ataques-cabecalho span:first-child { text-align: left; }
+.fnm-sheet .ataque-linha { padding: 0.12rem 0; }
+.fnm-sheet .ataque-nome { cursor: pointer; font-weight: 500; }
+.fnm-sheet .ataque-nome:hover { color: var(--fnm-roxo); text-shadow: 0 0 4px var(--fnm-roxo-claro); }
+.fnm-sheet .ataque-total {
+  text-align: center;
+  font-weight: bold;
+  background: var(--fnm-tinta);
+  color: var(--fnm-osso);
+  border-radius: 3px;
+}
+.fnm-sheet .ataque-linha input[type="number"] { width: 100%; text-align: center; }
+
+/* Grade de Redução de Dano por tipo */
+.fnm-sheet .rd-geral {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-size: 0.8rem;
+  margin-bottom: 0.4rem;
+}
+.fnm-sheet .rd-geral input { width: 56px; text-align: center; }
+.fnm-sheet .rd-geral small { color: var(--fnm-cinza); font-size: 0.68rem; }
+.fnm-sheet .rd-grade {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(78px, 1fr));
+  gap: 0.3rem;
+}
+.fnm-sheet .rd-item {
+  display: grid;
+  grid-template-columns: 1fr;
+  justify-items: center;
+  gap: 0.1rem;
+  border: 1px solid var(--fnm-cinza);
+  border-radius: 3px;
+  padding: 0.2rem;
+  background: rgba(255, 255, 255, 0.4);
+}
+.fnm-sheet .rd-sigla {
+  font-size: 0.6rem;
+  font-weight: bold;
+  letter-spacing: 0.04em;
+  color: var(--fnm-roxo);
+}
+.fnm-sheet .rd-item input { width: 100%; text-align: center; font-size: 0.75rem; }
+.fnm-sheet .rd-total { font-size: 0.62rem; color: var(--fnm-cinza); }
+
+/* Contador de usos das habilidades, talentos e aptidões */
+.fnm-sheet .item-com-usos {
+  grid-template-columns: auto 1fr auto auto auto;
+}
+.fnm-sheet .usos-controle {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.2rem;
+  font-size: 0.75rem;
+  white-space: nowrap;
+}
+.fnm-sheet .usos-valor {
+  min-width: 1.4rem;
+  text-align: center;
+  font-weight: bold;
+  background: rgba(107, 63, 160, 0.14);
+  border-radius: 3px;
+}
+.fnm-sheet .usos-max { color: var(--fnm-cinza); }
+.fnm-sheet .vazio-usos { color: var(--fnm-cinza); opacity: 0.5; }
+
+/* Ofícios */
+.fnm-sheet .oficio-nome {
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+}
+.fnm-sheet .oficio-nome a { cursor: pointer; font-weight: 500; }
+.fnm-sheet .oficio-nome a:hover { color: var(--fnm-roxo); }
+.fnm-sheet .oficio-nome input { flex: 1; font-size: 0.72rem; }
+
+/* Inventário */
+.fnm-sheet .inventario-resumo {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.75rem;
+  font-size: 0.8rem;
+  padding: 0.3rem 0.4rem;
+  background: rgba(107, 63, 160, 0.08);
+  border-radius: 3px;
+  margin-bottom: 0.4rem;
+}
+.fnm-sheet .inventario-resumo input { width: 56px; text-align: center; }
+.fnm-sheet .inventario-resumo.sobrecarregado {
+  background: rgba(163, 22, 43, 0.12);
+  border-left: 3px solid var(--fnm-sangue);
+}
+
+/* Treinamentos */
+.fnm-sheet .treinamentos-grade {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 0.5rem;
+}
+.fnm-sheet .treinamento-caixa {
+  border: 1px solid var(--fnm-cinza);
+  border-radius: 4px;
+  background: rgba(255, 255, 255, 0.4);
+  padding: 0.4rem 0.5rem;
+}
+.fnm-sheet .treinamento-caixa.concluido {
+  border-color: var(--fnm-roxo);
+  background: rgba(107, 63, 160, 0.12);
+}
+.fnm-sheet .treinamento-caixa header {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 0.4rem;
+}
+.fnm-sheet .treinamento-nome { font-weight: bold; font-size: 0.82rem; color: var(--fnm-roxo); }
+.fnm-sheet .treinamento-etapas { font-size: 0.68rem; color: var(--fnm-cinza); }
+.fnm-sheet .treinamento-caixa .pip-track { margin: 0.3rem 0; }
+.fnm-sheet .pip-clicavel { cursor: pointer; }
+.fnm-sheet .pip-clicavel:hover { background: var(--fnm-roxo-claro); }
+.fnm-sheet .treinamento-completo {
+  font-size: 0.68rem;
+  color: var(--fnm-cinza);
+  margin: 0;
+  line-height: 1.35;
+}
+.fnm-sheet .treinamento-caixa.concluido .treinamento-completo {
+  color: var(--fnm-tinta);
+}

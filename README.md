@@ -41,7 +41,7 @@ https://github.com/jmchervinski/FnM/releases/latest/download/system.json
 
 | Tipo | Uso |
 | --- | --- |
-| **Personagem** | Feiticeiro jogável, com sete abas (Principal, Perícias, Perfil Amaldiçoado, Feitiços, Inventário, Progressão, Conceito) |
+| **Personagem** | Feiticeiro jogável, com sete abas espelhando as páginas do Modelo de Ficha oficial v2.5 (Ficha Pessoal, Perícias, Perfil Amaldiçoado, Feitiços, Registro e Inventário, Progressão, Treinamentos) |
 | **NPC / Maldição** | Antagonistas, com PV e Defesa fixos por padrão, além de imunidades, resistências e vulnerabilidades |
 | **Invocação** | Shikigamis, corpos amaldiçoados e marionetes, vinculados a um invocador |
 
@@ -78,6 +78,25 @@ Tudo abaixo é calculado ou executado pelo sistema, com a página do livro anota
 - **Exaustão** de 0 a 6, com penalidade progressiva e perda de deslocamento
 - **Descanso Curto e Longo**
 - As **28 condições** do livro registradas como efeitos de status do Foundry
+
+### Campos vindos do Modelo de Ficha oficial v2.5
+
+A ficha do sistema segue o layout do arquivo oficial, campo a campo:
+
+- **PV, PE e Integridade** no formato **Atuais / Perdidos / Máximos**, com PV e PE temporários.
+  A coluna *Perdidos* é o que o Dano na Alma consome e o que o descanso longo **não** cura
+- Quadro **PV Extra** com as fontes da ficha: Kamo, Robustez, Desconto de Exaustão, Vigor Infinito e Outros
+- **Defesa** decomposta em Base 10 + Equip. + Destreza + Nível/2 + Outros
+- **Redução de Dano** geral e por tipo de dano, na grade de siglas da ficha
+- As três linhas de **Jogadas de Ataque** (Corpo a Corpo, A Distância, Amaldiçoado), cada uma
+  com atributo, treinamento e outros bônus, e cada uma rolável
+- **CD Técnica** e **CD Amaldiçoada** como caixas separadas, cada uma com seus próprios bônus
+- **Três linhas de Ofício**, cada uma com sua subcategoria e rolagem própria
+- **Habilidades, Talentos e Aptidões** com contador de usos *Atual / Máx.* e custo
+- **Expansão de Domínio** e **Técnica Máxima** com nome, tipo e descrição
+- **Aparência** completa (altura, peso, gênero, cabelos, olhos, pele, roupas, marca)
+- **Inventário** com quantidade, peso, preço e Espaços Ocupados contra o Limite de Espaços
+- Página de **Treinamentos**: os 11 treinamentos com 4 etapas cada e o texto do Treinamento Completo
 
 ### Compêndios
 
@@ -122,8 +141,23 @@ adota a leitura conservadora e mantém 1d12 também no nível 13.
 
 ```bash
 npm install
-npm run build:packs
+npm run check        # valida as fichas contra os schemas
+npm run build:packs  # gera os compêndios
 ```
+
+### `npm run check` — por que ele existe
+
+Todas as PARTS de uma `ApplicationV2` são renderizadas dentro do **mesmo `<form>`**, e o
+Foundry valida o submit inteiro de uma vez. Um único campo inválido faz ele descartar
+**todas** as alterações, e a ficha passa a "não aceitar nada" sem erro visível.
+
+`tools/check-fichas.mjs` pega as duas causas desse sintoma:
+
+1. um `name=` que não existe no schema do DataModel;
+2. o mesmo `name=` repetido em duas partes — o `FormDataExtended` devolve um array em vez
+   de um escalar e a validação reprova.
+
+Rode-o sempre que mexer em templates ou schemas.
 
 `tools/build-packs.mjs` lê `tools/pack-data.mjs` e gera os compêndios LevelDB em `packs/`
 usando a CLI oficial do Foundry. Os `_id` são derivados do nome por hash, então permanecem
@@ -138,7 +172,9 @@ module/
   sheets/            fichas ApplicationV2
 templates/           Handlebars das fichas
 styles/fnm.css       tema
-tools/               geração dos compêndios
+tools/
+  build-packs.mjs    geração dos compêndios
+  check-fichas.mjs   validação estática das fichas
 ```
 
 ### Estrutura de dados úteis para macros

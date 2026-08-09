@@ -1,0 +1,30 @@
+{{!-- Linha de item com contador de usos "Atual / Máx." e custo, como nas listas
+      de Habilidades, Talentos e Aptidões da ficha oficial.
+
+      Importante: nenhum campo de item pode ter atributo de formulário aqui,
+      porque esta lista vive dentro do formulário do ATOR. Um campo de item
+      nesse formulário seria enviado como se fosse do ator e invalidaria o
+      submit inteiro da ficha. Os usos são alterados pelos botões, que
+      atualizam o item diretamente. --}}
+<li class="item item-com-usos" data-item-id="{{item.id}}">
+  <img class="item-img" src="{{item.img}}" width="24" height="24" />
+  <a class="item-nome" data-action="itemExpand">{{item.name}}</a>
+  {{#if item.system.usos.max}}
+  <span class="usos-controle" title="Usos restantes / máximo">
+    <a class="mini-btn" data-action="gastarUso" title="Gastar um uso">−</a>
+    <span class="usos-valor">{{item.system.usos.value}}</span>
+    <span class="divisor">/</span>
+    <span class="usos-max">{{item.system.usos.max}}</span>
+    <a class="mini-btn" data-action="recuperarUso" title="Recuperar um uso">+</a>
+  </span>
+  {{else}}
+  <span class="usos-controle vazio-usos">—</span>
+  {{/if}}
+  <span class="item-tag">{{#if item.system.custoPE}}{{item.system.custoPE}} PE{{/if}}</span>
+  <div class="item-controls">
+    <a data-action="itemChat" title="Enviar ao chat"><i class="fas fa-comment"></i></a>
+    <a data-action="itemEdit" title="Editar"><i class="fas fa-edit"></i></a>
+    <a data-action="itemDelete" title="Excluir"><i class="fas fa-trash"></i></a>
+  </div>
+  <div class="item-descricao">{{{item.system.description}}}</div>
+</li>

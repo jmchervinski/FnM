@@ -168,6 +168,30 @@ export class FnmActor extends Actor {
     });
   }
 
+  /**
+   * Rola uma das linhas de Ofício da ficha. Ofício exige treinamento e cada
+   * linha tem sua própria subcategoria (Ferreiro, Alfaiate, etc. — p. 287).
+   */
+  async rolarOficio(idx) {
+    const oficio = this.system.oficiosView?.[idx];
+    if (!oficio) return ui.notifications.error("Linha de Ofício inexistente.");
+
+    const nome = oficio.especialidade ? `Ofício (${oficio.especialidade})` : "Ofício";
+    if (!oficio.treinado && !oficio.mestre) {
+      const seguir = await foundry.applications.api.DialogV2.confirm({
+        window: { title: `${nome} exige treinamento` },
+        content: `<p><b>Ofício</b> só pode ser usado por personagens Treinados (p. 287).
+          Rolar mesmo assim?</p>`,
+        rejectClose: false
+      });
+      if (!seguir) return null;
+    }
+
+    const dados = await this._dialogoTeste(`Teste de ${nome}`);
+    if (!dados) return null;
+    return this.executarTeste({ label: `Teste de ${nome}`, bonus: oficio.total, ...dados });
+  }
+
   /** Teste de Resistência (p. 280). */
   async rolarResistencia(id) {
     const resistencia = this.system.resistencias?.[id];
@@ -231,7 +255,10 @@ export class FnmActor extends Actor {
     const modAttr = s.atributos[chaveAttr].mod;
     // Sem treinamento na arma você não soma o Bônus de Treinamento (p. 131)
     const treino = sys.treinado ? s.bonusTreinamento : 0;
-    const bonus = modAttr + s.metadeNivel + treino + sys.bonusAtaque + s.penalidadeGlobal;
+    // Soma também os "Outros" da linha de Jogada de Ataque correspondente na ficha
+    const linha = s.ataques?.[distancia ? "distancia" : "corpoACorpo"];
+    const bonus =
+      modAttr + s.metadeNivel + treino + (linha?.outros ?? 0) + sys.bonusAtaque + s.penalidadeGlobal;
 
     const dados = await this._dialogoTeste(`Ataque: ${item.name}`, { cd: 15 });
     if (!dados) return null;
@@ -307,11 +334,39 @@ export class FnmActor extends Actor {
     return roll;
   }
 
+  /**
+   * Rola diretamente uma das três linhas de Jogadas de Ataque da ficha
+   * (corpo a corpo, a distância ou amaldiçoado), sem uma arma específica.
+   */
+  async rolarAtaqueBase(id) {
+    const linha = this.system.ataques?.[id];
+    if (!linha) return ui.notifications.error(`Tipo de ataque desconhecido: ${id}`);
+
+    const dados = await this._dialogoTeste(`Ataque ${linha.nome}`, { cd: 15 });
+    if (!dados) return null;
+
+    return this.executarTeste({
+      label: `Jogada de Ataque — ${linha.nome}`,
+      bonus: linha.total,
+      ...dados,
+      linhasExtras: [
+        `<b>Atributo:</b> ${FNM.atributos[linha.atributo]?.nome ?? "—"} ` +
+        `(${linha.modAtributo >= 0 ? "+" : ""}${linha.modAtributo})` +
+        ` · <b>Treinado:</b> ${linha.treinado ? "sim" : "não"}`
+      ]
+    });
+  }
+
   /** Ataque desarmado (p. 305). Todo personagem é treinado nele. */
   async rolarDesarmado() {
     const s = this.system;
+    const linha = s.ataques?.corpoACorpo;
     const bonus =
-      s.atributos.forca.mod + s.metadeNivel + s.bonusTreinamento + s.penalidadeGlobal;
+      s.atributos.forca.mod +
+      s.metadeNivel +
+      s.bonusTreinamento +
+      (linha?.outros ?? 0) +
+      s.penalidadeGlobal;
     const dados = await this._dialogoTeste("Ataque Desarmado", { cd: 15 });
     if (!dados) return null;
 
@@ -454,10 +509,17 @@ export class FnmActor extends Actor {
     const linhas = [];
     const naAlma = tipo === "alma";
 
-    if (!naAlma && !ignorarRD && s.combate.reducaoDanoTotal > 0) {
-      const rd = Math.min(dano, s.combate.reducaoDanoTotal);
+    // A ficha tem RD geral e RD por tipo de dano; usa-se a do tipo, se houver
+    const rdAplicavel = tipo ? (s.combate.rdPorTipo?.[tipo] ?? s.combate.reducaoDanoTotal)
+                             : s.combate.reducaoDanoTotal;
+    if (!naAlma && !ignorarRD && rdAplicavel > 0) {
+      const rd = Math.min(dano, rdAplicavel);
       dano -= rd;
-      linhas.push(`Redução de Dano absorveu ${rd}.`);
+      linhas.push(
+        `Redução de Dano absorveu ${rd}` +
+        (tipo && s.combate.rd?.[tipo] ? ` (inclui RD específica de ${FNM.tiposDano[tipo].nome})` : "") +
+        "."
+      );
     }
 
     const atualizacoes = {};
@@ -474,8 +536,9 @@ export class FnmActor extends Actor {
     atualizacoes["system.recursos.pv.value"] = novoPV;
 
     if (naAlma) {
-      // Dano na Alma é perda de vida: reduz a vida máxima junto da atual (p. 311)
-      atualizacoes["system.recursos.pv.ajuste"] = s.recursos.pv.ajuste - restante;
+      // Dano na Alma é perda de vida: reduz a vida máxima junto da atual (p. 311).
+      // Vai para a coluna PERDIDOS da ficha, que é o que o descanso longo não cura.
+      atualizacoes["system.recursos.pv.perdidos"] = s.recursos.pv.perdidos + restante;
       atualizacoes["system.recursos.integridade.value"] = Math.max(
         0,
         s.recursos.integridade.value - restante

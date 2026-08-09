@@ -1,0 +1,60 @@
+<div class="tab treinamentos {{tab.cssClass}}" data-group="primary" data-tab="treinamentos">
+
+  <fieldset class="bloco">
+    <legend>Treinamentos</legend>
+    <p class="dica">
+      Cada treinamento tem quatro etapas. Concluir as quatro libera o
+      <b>Treinamento Completo</b>, cujo efeito aparece abaixo da trilha.
+      Treinamentos são realizados nos Interlúdios e no dia a dia jujutsu (p. 338).
+    </p>
+
+    <div class="treinamentos-grade">
+      {{#each treinamentosView as |t|}}
+      <div class="treinamento-caixa {{#if t.concluido}}concluido{{/if}}">
+        <header>
+          <span class="treinamento-nome">{{t.nome}}</span>
+          <span class="treinamento-etapas">{{t.etapas}}/4</span>
+        </header>
+        <div class="pip-track">
+          {{#each t.pips as |p|}}
+          <a class="pip pip-clicavel {{#if p.filled}}filled{{/if}}"
+             data-action="etapaTreinamento" data-treinamento="{{../t.id}}" data-value="{{p.value}}"
+             title="{{p.value}}ª Etapa"></a>
+          {{/each}}
+        </div>
+        <p class="treinamento-completo">
+          <b>Treinamento Completo.</b> {{t.completo}}
+        </p>
+      </div>
+      {{/each}}
+    </div>
+  </fieldset>
+
+  {{!-- Votos de Restrição também são conquistas de longo prazo (p. 351) --}}
+  <fieldset class="bloco votos-bloco">
+    <legend>Votos de Restrição</legend>
+    <header class="itens-header">
+      <span class="dica">Votos inativos não concedem seus ajustes mecânicos.</span>
+      <button type="button" data-action="itemCreate" data-type="voto"><i class="fas fa-plus"></i> Voto</button>
+    </header>
+    <ol class="item-list">
+      {{#each itens.voto as |item|}}
+      <li class="item {{#unless item.system.ativo}}inativo{{/unless}}" data-item-id="{{item.id}}">
+        <a class="item-nome" data-action="itemExpand">{{item.name}}</a>
+        <span class="item-tag">Peso {{item.system.peso}}</span>
+        <div class="item-controls">
+          <a data-action="itemToggle" title="Ativar/desativar"><i class="fas fa-power-off"></i></a>
+          <a data-action="itemChat"><i class="fas fa-comment"></i></a>
+          <a data-action="itemEdit"><i class="fas fa-edit"></i></a>
+          <a data-action="itemDelete"><i class="fas fa-trash"></i></a>
+        </div>
+        <div class="item-descricao">
+          {{{item.system.restricao}}}
+          {{{item.system.description}}}
+        </div>
+      </li>
+      {{/each}}
+    </ol>
+    {{#unless itens.voto.length}}<p class="vazio">Nenhum Voto de Restrição assumido.</p>{{/unless}}
+  </fieldset>
+</div>

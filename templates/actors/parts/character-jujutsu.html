@@ -18,11 +18,15 @@
           {{/each}}
         </select>
       </label>
-      <label>Outros bônus na CD
+      <label title="Bônus extras aplicados à CD dos seus Feitiços">Outros — CD Técnica
+        <input type="number" name="system.jujutsu.cdTecnicaOutros" value="{{system.jujutsu.cdTecnicaOutros}}" step="1" />
+      </label>
+      <label title="Bônus extras aplicados à CD das suas Aptidões Amaldiçoadas">Outros — CD Amaldiçoada
         <input type="number" name="system.jujutsu.cdOutros" value="{{system.jujutsu.cdOutros}}" step="1" />
       </label>
     </div>
     <div class="perfil-derivados">
+      <span>CD Técnica <b>{{system.cdTecnica}}</b></span>
       <span>CD Amaldiçoada <b>{{system.cdAmaldicoada}}</b></span>
       <span>CD Especialização <b>{{system.cdEspecializacao}}</b></span>
       <span>Ataque Amaldiçoado <b>{{sinal system.ataqueAmaldicoado}}</b></span>
@@ -74,6 +78,32 @@
     </ol>
   </fieldset>
 
+  {{!-- Expansão de Domínio e Técnica Máxima, quadros da ficha oficial --}}
+  <div class="colunas">
+    <fieldset class="bloco">
+      <legend>Expansão de Domínio</legend>
+      <div class="campos-grid">
+        <label>Nome da Expansão
+          <input type="text" name="system.jujutsu.expansao.nome" value="{{system.jujutsu.expansao.nome}}" /></label>
+        <label>Tipo de Expansão
+          <input type="text" name="system.jujutsu.expansao.tipo" value="{{system.jujutsu.expansao.tipo}}"
+                 placeholder="Completa, incompleta, Domínio Simples…" /></label>
+      </div>
+      <label class="campo-largo">Descrição da Expansão</label>
+      {{editor enrichedExpansao target="system.jujutsu.expansao.descricao" button=true engine="prosemirror" editable=editable}}
+      <p class="dica">Exige Aptidão em Domínio. Conjurar um domínio consome um nível absurdo de energia (p. 182).</p>
+    </fieldset>
+
+    <fieldset class="bloco">
+      <legend>Técnica Máxima</legend>
+      <label class="campo-largo">Nome da Técnica Máxima
+        <input type="text" name="system.jujutsu.tecnicaMaxima.nome" value="{{system.jujutsu.tecnicaMaxima.nome}}" /></label>
+      <label class="campo-largo">Descrição</label>
+      {{editor enrichedTecnicaMaxima target="system.jujutsu.tecnicaMaxima.descricao" button=true engine="prosemirror" editable=editable}}
+      <p class="dica">A Técnica Máxima usa a linha própria da tabela de Feitiços (dano 26d12/28d12, alcance 60 m).</p>
+    </fieldset>
+  </div>
+
   {{!-- Aptidões Amaldiçoadas adquiridas, agrupadas por categoria (p. 172) --}}
   <fieldset class="bloco aptidoes-bloco">
     <legend>Aptidões Amaldiçoadas</legend>
@@ -86,20 +116,7 @@
       <summary>{{grupo.categoria}} <span class="contador">{{grupo.itens.length}}</span></summary>
       <ol class="item-list">
         {{#each grupo.itens as |item|}}
-        <li class="item" data-item-id="{{item.id}}">
-          <img class="item-img" src="{{item.img}}" width="24" height="24" />
-          <a class="item-nome" data-action="itemExpand">{{item.name}}</a>
-          <span class="item-tag">
-            {{#if item.system.custoPE}}{{item.system.custoPE}} PE{{/if}}
-            {{#if item.system.acao}} · {{item.system.acao}}{{/if}}
-          </span>
-          <div class="item-controls">
-            <a data-action="itemChat"><i class="fas fa-comment"></i></a>
-            <a data-action="itemEdit"><i class="fas fa-edit"></i></a>
-            <a data-action="itemDelete"><i class="fas fa-trash"></i></a>
-          </div>
-          <div class="item-descricao">{{{item.system.description}}}</div>
-        </li>
+        {{> "systems/fnm/templates/actors/parts/linha-uso.html" item=item}}
         {{/each}}
       </ol>
     </details>
@@ -109,30 +126,4 @@
     {{/unless}}
   </fieldset>
 
-  {{!-- Votos de Restrição (p. 351) --}}
-  <fieldset class="bloco votos-bloco">
-    <legend>Votos de Restrição</legend>
-    <header class="itens-header">
-      <span class="dica">Votos inativos não concedem seus ajustes mecânicos.</span>
-      <button type="button" data-action="itemCreate" data-type="voto"><i class="fas fa-plus"></i> Voto</button>
-    </header>
-    <ol class="item-list">
-      {{#each itens.voto as |item|}}
-      <li class="item {{#unless item.system.ativo}}inativo{{/unless}}" data-item-id="{{item.id}}">
-        <a class="item-nome" data-action="itemExpand">{{item.name}}</a>
-        <span class="item-tag">Peso {{item.system.peso}}</span>
-        <div class="item-controls">
-          <a data-action="itemToggle" title="Ativar/desativar"><i class="fas fa-power-off"></i></a>
-          <a data-action="itemChat"><i class="fas fa-comment"></i></a>
-          <a data-action="itemEdit"><i class="fas fa-edit"></i></a>
-          <a data-action="itemDelete"><i class="fas fa-trash"></i></a>
-        </div>
-        <div class="item-descricao">
-          {{{item.system.restricao}}}
-          {{{item.system.description}}}
-        </div>
-      </li>
-      {{/each}}
-    </ol>
-  </fieldset>
 </div>
