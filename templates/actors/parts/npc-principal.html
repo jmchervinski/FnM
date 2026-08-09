@@ -1,0 +1,105 @@
+<div class="tab principal {{tab.cssClass}}" data-group="primary" data-tab="principal">
+
+  <div class="colunas">
+    {{> "systems/fnm/templates/actors/parts/actor-atributos.html"}}
+    {{> "systems/fnm/templates/actors/parts/actor-recursos.html"}}
+  </div>
+
+  <div class="colunas">
+    <fieldset class="bloco combate-bloco">
+      <legend>Combate</legend>
+      <div class="combate-grid">
+        <label title="Usada no lugar da fórmula quando 'Valores manuais' está ligado">Defesa fixa
+          <input type="number" name="system.combate.defesaManual" value="{{system.combate.defesaManual}}" min="0" />
+        </label>
+        <label>Defesa (bônus extras)
+          <input type="number" name="system.combate.defesaOutros" value="{{system.combate.defesaOutros}}" step="1" />
+        </label>
+        <label>Iniciativa (extras)
+          <input type="number" name="system.combate.iniciativaOutros" value="{{system.combate.iniciativaOutros}}" step="1" />
+        </label>
+        <label>Deslocamento (m)
+          <input type="number" name="system.combate.deslocamento" value="{{system.combate.deslocamento}}" min="0" step="1.5" />
+        </label>
+        <label class="largo">Outros deslocamentos
+          <input type="text" name="system.combate.deslocamentoExtra" value="{{system.combate.deslocamentoExtra}}" />
+        </label>
+      </div>
+      <div class="combate-botoes">
+        <button type="button" data-action="rolarDesarmado">👊 Desarmado ({{system.danoDesarmado}})</button>
+        <button type="button" data-action="rolarIniciativa">⚡ Iniciativa</button>
+        <button type="button" data-action="testeDeMorte" {{#unless system.morrendo}}disabled{{/unless}}>☠️ Teste de Morte</button>
+      </div>
+      <div class="exaustao-linha">
+        <label>Exaustão</label>
+        <button type="button" class="mini-btn" data-action="exaustaoMenos">−</button>
+        <span class="exaustao-valor">{{system.exaustao}}</span>
+        <button type="button" class="mini-btn" data-action="exaustaoMais">+</button>
+        <span class="estado-atual">Estado: <b>{{system.estado}}</b></span>
+      </div>
+    </fieldset>
+
+    {{#if system.defesas}}
+    <fieldset class="bloco">
+      <legend>Imunidades &amp; Resistências</legend>
+      <label class="campo-largo">Imunidades
+        <input type="text" name="system.defesas.imunidades" value="{{system.defesas.imunidades}}"
+               placeholder="Ex.: dano físico, veneno" />
+      </label>
+      <label class="campo-largo">Resistências
+        <input type="text" name="system.defesas.resistencias" value="{{system.defesas.resistencias}}" />
+      </label>
+      <label class="campo-largo">Vulnerabilidades
+        <input type="text" name="system.defesas.vulnerabilidades" value="{{system.defesas.vulnerabilidades}}"
+               placeholder="Maldições são vulneráveis a Energia Reversa (p. 316)" />
+      </label>
+    </fieldset>
+    {{/if}}
+
+    {{!-- Bloco de vínculo aparece só na ficha de Invocação --}}
+    {{#if invocadores}}
+    <fieldset class="bloco">
+      <legend>Vínculo</legend>
+      <label>Invocador
+        <select name="system.detalhes.invocador">
+          <option value="">—</option>
+          {{#each invocadores as |i|}}
+          <option value="{{i.id}}" {{#if i.selected}}selected{{/if}}>{{i.name}}</option>
+          {{/each}}
+        </select>
+      </label>
+      <label>Custo para invocar (PE)
+        <input type="number" name="system.detalhes.custoInvocacao" value="{{system.detalhes.custoInvocacao}}" min="0" />
+      </label>
+      <label class="checkbox">
+        <input type="checkbox" name="system.detalhes.ativa" {{#if system.detalhes.ativa}}checked{{/if}} />
+        Ativa em campo
+      </label>
+    </fieldset>
+    {{/if}}
+  </div>
+
+  <fieldset class="bloco armas-bloco">
+    <legend>Armas &amp; Ataques</legend>
+    <header class="itens-header">
+      <span></span>
+      <button type="button" data-action="itemCreate" data-type="arma"><i class="fas fa-plus"></i> Arma</button>
+    </header>
+    <ol class="item-list">
+      {{#each itens.arma as |item|}}
+      <li class="item" data-item-id="{{item.id}}">
+        <a class="item-nome" data-action="itemExpand">{{item.name}}</a>
+        <span class="item-tag">{{item.system.dano}} · crít {{item.system.critico}}</span>
+        <div class="item-controls">
+          <a data-action="atacarArma"><i class="fas fa-crosshairs"></i></a>
+          <a data-action="danoArma"><i class="fas fa-burst"></i></a>
+          <a data-action="itemChat"><i class="fas fa-comment"></i></a>
+          <a data-action="itemEdit"><i class="fas fa-edit"></i></a>
+          <a data-action="itemDelete"><i class="fas fa-trash"></i></a>
+        </div>
+        <div class="item-descricao">{{{item.system.description}}}</div>
+      </li>
+      {{/each}}
+    </ol>
+  </fieldset>
+</div>

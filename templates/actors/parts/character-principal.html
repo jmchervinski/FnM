@@ -1,0 +1,122 @@
+<div class="tab principal {{tab.cssClass}}" data-group="primary" data-tab="principal">
+
+  <div class="colunas">
+    {{> "systems/fnm/templates/actors/parts/actor-atributos.html"}}
+    {{> "systems/fnm/templates/actors/parts/actor-recursos.html"}}
+  </div>
+
+  {{!-- Testes de Resistência (p. 280) --}}
+  <fieldset class="bloco resistencias-bloco">
+    <legend>Testes de Resistência</legend>
+    <div class="resistencias-grid">
+      {{#each resistenciasView as |r|}}
+      <div class="resistencia-linha">
+        <label class="prof-toggles" title="Treinado soma o BT; Mestre soma 1,5x o BT (p. 278)">
+          <input type="checkbox" name="system.resistencias.{{r.key}}.treinado" {{#if r.treinado}}checked{{/if}} title="Treinado" />
+          <input type="checkbox" name="system.resistencias.{{r.key}}.mestre" {{#if r.mestre}}checked{{/if}} title="Mestre" />
+        </label>
+        <a class="teste-nome" data-action="rolarResistencia" data-resistencia="{{r.key}}"
+           title="Rolar TR de {{r.nome}}">{{r.nome}}</a>
+        <span class="teste-attr">{{r.abrevAtributo}}</span>
+        <span class="teste-total">{{sinal r.total}}</span>
+        <input class="teste-outros" type="number" name="system.resistencias.{{r.key}}.outros"
+               value="{{r.outros}}" step="1" title="Outros bônus" />
+      </div>
+      {{/each}}
+    </div>
+    <p class="dica">Sucesso crítico em TR (ultrapassar a CD em 10+) exige ser <b>Mestre</b> no teste (p. 281).</p>
+  </fieldset>
+
+  {{!-- Combate: Defesa, ataques rápidos e Portas da Morte --}}
+  <div class="colunas">
+    <fieldset class="bloco combate-bloco">
+      <legend>Combate</legend>
+      <div class="combate-grid">
+        <label>Defesa (bônus extras)
+          <input type="number" name="system.combate.defesaOutros" value="{{system.combate.defesaOutros}}" step="1" />
+        </label>
+        <label>Iniciativa (bônus extras)
+          <input type="number" name="system.combate.iniciativaOutros" value="{{system.combate.iniciativaOutros}}" step="1" />
+        </label>
+        <label>Atenção (bônus extras)
+          <input type="number" name="system.combate.atencaoOutros" value="{{system.combate.atencaoOutros}}" step="1" />
+        </label>
+        <label>Deslocamento base (m)
+          <input type="number" name="system.combate.deslocamento" value="{{system.combate.deslocamento}}" min="0" step="1.5" />
+        </label>
+        <label class="largo">Outros deslocamentos
+          <input type="text" name="system.combate.deslocamentoExtra" value="{{system.combate.deslocamentoExtra}}"
+                 placeholder="Ex.: Voo 12m, Escalada 6m" />
+        </label>
+      </div>
+      <div class="combate-botoes">
+        <button type="button" data-action="rolarDesarmado" title="Ataque desarmado ({{system.danoDesarmado}} + Força)">
+          👊 Desarmado ({{system.danoDesarmado}})
+        </button>
+        <button type="button" data-action="rolarIniciativa">⚡ Iniciativa</button>
+      </div>
+      <p class="dica">Redução de Dano total: <b>{{system.combate.reducaoDanoTotal}}</b>. Sequência de ataques: cada 2 ataques seguidos reduzem a Defesa do alvo em 1, até -5 (p. 310).</p>
+    </fieldset>
+
+    <fieldset class="bloco morte-bloco">
+      <legend>Estado &amp; Portas da Morte</legend>
+      <p class="estado-atual estado-{{system.estado}}">Estado: <b>{{system.estado}}</b></p>
+
+      <div class="morte-linha">
+        <label>Sucessos</label>
+        <input type="number" name="system.morte.sucessos" value="{{system.morte.sucessos}}" min="0" max="3" />
+        <label>Falhas</label>
+        <input type="number" name="system.morte.falhas" value="{{system.morte.falhas}}" min="0" max="3" />
+        <button type="button" data-action="testeDeMorte" {{#unless system.morrendo}}disabled{{/unless}}>
+          ☠️ Rolar
+        </button>
+      </div>
+      <p class="dica">1 = duas falhas · 2-9 = uma falha · 10-19 = um sucesso · 20 = dois sucessos (p. 313).</p>
+
+      <div class="exaustao-linha">
+        <label>Exaustão</label>
+        <button type="button" class="mini-btn" data-action="exaustaoMenos">−</button>
+        <span class="exaustao-valor">{{system.exaustao}}</span>
+        <button type="button" class="mini-btn" data-action="exaustaoMais">+</button>
+      </div>
+      <ol class="exaustao-lista">
+        {{#each exaustaoView as |e|}}
+        <li class="{{#if e.ativo}}ativo{{/if}}"><b>{{e.nivel}}.</b> {{e.efeito}}</li>
+        {{/each}}
+      </ol>
+    </fieldset>
+  </div>
+
+  {{!-- Armas equipadas, com ataque e dano direto --}}
+  <fieldset class="bloco armas-bloco">
+    <legend>Armas</legend>
+    <header class="itens-header">
+      <span class="dica">Shift + clique no dano usa a versão versátil (duas mãos).</span>
+      <button type="button" data-action="itemCreate" data-type="arma"><i class="fas fa-plus"></i> Arma</button>
+    </header>
+    <ol class="item-list">
+      {{#each itens.arma as |item|}}
+      <li class="item arma-item" data-item-id="{{item.id}}">
+        <img class="item-img" src="{{item.img}}" width="24" height="24" />
+        <a class="item-nome" data-action="itemExpand">{{item.name}}</a>
+        <span class="item-tag">{{item.system.dano}}{{#if item.system.danoVersatil}}/{{item.system.danoVersatil}}{{/if}}
+          · crít {{item.system.critico}}</span>
+        <div class="item-controls">
+          <a data-action="atacarArma" title="Jogada de ataque"><i class="fas fa-crosshairs"></i></a>
+          <a data-action="danoArma" title="Rolagem de dano"><i class="fas fa-burst"></i></a>
+          <a data-action="itemToggle" title="{{#if item.system.equipada}}Desequipar{{else}}Equipar{{/if}}">
+            <i class="fas {{#if item.system.equipada}}fa-hand-fist{{else}}fa-hand{{/if}}"></i>
+          </a>
+          <a data-action="itemChat" title="Enviar ao chat"><i class="fas fa-comment"></i></a>
+          <a data-action="itemEdit" title="Editar"><i class="fas fa-edit"></i></a>
+          <a data-action="itemDelete" title="Excluir"><i class="fas fa-trash"></i></a>
+        </div>
+        <div class="item-descricao">
+          <p><b>Propriedades:</b> {{#if item.system.propriedades}}{{item.system.propriedades}}{{else}}—{{/if}}</p>
+          {{{item.system.description}}}
+        </div>
+      </li>
+      {{/each}}
+    </ol>
+  </fieldset>
+</div>

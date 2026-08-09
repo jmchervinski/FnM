@@ -1,0 +1,850 @@
+/*
+ * Feiticeiros & Maldições para Foundry VTT (não-oficial).
+ * Paleta inspirada na identidade do jujutsu: preto-tinta, roxo amaldiçoado,
+ * vermelho-sangue e o branco-osso do papel.
+ */
+:root {
+  --fnm-tinta: #14121a;        /* preto-arroxeado do fundo */
+  --fnm-tinta-clara: #241f30;  /* superfícies elevadas */
+  --fnm-roxo: #6b3fa0;         /* energia amaldiçoada */
+  --fnm-roxo-claro: #a97fd6;
+  --fnm-sangue: #a3162b;       /* destaques e alertas */
+  --fnm-osso: #ece8e1;         /* papel */
+  --fnm-osso-escuro: #d6d0c6;
+  --fnm-cinza: #6f6a7a;
+  --fnm-verde: #3f8f5e;        /* energia reversa / cura */
+  --fnm-dourado: #c9a227;
+}
+
+.fnm-sheet {
+  font-family: "Signika", "Georgia", serif;
+  background: var(--fnm-osso);
+  color: var(--fnm-tinta);
+}
+
+.fnm-sheet .window-content {
+  background: var(--fnm-osso);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  padding: 0;
+}
+
+/* A aba ativa ocupa o espaço restante e rola sozinha; cabeçalho, navegação
+   e rodapé ficam fixos. Casa com o scrollable: [""] declarado nos PARTS. */
+.fnm-sheet .tab {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  padding: 0.5rem 0.6rem;
+}
+
+.fnm-sheet input,
+.fnm-sheet select,
+.fnm-sheet textarea {
+  background: rgba(255, 255, 255, 0.6);
+  border: 1px solid var(--fnm-cinza);
+  border-radius: 3px;
+  color: var(--fnm-tinta);
+  font-family: inherit;
+}
+.fnm-sheet input:focus,
+.fnm-sheet select:focus,
+.fnm-sheet textarea:focus {
+  outline: none;
+  border-color: var(--fnm-roxo);
+  box-shadow: 0 0 4px var(--fnm-roxo-claro);
+}
+
+.fnm-sheet button {
+  background: var(--fnm-tinta);
+  color: var(--fnm-osso);
+  border: 1px solid var(--fnm-roxo);
+  border-radius: 3px;
+  cursor: pointer;
+  padding: 0.25rem 0.6rem;
+  font-family: inherit;
+}
+.fnm-sheet button:hover:not(:disabled) {
+  background: var(--fnm-roxo);
+  box-shadow: 0 0 6px var(--fnm-roxo-claro);
+}
+.fnm-sheet button:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+.fnm-sheet .mini-btn {
+  padding: 0 0.4rem;
+  font-size: 0.85rem;
+  line-height: 1.4;
+}
+
+/* -------------------------------------------- */
+/*  Cabeçalho                                   */
+/* -------------------------------------------- */
+
+.fnm-sheet .ficha-cabecalho {
+  display: flex;
+  gap: 0.75rem;
+  align-items: flex-start;
+  background: linear-gradient(135deg, var(--fnm-tinta), var(--fnm-tinta-clara));
+  color: var(--fnm-osso);
+  padding: 0.6rem;
+  border-bottom: 3px solid var(--fnm-roxo);
+}
+
+.fnm-sheet .profile-img {
+  width: 84px;
+  height: 84px;
+  border: 2px solid var(--fnm-roxo);
+  border-radius: 3px;
+  object-fit: cover;
+  cursor: pointer;
+  flex: none;
+}
+
+.fnm-sheet .ficha-cabecalho-conteudo {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.fnm-sheet .ficha-titulo {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+.fnm-sheet .nome-personagem {
+  flex: 1;
+  font-size: 1.35rem;
+  background: transparent;
+  border: none;
+  border-bottom: 1px dashed var(--fnm-roxo-claro);
+  color: var(--fnm-osso);
+}
+.fnm-sheet .fnm-marca {
+  font-size: 1.6rem;
+  color: var(--fnm-roxo-claro);
+  text-shadow: 0 0 8px var(--fnm-roxo);
+  flex: none;
+}
+
+.fnm-sheet .linha-dados {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem 0.8rem;
+  font-size: 0.8rem;
+}
+.fnm-sheet .linha-dados label {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+.fnm-sheet .linha-dados input,
+.fnm-sheet .linha-dados select {
+  width: auto;
+  max-width: 110px;
+  background: rgba(255, 255, 255, 0.15);
+  color: var(--fnm-osso);
+  border-color: var(--fnm-roxo);
+}
+.fnm-sheet .linha-dados option {
+  background: var(--fnm-tinta);
+  color: var(--fnm-osso);
+}
+
+.fnm-sheet .linha-derivados {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.3rem;
+}
+.fnm-sheet .derivado {
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid var(--fnm-roxo);
+  border-radius: 3px;
+  padding: 0.1rem 0.45rem;
+  font-size: 0.75rem;
+  white-space: nowrap;
+}
+.fnm-sheet .derivado b {
+  color: var(--fnm-roxo-claro);
+}
+.fnm-sheet .derivado.botao-inline {
+  cursor: pointer;
+}
+.fnm-sheet .derivado.botao-inline:hover {
+  background: var(--fnm-roxo);
+}
+.fnm-sheet .derivado.ativo {
+  background: var(--fnm-verde);
+}
+
+/* -------------------------------------------- */
+/*  Abas                                        */
+/* -------------------------------------------- */
+
+.fnm-sheet .sheet-tabs {
+  border-bottom: 2px solid var(--fnm-roxo);
+  background: rgba(107, 63, 160, 0.1);
+  flex: none;
+}
+.fnm-sheet .sheet-tabs [data-tab] {
+  color: var(--fnm-tinta);
+  font-size: 0.85rem;
+}
+.fnm-sheet .sheet-tabs [data-tab].active {
+  color: var(--fnm-roxo);
+  text-shadow: none;
+  border-bottom: 3px solid var(--fnm-sangue);
+  font-weight: bold;
+}
+
+/* -------------------------------------------- */
+/*  Blocos e grades                             */
+/* -------------------------------------------- */
+
+.fnm-sheet .bloco {
+  border: 1px solid var(--fnm-cinza);
+  border-radius: 4px;
+  background: rgba(255, 255, 255, 0.35);
+  padding: 0.5rem 0.6rem;
+  margin-bottom: 0.6rem;
+}
+.fnm-sheet .bloco legend {
+  font-weight: bold;
+  color: var(--fnm-roxo);
+  text-transform: uppercase;
+  font-size: 0.75rem;
+  letter-spacing: 0.06em;
+  padding: 0 0.35rem;
+}
+
+.fnm-sheet .colunas {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 0.6rem;
+  align-items: start;
+}
+
+.fnm-sheet .campos-grid,
+.fnm-sheet .perfil-grid,
+.fnm-sheet .combate-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 0.4rem 0.6rem;
+}
+.fnm-sheet .campos-grid label,
+.fnm-sheet .perfil-grid label,
+.fnm-sheet .combate-grid label {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  font-size: 0.78rem;
+}
+.fnm-sheet .campos-grid label.largo,
+.fnm-sheet .combate-grid label.largo {
+  grid-column: 1 / -1;
+}
+.fnm-sheet label.campo-largo {
+  display: block;
+  font-size: 0.78rem;
+  margin: 0.35rem 0 0.15rem;
+  font-weight: bold;
+}
+.fnm-sheet label.campo-largo textarea,
+.fnm-sheet .campo-largo input {
+  width: 100%;
+}
+.fnm-sheet label.checkbox {
+  flex-direction: row;
+  align-items: center;
+  gap: 0.3rem;
+}
+.fnm-sheet .checkboxes {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin-top: 0.4rem;
+  font-size: 0.8rem;
+}
+
+.fnm-sheet .dica {
+  font-size: 0.72rem;
+  color: var(--fnm-cinza);
+  font-style: italic;
+  margin: 0.3rem 0 0;
+}
+.fnm-sheet .vazio {
+  font-size: 0.78rem;
+  color: var(--fnm-cinza);
+  font-style: italic;
+  padding: 0.3rem;
+}
+.fnm-sheet .aviso {
+  color: var(--fnm-sangue);
+  font-size: 0.7rem;
+}
+.fnm-sheet .aviso-forte {
+  background: rgba(163, 22, 43, 0.12);
+  border-left: 3px solid var(--fnm-sangue);
+  padding: 0.35rem 0.5rem;
+  font-size: 0.8rem;
+}
+
+/* -------------------------------------------- */
+/*  Atributos                                   */
+/* -------------------------------------------- */
+
+.fnm-sheet .atributos-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.4rem;
+}
+.fnm-sheet .atributo-box {
+  border: 1px solid var(--fnm-roxo);
+  border-radius: 4px;
+  background: rgba(255, 255, 255, 0.5);
+  padding: 0.3rem;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+.fnm-sheet .atributo-nome {
+  font-size: 0.7rem;
+  font-weight: bold;
+  letter-spacing: 0.08em;
+  color: var(--fnm-roxo);
+}
+.fnm-sheet .atributo-valor {
+  text-align: center;
+  font-size: 1.05rem;
+  font-weight: bold;
+}
+.fnm-sheet .atributo-mod {
+  display: block;
+  background: var(--fnm-tinta);
+  color: var(--fnm-osso);
+  border-radius: 3px;
+  font-size: 0.9rem;
+  font-weight: bold;
+  cursor: pointer;
+  padding: 0.1rem 0;
+}
+.fnm-sheet .atributo-mod:hover {
+  background: var(--fnm-roxo);
+  text-shadow: 0 0 6px var(--fnm-roxo-claro);
+}
+
+/* -------------------------------------------- */
+/*  Recursos                                    */
+/* -------------------------------------------- */
+
+.fnm-sheet .recurso-linha {
+  display: grid;
+  grid-template-columns: auto 60px auto 44px auto;
+  align-items: center;
+  gap: 0.3rem;
+  font-size: 0.8rem;
+  margin-bottom: 0.35rem;
+}
+.fnm-sheet .recurso-linha > label:first-child {
+  font-weight: bold;
+}
+.fnm-sheet .recurso-linha input {
+  text-align: center;
+}
+.fnm-sheet .recurso-max {
+  font-weight: bold;
+  text-align: center;
+}
+.fnm-sheet .recurso-temp {
+  display: flex;
+  align-items: center;
+  gap: 0.2rem;
+  font-size: 0.72rem;
+}
+.fnm-sheet .recurso-temp input {
+  width: 44px;
+}
+.fnm-sheet .barra {
+  grid-column: 1 / -1;
+  height: 6px;
+  background: rgba(0, 0, 0, 0.12);
+  border-radius: 3px;
+  overflow: hidden;
+}
+.fnm-sheet .barra-preenchida {
+  height: 100%;
+  transition: width 0.2s ease;
+}
+.fnm-sheet .barra-pv { background: var(--fnm-sangue); }
+.fnm-sheet .barra-pe { background: var(--fnm-roxo); }
+.fnm-sheet .barra-estamina { background: var(--fnm-dourado); }
+.fnm-sheet .barra-alma { background: var(--fnm-roxo-claro); }
+
+.fnm-sheet .estado-alma {
+  font-size: 0.7rem;
+  padding: 0.05rem 0.4rem;
+  border-radius: 10px;
+  background: var(--fnm-verde);
+  color: #fff;
+  white-space: nowrap;
+}
+.fnm-sheet .estado-danificado { background: var(--fnm-dourado); color: var(--fnm-tinta); }
+.fnm-sheet .estado-instavel { background: #d2691e; }
+.fnm-sheet .estado-critico,
+.fnm-sheet .estado-destruida { background: var(--fnm-sangue); }
+
+.fnm-sheet .recurso-botoes,
+.fnm-sheet .combate-botoes,
+.fnm-sheet .linha-acoes {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+  margin-top: 0.45rem;
+  align-items: center;
+}
+.fnm-sheet .ajustes-manuais {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-top: 0.45rem;
+  font-size: 0.72rem;
+}
+.fnm-sheet .ajustes-manuais input {
+  width: 48px;
+  text-align: center;
+}
+
+/* -------------------------------------------- */
+/*  Perícias e Resistências                     */
+/* -------------------------------------------- */
+
+.fnm-sheet .pericias-cabecalho,
+.fnm-sheet .pericia-linha {
+  display: grid;
+  grid-template-columns: 46px 1fr 36px 46px 52px;
+  align-items: center;
+  gap: 0.3rem;
+  font-size: 0.8rem;
+  padding: 0.1rem 0.2rem;
+}
+.fnm-sheet .pericias-cabecalho {
+  font-size: 0.68rem;
+  text-transform: uppercase;
+  color: var(--fnm-cinza);
+  border-bottom: 1px solid var(--fnm-cinza);
+  letter-spacing: 0.04em;
+}
+.fnm-sheet .pericias-lista {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.fnm-sheet .pericia-linha:nth-child(odd) {
+  background: rgba(107, 63, 160, 0.06);
+}
+.fnm-sheet .pericia-linha .col-nome {
+  cursor: pointer;
+  font-weight: 500;
+}
+.fnm-sheet .pericia-linha .col-nome:hover {
+  color: var(--fnm-roxo);
+  text-shadow: 0 0 4px var(--fnm-roxo-claro);
+}
+.fnm-sheet .pericia-linha .col-total {
+  text-align: center;
+  font-weight: bold;
+  background: var(--fnm-tinta);
+  color: var(--fnm-osso);
+  border-radius: 3px;
+}
+.fnm-sheet .pericia-linha .col-attr {
+  text-align: center;
+  font-size: 0.68rem;
+  color: var(--fnm-cinza);
+}
+.fnm-sheet .pericia-linha input[type="number"] {
+  width: 100%;
+  text-align: center;
+  font-size: 0.72rem;
+}
+.fnm-sheet .pericia-linha .col-especialidade {
+  grid-column: 2 / -1;
+  font-size: 0.7rem;
+}
+.fnm-sheet .pericia-linha.bloqueada .col-nome {
+  color: var(--fnm-cinza);
+}
+.fnm-sheet .pericia-linha.complementar {
+  opacity: 0.85;
+}
+.fnm-sheet .col-prof {
+  display: flex;
+  gap: 0.15rem;
+  justify-content: center;
+}
+
+.fnm-sheet .resistencias-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+  gap: 0.25rem 0.6rem;
+}
+.fnm-sheet .resistencia-linha {
+  display: grid;
+  grid-template-columns: 46px 1fr 34px 44px 46px;
+  align-items: center;
+  gap: 0.25rem;
+  font-size: 0.8rem;
+}
+.fnm-sheet .resistencia-linha .teste-nome {
+  cursor: pointer;
+}
+.fnm-sheet .resistencia-linha .teste-nome:hover {
+  color: var(--fnm-roxo);
+}
+.fnm-sheet .resistencia-linha .teste-total {
+  text-align: center;
+  font-weight: bold;
+  background: var(--fnm-tinta);
+  color: var(--fnm-osso);
+  border-radius: 3px;
+}
+.fnm-sheet .resistencia-linha .teste-attr {
+  font-size: 0.68rem;
+  color: var(--fnm-cinza);
+  text-align: center;
+}
+.fnm-sheet .resistencia-linha input[type="number"] {
+  width: 100%;
+  text-align: center;
+  font-size: 0.72rem;
+}
+.fnm-sheet .prof-toggles {
+  display: flex;
+  gap: 0.15rem;
+  justify-content: center;
+}
+
+/* -------------------------------------------- */
+/*  Níveis de Aptidão                           */
+/* -------------------------------------------- */
+
+.fnm-sheet .aptidao-linha {
+  display: grid;
+  grid-template-columns: 1fr 48px auto;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.8rem;
+  margin-bottom: 0.25rem;
+}
+.fnm-sheet .aptidao-linha input {
+  text-align: center;
+}
+.fnm-sheet .pip-track {
+  display: flex;
+  gap: 0.2rem;
+}
+.fnm-sheet .pip {
+  width: 13px;
+  height: 13px;
+  border: 1px solid var(--fnm-roxo);
+  border-radius: 2px;
+  background: transparent;
+  display: inline-block;
+}
+.fnm-sheet .pip.filled {
+  background: var(--fnm-roxo);
+  box-shadow: 0 0 4px var(--fnm-roxo-claro);
+}
+
+.fnm-sheet .perfil-derivados {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-top: 0.4rem;
+  font-size: 0.78rem;
+}
+.fnm-sheet .perfil-derivados span {
+  background: rgba(107, 63, 160, 0.12);
+  border-radius: 3px;
+  padding: 0.1rem 0.4rem;
+}
+
+/* -------------------------------------------- */
+/*  Exaustão e morte                            */
+/* -------------------------------------------- */
+
+.fnm-sheet .exaustao-linha {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  margin: 0.45rem 0 0.25rem;
+  font-size: 0.8rem;
+}
+.fnm-sheet .exaustao-valor {
+  font-weight: bold;
+  font-size: 1rem;
+  min-width: 1.2rem;
+  text-align: center;
+}
+.fnm-sheet .exaustao-lista {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  font-size: 0.7rem;
+  color: var(--fnm-cinza);
+}
+.fnm-sheet .exaustao-lista li.ativo {
+  color: var(--fnm-sangue);
+  font-weight: 600;
+}
+
+.fnm-sheet .morte-linha {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-size: 0.8rem;
+  flex-wrap: wrap;
+}
+.fnm-sheet .morte-linha input {
+  width: 44px;
+  text-align: center;
+}
+.fnm-sheet .estado-atual {
+  font-size: 0.85rem;
+  margin: 0 0 0.3rem;
+}
+.fnm-sheet .estado-Morrendo b,
+.fnm-sheet .estado-Morto b {
+  color: var(--fnm-sangue);
+}
+
+/* -------------------------------------------- */
+/*  Listas de itens                             */
+/* -------------------------------------------- */
+
+.fnm-sheet .itens-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  margin-bottom: 0.25rem;
+}
+.fnm-sheet .itens-header h3 {
+  margin: 0;
+  font-size: 0.85rem;
+  color: var(--fnm-roxo);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.fnm-sheet .item-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.fnm-sheet .item {
+  display: grid;
+  grid-template-columns: auto 1fr auto auto;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.2rem 0.25rem;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+  font-size: 0.8rem;
+}
+.fnm-sheet .item:hover {
+  background: rgba(107, 63, 160, 0.08);
+}
+.fnm-sheet .item.equipado {
+  border-left: 3px solid var(--fnm-roxo);
+}
+.fnm-sheet .item.inativo {
+  opacity: 0.5;
+}
+.fnm-sheet .item-img {
+  border: none;
+  border-radius: 2px;
+  flex: none;
+}
+.fnm-sheet .item-nome {
+  cursor: pointer;
+  font-weight: 500;
+}
+.fnm-sheet .item-nome:hover {
+  color: var(--fnm-roxo);
+}
+.fnm-sheet .item-tag {
+  font-size: 0.68rem;
+  color: var(--fnm-cinza);
+  white-space: nowrap;
+}
+.fnm-sheet .item-controls {
+  display: flex;
+  gap: 0.3rem;
+}
+.fnm-sheet .item-controls a {
+  color: var(--fnm-cinza);
+  cursor: pointer;
+}
+.fnm-sheet .item-controls a:hover {
+  color: var(--fnm-roxo);
+}
+
+/* A descrição só aparece quando o item é expandido pelo clique no nome */
+.fnm-sheet .item-descricao {
+  display: none;
+  grid-column: 1 / -1;
+  font-size: 0.76rem;
+  padding: 0.3rem 0.4rem;
+  background: rgba(255, 255, 255, 0.5);
+  border-left: 3px solid var(--fnm-roxo-claro);
+  margin: 0.2rem 0;
+}
+.fnm-sheet .item.expanded .item-descricao {
+  display: block;
+}
+
+.fnm-sheet .grupo-colapsavel {
+  border: 1px solid rgba(107, 63, 160, 0.35);
+  border-radius: 3px;
+  margin-bottom: 0.35rem;
+  background: rgba(255, 255, 255, 0.25);
+}
+.fnm-sheet .grupo-colapsavel > summary {
+  cursor: pointer;
+  padding: 0.25rem 0.4rem;
+  font-size: 0.8rem;
+  font-weight: bold;
+  color: var(--fnm-roxo);
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+.fnm-sheet .grupo-colapsavel.indisponivel > summary {
+  opacity: 0.6;
+}
+.fnm-sheet .contador {
+  background: var(--fnm-roxo);
+  color: #fff;
+  border-radius: 8px;
+  font-size: 0.65rem;
+  padding: 0 0.35rem;
+}
+.fnm-sheet .nivel-info {
+  font-weight: normal;
+  font-size: 0.68rem;
+  color: var(--fnm-cinza);
+  margin-left: auto;
+}
+
+.fnm-sheet .dados-vida-lista {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.fnm-sheet .dado-vida-linha {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-size: 0.75rem;
+  padding: 0.15rem 0;
+}
+.fnm-sheet .dado-vida-linha input[type="text"] { width: 50px; text-align: center; }
+.fnm-sheet .dado-vida-linha input[type="number"] { width: 48px; text-align: center; }
+.fnm-sheet .restantes { color: var(--fnm-cinza); }
+
+/* -------------------------------------------- */
+/*  Ficha de item                               */
+/* -------------------------------------------- */
+
+.fnm-item .fnm-item-corpo {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+.fnm-item .sheet-header {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  background: var(--fnm-tinta);
+  padding: 0.5rem;
+  border-bottom: 3px solid var(--fnm-roxo);
+  flex: none;
+}
+.fnm-item .sheet-header .profile-img {
+  width: 52px;
+  height: 52px;
+}
+.fnm-item .nome-item {
+  flex: 1;
+  font-size: 1.1rem;
+  background: transparent;
+  border: none;
+  border-bottom: 1px dashed var(--fnm-roxo-claro);
+  color: var(--fnm-osso);
+}
+.fnm-item .sheet-body {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  padding: 0.5rem 0.6rem;
+}
+.fnm-item .ajustes-mecanicos {
+  border: 1px dashed var(--fnm-cinza);
+  border-radius: 3px;
+  padding: 0.4rem 0.5rem;
+  margin: 0.6rem 0;
+}
+.fnm-item .ajustes-mecanicos legend {
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  color: var(--fnm-cinza);
+  padding: 0 0.3rem;
+}
+.fnm-sheet .editor,
+.fnm-sheet prose-mirror {
+  min-height: 150px;
+  background: rgba(255, 255, 255, 0.55);
+  border: 1px solid var(--fnm-cinza);
+  border-radius: 3px;
+}
+
+/* -------------------------------------------- */
+/*  Rodapé e cartas de chat                     */
+/* -------------------------------------------- */
+
+.fnm-sheet .fnm-credito {
+  flex: none;
+  font-size: 0.62rem;
+  text-align: center;
+  color: var(--fnm-osso);
+  background: var(--fnm-tinta);
+  padding: 0.3rem 0.5rem;
+  border-top: 2px solid var(--fnm-roxo);
+}
+
+.fnm-carta {
+  border-left: 3px solid var(--fnm-roxo);
+  padding-left: 0.5rem;
+}
+.fnm-carta h3 {
+  margin: 0 0 0.3rem;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  color: var(--fnm-roxo);
+  border-bottom: 1px solid var(--fnm-roxo-claro);
+}
+.fnm-carta h3 img {
+  border: none;
+}
+.fnm-carta-desc {
+  margin-top: 0.4rem;
+  padding-top: 0.3rem;
+  border-top: 1px dashed var(--fnm-cinza);
+  font-size: 0.9em;
+}

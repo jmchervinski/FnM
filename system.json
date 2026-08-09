@@ -1,0 +1,135 @@
+{
+  "id": "fnm",
+  "title": "Feiticeiros & Maldições (Não-Oficial)",
+  "description": "<p>Sistema NÃO-OFICIAL, feito por fã, para jogar <strong>Feiticeiros &amp; Maldições</strong> no Foundry VTT.</p><p>Feiticeiros &amp; Maldições é um RPG de mesa gratuito criado de fãs para fãs, ambientado no universo de <strong>Jujutsu Kaisen</strong>, obra de <strong>Gege Akutami</strong>. Desenvolvimento: Setsugiri e Parker; Diagramação e Edição: Setsugiri e Jou; Revisão: Jou, Kame e Parker; Artes originais: Konatsuu e Strabey. Baseado no Livro de Regras v2.5.2.</p><p>Este sistema não é afiliado, endossado ou patrocinado pelos autores de Feiticeiros &amp; Maldições nem pelos detentores dos direitos de Jujutsu Kaisen. Todos os créditos da obra original são de Gege Akutami.</p>",
+  "version": "0.1.0",
+  "compatibility": {
+    "minimum": "13",
+    "verified": "14"
+  },
+  "authors": [
+    {
+      "name": "JM (sistema não-oficial)",
+      "flags": {}
+    }
+  ],
+  "esmodules": [
+    "module/fnm.mjs"
+  ],
+  "styles": [
+    "styles/fnm.css"
+  ],
+  "languages": [
+    {
+      "lang": "pt-BR",
+      "name": "Português (Brasil)",
+      "path": "lang/pt-BR.json"
+    },
+    {
+      "lang": "en",
+      "name": "English",
+      "path": "lang/en.json"
+    }
+  ],
+  "documentTypes": {
+    "Actor": {
+      "character": { "htmlFields": ["biografia", "aspectos.dominioInato", "anotacoes"] },
+      "npc": { "htmlFields": ["biografia", "taticas"] },
+      "invocacao": { "htmlFields": ["biografia"] }
+    },
+    "Item": {
+      "origem": { "htmlFields": ["description"] },
+      "especializacao": { "htmlFields": ["description"] },
+      "habilidade": { "htmlFields": ["description"] },
+      "talento": { "htmlFields": ["description"] },
+      "aptidao": { "htmlFields": ["description"] },
+      "tecnica": { "htmlFields": ["description", "funcionamento"] },
+      "feitico": { "htmlFields": ["description"] },
+      "arma": { "htmlFields": ["description"] },
+      "equipamento": { "htmlFields": ["description"] },
+      "voto": { "htmlFields": ["description", "restricao"] }
+    }
+  },
+  "packs": [
+    {
+      "name": "fnm-origens",
+      "label": "F&M: Origens",
+      "system": "fnm",
+      "path": "packs/fnm-origens",
+      "type": "Item",
+      "ownership": { "PLAYER": "OBSERVER", "ASSISTANT": "OWNER" },
+      "flags": {}
+    },
+    {
+      "name": "fnm-especializacoes",
+      "label": "F&M: Especializações",
+      "system": "fnm",
+      "path": "packs/fnm-especializacoes",
+      "type": "Item",
+      "ownership": { "PLAYER": "OBSERVER", "ASSISTANT": "OWNER" },
+      "flags": {}
+    },
+    {
+      "name": "fnm-aptidoes",
+      "label": "F&M: Aptidões Amaldiçoadas",
+      "system": "fnm",
+      "path": "packs/fnm-aptidoes",
+      "type": "Item",
+      "ownership": { "PLAYER": "OBSERVER", "ASSISTANT": "OWNER" },
+      "flags": {}
+    },
+    {
+      "name": "fnm-armas",
+      "label": "F&M: Armas e Equipamentos",
+      "system": "fnm",
+      "path": "packs/fnm-armas",
+      "type": "Item",
+      "ownership": { "PLAYER": "OBSERVER", "ASSISTANT": "OWNER" },
+      "flags": {}
+    },
+    {
+      "name": "fnm-regras",
+      "label": "F&M: Referência de Regras",
+      "system": "fnm",
+      "path": "packs/fnm-regras",
+      "type": "JournalEntry",
+      "ownership": { "PLAYER": "OBSERVER", "ASSISTANT": "OWNER" },
+      "flags": {}
+    },
+    {
+      "name": "fnm-macros",
+      "label": "F&M: Macros",
+      "system": "fnm",
+      "path": "packs/fnm-macros",
+      "type": "Macro",
+      "ownership": { "PLAYER": "OBSERVER", "ASSISTANT": "OWNER" },
+      "flags": {}
+    }
+  ],
+  "packFolders": [
+    {
+      "name": "Feiticeiros & Maldições",
+      "sorting": "m",
+      "packs": [
+        "fnm-origens",
+        "fnm-especializacoes",
+        "fnm-aptidoes",
+        "fnm-armas",
+        "fnm-regras",
+        "fnm-macros"
+      ]
+    }
+  ],
+  "socket": true,
+  "initiative": "1d20 + @iniciativa",
+  "grid": {
+    "distance": 1.5,
+    "units": "m"
+  },
+  "primaryTokenAttribute": "recursos.pv",
+  "secondaryTokenAttribute": "recursos.pe",
+  "url": "https://github.com/jmchervinski/FnM",
+  "manifest": "https://github.com/jmchervinski/FnM/releases/latest/download/system.json",
+  "download": "https://github.com/jmchervinski/FnM/releases/latest/download/system.zip",
+  "license": "LICENSE"
+}

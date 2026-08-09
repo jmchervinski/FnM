@@ -1,0 +1,62 @@
+{{!-- Pontos de Vida, Energia/Estamina e Integridade da Alma (p. 19-21, 311) --}}
+<fieldset class="bloco recursos-bloco">
+  <legend>Recursos</legend>
+
+  <div class="recurso-linha recurso-pv">
+    <label>Pontos de Vida</label>
+    <input type="number" name="system.recursos.pv.value" value="{{system.recursos.pv.value}}" />
+    <span class="divisor">/</span>
+    <span class="recurso-max" title="Definido pela Especialização + Constituição por nível">
+      {{system.recursos.pv.max}}
+    </span>
+    <label class="recurso-temp" title="Pontos de Vida temporários">
+      Temp <input type="number" name="system.recursos.pvTemporario" value="{{system.recursos.pvTemporario}}" min="0" />
+    </label>
+    <div class="barra"><div class="barra-preenchida barra-pv" style="width: {{porcento system.recursos.pv.value system.recursos.pv.max}}%"></div></div>
+  </div>
+
+  <div class="recurso-linha recurso-pe">
+    <label>Energia Amaldiçoada</label>
+    <input type="number" name="system.recursos.pe.value" value="{{system.recursos.pe.value}}" min="0" />
+    <span class="divisor">/</span>
+    <span class="recurso-max">{{system.recursos.pe.max}}</span>
+    <div class="barra"><div class="barra-preenchida barra-pe" style="width: {{porcento system.recursos.pe.value system.recursos.pe.max}}%"></div></div>
+  </div>
+
+  {{#if system.recursos.estamina.max}}
+  <div class="recurso-linha recurso-estamina">
+    <label>Estamina <small>(Restringido)</small></label>
+    <input type="number" name="system.recursos.estamina.value" value="{{system.recursos.estamina.value}}" min="0" />
+    <span class="divisor">/</span>
+    <span class="recurso-max">{{system.recursos.estamina.max}}</span>
+    <div class="barra"><div class="barra-preenchida barra-estamina" style="width: {{porcento system.recursos.estamina.value system.recursos.estamina.max}}%"></div></div>
+  </div>
+  {{/if}}
+
+  <div class="recurso-linha recurso-alma">
+    <label>Integridade da Alma</label>
+    <input type="number" name="system.recursos.integridade.value" value="{{system.recursos.integridade.value}}" min="0" />
+    <span class="divisor">/</span>
+    <span class="recurso-max" title="Sempre igual ao máximo de Pontos de Vida (p. 19)">
+      {{system.recursos.integridade.max}}
+    </span>
+    <span class="estado-alma estado-{{system.alma.id}}" title="Estados da Alma (p. 312)">
+      {{system.alma.estado}}
+      {{#if system.alma.penalidade}}({{system.alma.penalidade}} em testes, +{{system.alma.custoExtra}} PE){{/if}}
+    </span>
+    <div class="barra"><div class="barra-preenchida barra-alma" style="width: {{porcento system.recursos.integridade.value system.recursos.integridade.max}}%"></div></div>
+  </div>
+
+  <div class="recurso-botoes">
+    <button type="button" data-action="aplicarDano" title="Aplicar dano com RD e PV temporários">💥 Dano</button>
+    <button type="button" data-action="curar">💚 Curar</button>
+    <button type="button" data-action="descansoCurto">☕ Descanso Curto</button>
+    <button type="button" data-action="descansoLongo">🌙 Descanso Longo</button>
+  </div>
+
+  <div class="ajustes-manuais">
+    <label title="Somado ao máximo derivado de PV">PV máx. ± <input type="number" name="system.recursos.pv.ajuste" value="{{system.recursos.pv.ajuste}}" step="1" /></label>
+    <label title="Somado ao máximo derivado de PE">PE máx. ± <input type="number" name="system.recursos.pe.ajuste" value="{{system.recursos.pe.ajuste}}" step="1" /></label>
+    <label title="Redução de Dano própria (p. 309)">RD <input type="number" name="system.combate.reducaoDano" value="{{system.combate.reducaoDano}}" min="0" /></label>
+  </div>
+</fieldset>

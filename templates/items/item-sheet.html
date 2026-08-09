@@ -1,0 +1,350 @@
+<div class="fnm-item-corpo">
+  <header class="sheet-header">
+    <img class="profile-img" src="{{item.img}}" data-action="editImage" data-edit="img" title="{{item.name}}" />
+    <input class="nome-item" name="name" type="text" value="{{item.name}}" placeholder="Nome" />
+  </header>
+
+  <div class="sheet-body">
+
+    {{#if (eq item.type "origem")}}
+    <div class="campos-grid">
+      <label>Origem
+        <select name="system.origem">
+          {{#each origens as |o|}}
+          <option value="{{o.id}}" {{#if (eq o.id ../system.origem)}}selected{{/if}}>{{o.nome}}</option>
+          {{/each}}
+        </select>
+      </label>
+      <label>Clã <input type="text" name="system.cla" value="{{system.cla}}" placeholder="Gojo, Zenin…" /></label>
+      <label class="largo">Bônus em Atributo
+        <input type="text" name="system.bonusAtributos" value="{{system.bonusAtributos}}"
+               placeholder="Ex.: +2 em um atributo e +1 em outro" />
+      </label>
+    </div>
+    {{/if}}
+
+    {{#if (eq item.type "especializacao")}}
+    <div class="campos-grid">
+      <label>Especialização
+        <select name="system.especializacao">
+          {{#each especializacoes as |e|}}
+          <option value="{{e.id}}" {{#if (eq e.id ../system.especializacao)}}selected{{/if}}>{{e.nome}}</option>
+          {{/each}}
+        </select>
+      </label>
+      <label title="Quantos níveis o personagem tem nesta especialização (Multiclasse)">Níveis
+        <input type="number" name="system.niveis" value="{{system.niveis}}" min="0" max="20" />
+      </label>
+      <label>Atributo Chave
+        <select name="system.atributoChave">
+          <option value="">—</option>
+          {{#each atributos as |a|}}
+          <option value="{{a.id}}" {{#if (eq a.id ../system.atributoChave)}}selected{{/if}}>{{a.nome}}</option>
+          {{/each}}
+        </select>
+      </label>
+    </div>
+    <p class="dica">Os PV e PE deste item são somados automaticamente ao ator conforme a tabela de
+      especializações (p. 44). Em Multiclasse, apenas a especialização com mais níveis usa o PV do 1º nível.</p>
+    {{/if}}
+
+    {{#if (eq item.type "habilidade")}}
+    <div class="campos-grid">
+      <label>Especialização <input type="text" name="system.especializacao" value="{{system.especializacao}}" /></label>
+      <label>Nível requerido <input type="number" name="system.nivelRequerido" value="{{system.nivelRequerido}}" min="1" max="20" /></label>
+      <label>Custo em PE <input type="number" name="system.custoPE" value="{{system.custoPE}}" min="0" /></label>
+      <label>Ação <input type="text" name="system.acao" value="{{system.acao}}" placeholder="Ação Comum, Reação…" /></label>
+    </div>
+    {{/if}}
+
+    {{#if (eq item.type "talento")}}
+    <div class="campos-grid">
+      <label>Categoria
+        <select name="system.categoria">
+          <option value="Geral" {{#if (eq system.categoria "Geral")}}selected{{/if}}>Geral</option>
+          <option value="Origem" {{#if (eq system.categoria "Origem")}}selected{{/if}}>Origem</option>
+        </select>
+      </label>
+      <label class="largo">Pré-requisito
+        <input type="text" name="system.prerequisito" value="{{system.prerequisito}}" placeholder="Ex.: Força 16, nível 4" />
+      </label>
+    </div>
+    {{/if}}
+
+    {{#if (eq item.type "aptidao")}}
+    <div class="campos-grid">
+      <label>Categoria
+        <select name="system.categoria">
+          {{#each config.categoriasAptidao as |c|}}
+          <option value="{{c}}" {{#if (eq c ../system.categoria)}}selected{{/if}}>{{c}}</option>
+          {{/each}}
+        </select>
+      </label>
+      <label>Área do Nível de Aptidão
+        <select name="system.areaAptidao">
+          <option value="">—</option>
+          {{#each areasAptidao as |a|}}
+          <option value="{{a.id}}" {{#if (eq a.id ../system.areaAptidao)}}selected{{/if}}>{{a.sigla}} — {{a.nome}}</option>
+          {{/each}}
+        </select>
+      </label>
+      <label>Nível de Aptidão exigido
+        <input type="number" name="system.nivelAptidao" value="{{system.nivelAptidao}}" min="0" max="5" />
+      </label>
+      <label>Custo em PE <input type="number" name="system.custoPE" value="{{system.custoPE}}" min="0" /></label>
+      <label>Ação <input type="text" name="system.acao" value="{{system.acao}}" /></label>
+      <label class="largo">Pré-requisito
+        <input type="text" name="system.prerequisito" value="{{system.prerequisito}}" placeholder="Ex.: Presença 16 e Nível 8" />
+      </label>
+    </div>
+    {{/if}}
+
+    {{#if (eq item.type "tecnica")}}
+    <div class="campos-grid">
+      <label>Tipo
+        <select name="system.tipo">
+          {{#each (array "Inata" "Herdada" "Barreira" "Shikigami" "Adquirida" "Outra") as |t|}}
+          <option value="{{t}}" {{#if (eq t ../system.tipo)}}selected{{/if}}>{{t}}</option>
+          {{/each}}
+        </select>
+      </label>
+      <label>Atributo da Técnica
+        <select name="system.atributo">
+          <option value="">—</option>
+          {{#each atributos as |a|}}
+          <option value="{{a.id}}" {{#if (eq a.id ../system.atributo)}}selected{{/if}}>{{a.nome}}</option>
+          {{/each}}
+        </select>
+      </label>
+    </div>
+    <label class="campo-largo">Funcionamento Básico</label>
+    <p class="dica">Descreva primeiro o conceito e a dinâmica da técnica; depois, a parte mecânica
+      (equipamentos concedidos, limitações, mecânicas próprias) — p. 197.</p>
+    {{editor enrichedFuncionamento target="system.funcionamento" button=true engine="prosemirror" editable=editable}}
+    {{/if}}
+
+    {{#if (eq item.type "feitico")}}
+    <div class="campos-grid">
+      <label>Nível
+        <select name="system.nivel">
+          {{#each niveisFeitico as |n|}}
+          <option value="{{n.id}}" {{#if (eq n.id ../system.nivel)}}selected{{/if}}>{{n.nome}} ({{n.custo}} PE)</option>
+          {{/each}}
+        </select>
+      </label>
+      <label>Tipo
+        <select name="system.tipo">
+          {{#each config.tiposFeitico as |t|}}
+          <option value="{{t}}" {{#if (eq t ../system.tipo)}}selected{{/if}}>{{t}}</option>
+          {{/each}}
+        </select>
+      </label>
+      <label title="-1 usa o custo padrão do nível">Custo em PE
+        <input type="number" name="system.custoPE" value="{{system.custoPE}}" min="-1" />
+      </label>
+      <label title="Marca Registrada do Inato e efeitos afins">Redução de custo
+        <input type="number" name="system.reducaoCusto" value="{{system.reducaoCusto}}" min="0" />
+      </label>
+      <label>Conjuração
+        <select name="system.conjuracao">
+          {{#each config.conjuracoes as |c|}}
+          <option value="{{c}}" {{#if (eq c ../system.conjuracao)}}selected{{/if}}>{{c}}</option>
+          {{/each}}
+        </select>
+      </label>
+      <label>Duração
+        <select name="system.duracao">
+          {{#each config.duracoes as |d|}}
+          <option value="{{d}}" {{#if (eq d ../system.duracao)}}selected{{/if}}>{{d}}</option>
+          {{/each}}
+        </select>
+      </label>
+      <label>Alcance
+        <input type="text" name="system.alcance" value="{{system.alcance}}" placeholder="{{system.alcancePadrao}} metros" />
+      </label>
+      <label>Alvo
+        <select name="system.alvo">
+          {{#each config.tiposAlvo as |t|}}
+          <option value="{{t}}" {{#if (eq t ../system.alvo)}}selected{{/if}}>{{t}}</option>
+          {{/each}}
+        </select>
+      </label>
+      <label>Formato da área
+        <select name="system.area.formato">
+          <option value="">—</option>
+          {{#each config.formatosArea as |f|}}
+          <option value="{{f}}" {{#if (eq f ../system.area.formato)}}selected{{/if}}>{{f}}</option>
+          {{/each}}
+        </select>
+      </label>
+      <label>Área (metros)
+        <input type="number" name="system.area.tamanho" value="{{system.area.tamanho}}" min="0" step="1.5" />
+      </label>
+      <label>Resolução
+        <select name="system.resolucao">
+          <option value="ataque" {{#if (eq system.resolucao "ataque")}}selected{{/if}}>Jogada de Ataque</option>
+          <option value="resistencia" {{#if (eq system.resolucao "resistencia")}}selected{{/if}}>Teste de Resistência</option>
+          <option value="nenhuma" {{#if (eq system.resolucao "nenhuma")}}selected{{/if}}>Nenhuma</option>
+        </select>
+      </label>
+      <label>Resistência exigida
+        <select name="system.resistencia">
+          <option value="">—</option>
+          {{#each resistencias as |r|}}
+          <option value="{{r.id}}" {{#if (eq r.id ../system.resistencia)}}selected{{/if}}>{{r.nome}}</option>
+          {{/each}}
+        </select>
+      </label>
+      <label>Dano
+        <input type="text" name="system.dano" value="{{system.dano}}" placeholder="{{system.danoPadrao}}" />
+      </label>
+      <label>Tipo de dano
+        <select name="system.tipoDano">
+          <option value="">—</option>
+          {{#each tiposDano as |t|}}
+          <option value="{{t.id}}" {{#if (eq t.id ../system.tipoDano)}}selected{{/if}}>{{t.nome}}</option>
+          {{/each}}
+        </select>
+      </label>
+      <label class="largo">Requisito para uso
+        <input type="text" name="system.requisito" value="{{system.requisito}}"
+               placeholder="Ex.: o alvo precisa estar marcado" />
+      </label>
+      <label class="largo">Variação de Liberação de
+        <input type="text" name="system.variacaoDe" value="{{system.variacaoDe}}"
+               placeholder="Nome do Feitiço base (p. 200)" />
+      </label>
+    </div>
+    <div class="linha-acoes">
+      <span class="dica">Custo efetivo: <b>{{system.custoEfetivo}} PE</b> · Dano padrão do nível: <b>{{system.danoPadrao}}</b></span>
+      <button type="button" data-action="aplicarPadroes" title="Preenche alcance, dano e área com os valores da tabela do nível">
+        Aplicar valores padrão do nível
+      </button>
+    </div>
+    {{/if}}
+
+    {{#if (eq item.type "arma")}}
+    <div class="campos-grid">
+      <label>Categoria
+        <select name="system.categoria">
+          {{#each config.categoriasArma as |c|}}
+          <option value="{{c}}" {{#if (eq c ../system.categoria)}}selected{{/if}}>{{c}}</option>
+          {{/each}}
+        </select>
+      </label>
+      <label>Grupo
+        <select name="system.grupo">
+          <option value="">—</option>
+          {{#each gruposArma as |g|}}
+          <option value="{{g.id}}" {{#if (eq g.id ../system.grupo)}}selected{{/if}}>{{g.nome}}</option>
+          {{/each}}
+        </select>
+      </label>
+      <label>Dano <input type="text" name="system.dano" value="{{system.dano}}" placeholder="1d6" /></label>
+      <label title="Dano ao usar com as duas mãos">Dano versátil
+        <input type="text" name="system.danoVersatil" value="{{system.danoVersatil}}" placeholder="1d8" />
+      </label>
+      <label>Tipo de dano
+        <select name="system.tipoDano">
+          <option value="">—</option>
+          {{#each tiposDano as |t|}}
+          <option value="{{t.id}}" {{#if (eq t.id ../system.tipoDano)}}selected{{/if}}>{{t.nome}}</option>
+          {{/each}}
+        </select>
+      </label>
+      <label title="Valor mínimo no d20 para crítico">Crítico
+        <input type="number" name="system.critico" value="{{system.critico}}" min="15" max="20" />
+      </label>
+      <label>Espaços <input type="number" name="system.espacos" value="{{system.espacos}}" min="0" /></label>
+      <label>Custo <input type="number" name="system.custo" value="{{system.custo}}" min="0" /></label>
+      <label>Alcance <input type="text" name="system.alcance" value="{{system.alcance}}" placeholder="12/24m" /></label>
+      <label>Grau
+        <select name="system.grau">
+          <option value="">—</option>
+          {{#each graus as |g|}}
+          <option value="{{g}}" {{#if (eq g ../system.grau)}}selected{{/if}}>{{g}}</option>
+          {{/each}}
+        </select>
+      </label>
+      <label>Bônus de ataque <input type="number" name="system.bonusAtaque" value="{{system.bonusAtaque}}" step="1" /></label>
+      <label>Bônus de dano <input type="number" name="system.bonusDano" value="{{system.bonusDano}}" step="1" /></label>
+      <label>Quantidade <input type="number" name="system.quantidade" value="{{system.quantidade}}" min="0" /></label>
+      <label class="largo">Propriedades
+        <input type="text" name="system.propriedades" value="{{system.propriedades}}"
+               placeholder="Fineza, leve, marcial, versátil…" />
+      </label>
+    </div>
+    <div class="checkboxes">
+      <label class="checkbox" title="Permite usar Destreza no lugar de Força (p. 279)">
+        <input type="checkbox" name="system.fineza" {{#if system.fineza}}checked{{/if}} /> Fineza
+      </label>
+      <label class="checkbox" title="Sem treinamento você não soma o Bônus de Treinamento (p. 131)">
+        <input type="checkbox" name="system.treinado" {{#if system.treinado}}checked{{/if}} /> Treinado nesta arma
+      </label>
+      <label class="checkbox">
+        <input type="checkbox" name="system.equipada" {{#if system.equipada}}checked{{/if}} /> Equipada
+      </label>
+    </div>
+    {{/if}}
+
+    {{#if (eq item.type "equipamento")}}
+    <div class="campos-grid">
+      <label>Tipo
+        <select name="system.tipo">
+          {{#each config.tiposEquipamento as |t|}}
+          <option value="{{t}}" {{#if (eq t ../system.tipo)}}selected{{/if}}>{{t}}</option>
+          {{/each}}
+        </select>
+      </label>
+      <label>Grau
+        <select name="system.grau">
+          <option value="">—</option>
+          {{#each graus as |g|}}
+          <option value="{{g}}" {{#if (eq g ../system.grau)}}selected{{/if}}>{{g}}</option>
+          {{/each}}
+        </select>
+      </label>
+      <label>Espaços <input type="number" name="system.espacos" value="{{system.espacos}}" min="0" /></label>
+      <label>Custo <input type="number" name="system.custo" value="{{system.custo}}" min="0" /></label>
+      <label>Quantidade <input type="number" name="system.quantidade" value="{{system.quantidade}}" min="0" /></label>
+      <label class="checkbox">
+        <input type="checkbox" name="system.equipado" {{#if system.equipado}}checked{{/if}} /> Equipado
+      </label>
+    </div>
+    {{/if}}
+
+    {{#if (eq item.type "voto")}}
+    <div class="campos-grid">
+      <label>Peso
+        <select name="system.peso">
+          {{#each config.pesosVoto as |p|}}
+          <option value="{{p}}" {{#if (eq p ../system.peso)}}selected{{/if}}>{{p}}</option>
+          {{/each}}
+        </select>
+      </label>
+      <label class="checkbox">
+        <input type="checkbox" name="system.ativo" {{#if system.ativo}}checked{{/if}} /> Voto ativo
+      </label>
+    </div>
+    <label class="campo-largo">Restrição assumida</label>
+    {{editor enrichedRestricao target="system.restricao" button=true engine="prosemirror" editable=editable}}
+    {{/if}}
+
+    {{!-- Ajustes mecânicos aplicados ao dono do item --}}
+    <fieldset class="ajustes-mecanicos">
+      <legend>Ajustes no dono</legend>
+      <div class="campos-grid">
+        <label>PV máx. ± <input type="number" name="system.ajustes.pv" value="{{system.ajustes.pv}}" step="1" /></label>
+        <label>PE máx. ± <input type="number" name="system.ajustes.pe" value="{{system.ajustes.pe}}" step="1" /></label>
+        <label>Defesa ± <input type="number" name="system.ajustes.defesa" value="{{system.ajustes.defesa}}" step="1" /></label>
+        <label>Deslocamento ± <input type="number" name="system.ajustes.deslocamento" value="{{system.ajustes.deslocamento}}" step="1.5" /></label>
+        <label>Redução de Dano ± <input type="number" name="system.ajustes.reducaoDano" value="{{system.ajustes.reducaoDano}}" step="1" /></label>
+      </div>
+      <p class="dica">Aplicados automaticamente enquanto o dono possuir o item. Armas e equipamentos
+        só contam quando <b>equipados</b>; Votos, só quando <b>ativos</b>.</p>
+    </fieldset>
+
+    <label class="campo-largo">Descrição</label>
+    {{editor enrichedDescription target="system.description" button=true engine="prosemirror" editable=editable}}
+  </div>
+</div>

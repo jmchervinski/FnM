@@ -1,0 +1,17 @@
+{
+  "name": "fnm-foundry-vtt",
+  "version": "0.1.0",
+  "description": "Sistema não-oficial de Feiticeiros & Maldições para Foundry VTT",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build:packs": "node tools/build-packs.mjs",
+    "lint": "eslint module/**/*.mjs tools/**/*.mjs",
+    "format": "prettier --write \"**/*.{js,mjs,json,html,css}\""
+  },
+  "devDependencies": {
+    "@foundryvtt/foundryvtt-cli": "^3.0.4",
+    "eslint": "^8.57.0",
+    "prettier": "^3.3.0"
+  }
+}

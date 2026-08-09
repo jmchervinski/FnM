@@ -1,0 +1,9 @@
+node_modules/
+packs-src/
+dist/
+.DS_Store
+*.log
+.vscode/
+
+# Configuração local de ferramentas, específica de cada máquina
+.claude/settings.local.json

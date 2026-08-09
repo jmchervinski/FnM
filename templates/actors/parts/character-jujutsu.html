@@ -1,0 +1,138 @@
+<div class="tab jujutsu {{tab.cssClass}}" data-group="primary" data-tab="jujutsu">
+
+  {{!-- Perfil Amaldiçoado: atributos de jujutsu e CDs derivadas (p. 198) --}}
+  <fieldset class="bloco perfil-bloco">
+    <legend>Perfil Amaldiçoado</legend>
+    <div class="perfil-grid">
+      <label>Atributo da Técnica
+        <select name="system.jujutsu.atributoTecnica">
+          {{#each atributos as |a|}}
+          <option value="{{a.id}}" {{#if (eq a.id ../system.jujutsu.atributoTecnica)}}selected{{/if}}>{{a.nome}}</option>
+          {{/each}}
+        </select>
+      </label>
+      <label>Atributo Chave da Especialização
+        <select name="system.jujutsu.atributoEspecializacao">
+          {{#each atributos as |a|}}
+          <option value="{{a.id}}" {{#if (eq a.id ../system.jujutsu.atributoEspecializacao)}}selected{{/if}}>{{a.nome}}</option>
+          {{/each}}
+        </select>
+      </label>
+      <label>Outros bônus na CD
+        <input type="number" name="system.jujutsu.cdOutros" value="{{system.jujutsu.cdOutros}}" step="1" />
+      </label>
+    </div>
+    <div class="perfil-derivados">
+      <span>CD Amaldiçoada <b>{{system.cdAmaldicoada}}</b></span>
+      <span>CD Especialização <b>{{system.cdEspecializacao}}</b></span>
+      <span>Ataque Amaldiçoado <b>{{sinal system.ataqueAmaldicoado}}</b></span>
+    </div>
+    <p class="dica">CD = 10 + metade do nível + modificador de atributo + Bônus de Treinamento (p. 198/280).</p>
+  </fieldset>
+
+  {{!-- Níveis de Aptidão de 0 a 5 (p. 173) --}}
+  <fieldset class="bloco niveis-aptidao-bloco">
+    <legend>Níveis de Aptidão</legend>
+    {{#each aptidoesView as |a|}}
+    <div class="aptidao-linha">
+      <label title="{{a.nome}}">{{a.sigla}} — {{a.nome}}</label>
+      <input type="number" name="system.jujutsu.aptidoes.{{a.key}}" value="{{a.value}}" min="0" max="5" />
+      <div class="pip-track">
+        {{#each a.pips as |p|}}
+        <span class="pip {{#if p.filled}}filled{{/if}}"></span>
+        {{/each}}
+      </div>
+    </div>
+    {{/each}}
+    <p class="dica">Em todo nível par você sobe +1 em uma aptidão; nos níveis 10 e 20, +1 adicional (p. 173).</p>
+  </fieldset>
+
+  {{!-- Técnica Amaldiçoada e seu Funcionamento Básico (p. 197) --}}
+  <fieldset class="bloco tecnica-bloco">
+    <legend>Técnica Amaldiçoada</legend>
+    <header class="itens-header">
+      <span></span>
+      <button type="button" data-action="itemCreate" data-type="tecnica"><i class="fas fa-plus"></i> Técnica</button>
+    </header>
+    <ol class="item-list">
+      {{#each itens.tecnica as |item|}}
+      <li class="item" data-item-id="{{item.id}}">
+        <img class="item-img" src="{{item.img}}" width="24" height="24" />
+        <a class="item-nome" data-action="itemExpand">{{item.name}}</a>
+        <span class="item-tag">{{item.system.tipo}}</span>
+        <div class="item-controls">
+          <a data-action="itemChat"><i class="fas fa-comment"></i></a>
+          <a data-action="itemEdit"><i class="fas fa-edit"></i></a>
+          <a data-action="itemDelete"><i class="fas fa-trash"></i></a>
+        </div>
+        <div class="item-descricao">
+          {{{item.system.funcionamento}}}
+          {{{item.system.description}}}
+        </div>
+      </li>
+      {{/each}}
+    </ol>
+  </fieldset>
+
+  {{!-- Aptidões Amaldiçoadas adquiridas, agrupadas por categoria (p. 172) --}}
+  <fieldset class="bloco aptidoes-bloco">
+    <legend>Aptidões Amaldiçoadas</legend>
+    <header class="itens-header">
+      <span class="dica">Uma aptidão por nível, exceto Restringidos (p. 172).</span>
+      <button type="button" data-action="itemCreate" data-type="aptidao"><i class="fas fa-plus"></i> Aptidão</button>
+    </header>
+    {{#each aptidoesPorCategoria as |grupo|}}
+    <details class="grupo-colapsavel" data-colapso="apt-{{grupo.categoria}}" open>
+      <summary>{{grupo.categoria}} <span class="contador">{{grupo.itens.length}}</span></summary>
+      <ol class="item-list">
+        {{#each grupo.itens as |item|}}
+        <li class="item" data-item-id="{{item.id}}">
+          <img class="item-img" src="{{item.img}}" width="24" height="24" />
+          <a class="item-nome" data-action="itemExpand">{{item.name}}</a>
+          <span class="item-tag">
+            {{#if item.system.custoPE}}{{item.system.custoPE}} PE{{/if}}
+            {{#if item.system.acao}} · {{item.system.acao}}{{/if}}
+          </span>
+          <div class="item-controls">
+            <a data-action="itemChat"><i class="fas fa-comment"></i></a>
+            <a data-action="itemEdit"><i class="fas fa-edit"></i></a>
+            <a data-action="itemDelete"><i class="fas fa-trash"></i></a>
+          </div>
+          <div class="item-descricao">{{{item.system.description}}}</div>
+        </li>
+        {{/each}}
+      </ol>
+    </details>
+    {{/each}}
+    {{#unless aptidoesPorCategoria.length}}
+    <p class="vazio">Nenhuma aptidão amaldiçoada ainda. Arraste-as do compêndio ou crie uma nova.</p>
+    {{/unless}}
+  </fieldset>
+
+  {{!-- Votos de Restrição (p. 351) --}}
+  <fieldset class="bloco votos-bloco">
+    <legend>Votos de Restrição</legend>
+    <header class="itens-header">
+      <span class="dica">Votos inativos não concedem seus ajustes mecânicos.</span>
+      <button type="button" data-action="itemCreate" data-type="voto"><i class="fas fa-plus"></i> Voto</button>
+    </header>
+    <ol class="item-list">
+      {{#each itens.voto as |item|}}
+      <li class="item {{#unless item.system.ativo}}inativo{{/unless}}" data-item-id="{{item.id}}">
+        <a class="item-nome" data-action="itemExpand">{{item.name}}</a>
+        <span class="item-tag">Peso {{item.system.peso}}</span>
+        <div class="item-controls">
+          <a data-action="itemToggle" title="Ativar/desativar"><i class="fas fa-power-off"></i></a>
+          <a data-action="itemChat"><i class="fas fa-comment"></i></a>
+          <a data-action="itemEdit"><i class="fas fa-edit"></i></a>
+          <a data-action="itemDelete"><i class="fas fa-trash"></i></a>
+        </div>
+        <div class="item-descricao">
+          {{{item.system.restricao}}}
+          {{{item.system.description}}}
+        </div>
+      </li>
+      {{/each}}
+    </ol>
+  </fieldset>
+</div>

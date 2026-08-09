@@ -1,0 +1,46 @@
+<div class="tab pericias {{tab.cssClass}}" data-group="primary" data-tab="pericias">
+
+  <fieldset class="bloco pericias-bloco">
+    <legend>Perícias</legend>
+    <p class="dica">
+      Bônus = modificador do atributo-chave + metade do nível + Bônus de Treinamento
+      (Mestre soma 1,5x) + outros (p. 278).
+      {{#if system.periciasExtras}}
+      Você recebe <b>{{system.periciasExtras}}</b> treinamento(s) adicional(is) pelo atributo
+      escolhido na criação (p. 283).
+      {{/if}}
+    </p>
+
+    <div class="pericias-cabecalho">
+      <span class="col-prof" title="Treinado / Mestre">T / M</span>
+      <span class="col-nome">Perícia</span>
+      <span class="col-attr">Attr</span>
+      <span class="col-total">Bônus</span>
+      <span class="col-outros">Outros</span>
+    </div>
+
+    <ol class="pericias-lista">
+      {{#each periciasView as |p|}}
+      <li class="pericia-linha {{#if p.bloqueada}}bloqueada{{/if}} {{#if p.complementar}}complementar{{/if}}">
+        <span class="col-prof">
+          <input type="checkbox" name="system.pericias.{{p.key}}.treinado" {{#if p.treinado}}checked{{/if}} title="Treinado" />
+          <input type="checkbox" name="system.pericias.{{p.key}}.mestre" {{#if p.mestre}}checked{{/if}} title="Mestre" />
+        </span>
+        <a class="col-nome" data-action="rolarPericia" data-pericia="{{p.key}}"
+           title="{{#if p.bloqueada}}Exige treinamento para uso normal. {{/if}}Rolar {{p.nome}}">
+          {{p.nome}}
+          {{#if p.exigeTreino}}<i class="fas fa-lock" title="Exige treinamento (p. 284-287)"></i>{{/if}}
+          {{#if p.complementar}}<i class="fas fa-circle-half-stroke" title="Perícia complementar: opcional na campanha"></i>{{/if}}
+        </a>
+        <span class="col-attr">{{p.abrevAtributo}}</span>
+        <span class="col-total">{{sinal p.total}}</span>
+        <input class="col-outros" type="number" name="system.pericias.{{p.key}}.outros" value="{{p.outros}}" step="1" />
+        {{#if p.temSubcategoria}}
+        <input class="col-especialidade" type="text" name="system.pericias.{{p.key}}.especialidade"
+               value="{{p.especialidade}}" placeholder="Ferreiro, Alfaiate…" title="Subcategoria de Ofício" />
+        {{/if}}
+      </li>
+      {{/each}}
+    </ol>
+  </fieldset>
+</div>

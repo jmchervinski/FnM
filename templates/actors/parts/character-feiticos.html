@@ -1,0 +1,59 @@
+<div class="tab feiticos {{tab.cssClass}}" data-group="primary" data-tab="feiticos">
+
+  <fieldset class="bloco feiticos-bloco">
+    <legend>Feitiços</legend>
+    <p class="dica">
+      Todo personagem com técnica começa com dois Feitiços e ganha um novo em todo nível par,
+      mais um adicional nos níveis 10 e 20 (p. 199). Níveis liberados agora:
+      <b>{{#each system.niveisFeiticoDisponiveis as |n|}}{{n}} {{/each}}</b>.
+    </p>
+
+    {{#each feiticosPorNivel as |grupo|}}
+    <details class="grupo-colapsavel nivel-feitico {{#unless grupo.disponivel}}indisponivel{{/unless}}"
+             data-colapso="feitico-{{grupo.id}}" open>
+      <summary>
+        {{grupo.nome}}
+        <span class="contador">{{grupo.itens.length}}</span>
+        <span class="nivel-info">
+          custo {{grupo.custo}} PE · alcance {{grupo.alcance}}m
+          {{#if grupo.danoTR}} · dano {{grupo.danoTR}} (TR) / {{grupo.danoAtaque}} (ataque){{/if}}
+        </span>
+        {{#unless grupo.disponivel}}<span class="aviso">fora do seu acesso</span>{{/unless}}
+        <button type="button" class="mini-btn" data-action="itemCreate" data-type="feitico"
+                data-nivel="{{grupo.id}}" title="Criar um Feitiço deste nível">+</button>
+      </summary>
+
+      <ol class="item-list">
+        {{#each grupo.itens as |item|}}
+        <li class="item feitico-item" data-item-id="{{item.id}}">
+          <img class="item-img" src="{{item.img}}" width="24" height="24" />
+          <a class="item-nome" data-action="itemExpand">{{item.name}}</a>
+          <span class="item-tag">
+            {{item.system.tipo}} · {{item.system.custoEfetivo}} PE · {{item.system.conjuracao}}
+            {{#if item.system.dano}} · {{item.system.dano}}{{/if}}
+          </span>
+          <div class="item-controls">
+            <a data-action="conjurarFeitico" title="Conjurar (gasta PE)"><i class="fas fa-hand-sparkles"></i></a>
+            <a data-action="itemChat" title="Enviar ao chat"><i class="fas fa-comment"></i></a>
+            <a data-action="itemEdit" title="Editar"><i class="fas fa-edit"></i></a>
+            <a data-action="itemDelete" title="Excluir"><i class="fas fa-trash"></i></a>
+          </div>
+          <div class="item-descricao">
+            <p>
+              <b>Alcance:</b> {{#if item.system.alcance}}{{item.system.alcance}}{{else}}{{item.system.alcancePadrao}} metros{{/if}} ·
+              <b>Alvo:</b> {{item.system.alvo}} ·
+              <b>Duração:</b> {{item.system.duracao}}
+              {{#if item.system.requisito}}<br><b>Requisito:</b> {{item.system.requisito}}{{/if}}
+            </p>
+            {{{item.system.description}}}
+          </div>
+        </li>
+        {{/each}}
+      </ol>
+      {{#unless grupo.itens.length}}
+      <p class="vazio">Nenhum Feitiço deste nível.</p>
+      {{/unless}}
+    </details>
+    {{/each}}
+  </fieldset>
+</div>

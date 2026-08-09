@@ -1,0 +1,108 @@
+<div class="tab progressao {{tab.cssClass}}" data-group="primary" data-tab="progressao">
+
+  {{!-- Origem e Especializações --}}
+  <div class="colunas">
+    <fieldset class="bloco">
+      <legend>Origem</legend>
+      <div class="perfil-grid">
+        <label>Origem
+          <select name="system.detalhes.origem">
+            <option value="">—</option>
+            {{#each origens as |o|}}
+            <option value="{{o.id}}" {{#if (eq o.id ../system.detalhes.origem)}}selected{{/if}}>{{o.nome}}</option>
+            {{/each}}
+          </select>
+        </label>
+        <label>Clã (se Herdado)
+          <select name="system.detalhes.cla">
+            <option value="">—</option>
+            {{#each claes as |c|}}
+            <option value="{{c.id}}" {{#if (eq c.id ../system.detalhes.cla)}}selected{{/if}}>{{c.nome}}</option>
+            {{/each}}
+          </select>
+        </label>
+        <label>Atributo p/ perícias extras
+          <select name="system.detalhes.atributoPericias" title="Escolha definitiva feita na criação (p. 283)">
+            <option value="inteligencia" {{#if (eq system.detalhes.atributoPericias "inteligencia")}}selected{{/if}}>Inteligência</option>
+            <option value="sabedoria" {{#if (eq system.detalhes.atributoPericias "sabedoria")}}selected{{/if}}>Sabedoria</option>
+          </select>
+        </label>
+      </div>
+      {{> "systems/fnm/templates/actors/parts/actor-itens.html" titulo="Itens de Origem" tipo="origem" itens=itens.origem}}
+    </fieldset>
+
+    <fieldset class="bloco">
+      <legend>Especializações</legend>
+      <p class="dica">
+        Some os níveis de cada especialização; a soma deve bater com o nível de personagem.
+        Em Multiclasse, o 1º nível de uma nova especialização usa o PV de níveis subsequentes (p. 47).
+      </p>
+      {{#if niveisDivergentes}}
+      <p class="aviso-forte">
+        ⚠️ Os níveis das especializações somam <b>{{system.niveisEspecializacao}}</b>, mas o nível de
+        personagem é <b>{{system.detalhes.nivel}}</b>.
+      </p>
+      {{/if}}
+      <header class="itens-header">
+        <span></span>
+        <button type="button" data-action="itemCreate" data-type="especializacao"><i class="fas fa-plus"></i> Especialização</button>
+      </header>
+      <ol class="item-list">
+        {{#each itens.especializacao as |item|}}
+        <li class="item" data-item-id="{{item.id}}">
+          <a class="item-nome" data-action="itemExpand">{{item.name}}</a>
+          <span class="item-tag">nível {{item.system.niveis}}</span>
+          <div class="item-controls">
+            <a data-action="itemChat"><i class="fas fa-comment"></i></a>
+            <a data-action="itemEdit"><i class="fas fa-edit"></i></a>
+            <a data-action="itemDelete"><i class="fas fa-trash"></i></a>
+          </div>
+          <div class="item-descricao">{{{item.system.description}}}</div>
+        </li>
+        {{/each}}
+      </ol>
+    </fieldset>
+  </div>
+
+  {{!-- Experiência, nível e Dados de Vida --}}
+  <div class="colunas">
+    <fieldset class="bloco">
+      <legend>Nível &amp; Experiência</legend>
+      <div class="perfil-grid">
+        <label>Nível <input type="number" name="system.detalhes.nivel" value="{{system.detalhes.nivel}}" min="1" max="20" /></label>
+        <label>Experiência <input type="number" name="system.detalhes.experiencia" value="{{system.detalhes.experiencia}}" min="0" /></label>
+      </div>
+      <button type="button" data-action="subirNivel">⬆️ Subir de Nível</button>
+      <p class="dica">
+        Bônus de Treinamento atual: <b>{{sinal system.bonusTreinamento}}</b> (aumenta nos níveis 5, 9, 13 e 17).
+      </p>
+    </fieldset>
+
+    <fieldset class="bloco">
+      <legend>Dados de Vida</legend>
+      <p class="dica">Um Dado de Vida por nível, do tamanho da especialização daquele nível (p. 20).</p>
+      <ol class="dados-vida-lista">
+        {{#each dadosVidaView as |d|}}
+        <li class="dado-vida-linha">
+          <input type="text" name="system.dadosVida.{{d.idx}}.dado" value="{{d.dado}}" placeholder="d8" />
+          <label>Total <input type="number" name="system.dadosVida.{{d.idx}}.total" value="{{d.total}}" min="0" /></label>
+          <label>Gastos <input type="number" name="system.dadosVida.{{d.idx}}.gastos" value="{{d.gastos}}" min="0" /></label>
+          <span class="restantes">{{d.restantes}} disponíveis</span>
+          <a class="mini-btn" data-action="removerDadoVida" data-idx="{{d.idx}}" title="Remover"><i class="fas fa-trash"></i></a>
+        </li>
+        {{/each}}
+      </ol>
+      <button type="button" data-action="adicionarDadoVida"><i class="fas fa-plus"></i> Adicionar tipo de Dado de Vida</button>
+    </fieldset>
+  </div>
+
+  {{!-- Habilidades de Especialização e Talentos --}}
+  <div class="colunas">
+    <fieldset class="bloco">
+      {{> "systems/fnm/templates/actors/parts/actor-itens.html" titulo="Habilidades de Especialização" tipo="habilidade" itens=itens.habilidade}}
+    </fieldset>
+    <fieldset class="bloco">
+      {{> "systems/fnm/templates/actors/parts/actor-itens.html" titulo="Talentos" tipo="talento" itens=itens.talento}}
+    </fieldset>
+  </div>
+</div>

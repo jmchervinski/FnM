@@ -1,0 +1,45 @@
+<header class="ficha-cabecalho">
+  <img class="profile-img" src="{{actor.img}}" data-action="editImage" data-edit="img" title="{{actor.name}}" />
+
+  <div class="ficha-cabecalho-conteudo">
+    <div class="ficha-titulo">
+      <input class="nome-personagem" name="name" type="text" value="{{actor.name}}" placeholder="Nome do personagem" />
+      <span class="fnm-marca" title="Feiticeiros &amp; Maldições">呪</span>
+    </div>
+
+    <div class="linha-dados">
+      <label>Jogador <input type="text" name="system.detalhes.jogador" value="{{system.detalhes.jogador}}" /></label>
+      <label>Nível
+        <input type="number" name="system.detalhes.nivel" value="{{system.detalhes.nivel}}" min="1" max="20" />
+      </label>
+      <label>Grau
+        <select name="system.detalhes.grau">
+          <option value="">—</option>
+          {{#each graus as |g|}}
+          <option value="{{g}}" {{#if (eq g ../system.detalhes.grau)}}selected{{/if}}>{{g}}</option>
+          {{/each}}
+        </select>
+      </label>
+      <label>Idade <input type="number" name="system.detalhes.idade" value="{{system.detalhes.idade}}" min="0" /></label>
+      <label>Escola <input type="text" name="system.detalhes.escola" value="{{system.detalhes.escola}}" /></label>
+    </div>
+
+    <div class="linha-derivados">
+      <span class="derivado" title="Bônus de Treinamento (p. 282)">BT <b>{{sinal system.bonusTreinamento}}</b></span>
+      <span class="derivado" title="Defesa = 10 + DES + metade do nível (p. 282)">DEF <b>{{system.combate.defesa}}</b></span>
+      <span class="derivado" title="Atenção = 10 + bônus de Percepção (p. 19)">ATN <b>{{system.combate.atencao}}</b></span>
+      <span class="derivado botao-inline" data-action="rolarIniciativa" title="Rolar Iniciativa">
+        INI <b>{{sinal system.combate.iniciativa}}</b> 🎲
+      </span>
+      <span class="derivado" title="Deslocamento atual, já descontada a exaustão">
+        DESL <b>{{system.combate.deslocamentoAtual}}m</b>
+      </span>
+      <span class="derivado" title="CD para resistir aos seus Feitiços e Aptidões (p. 198)">
+        CD Amaldiçoada <b>{{system.cdAmaldicoada}}</b>
+      </span>
+      <span class="derivado" title="CD das habilidades de Especialização (p. 280)">
+        CD Especialização <b>{{system.cdEspecializacao}}</b>
+      </span>
+    </div>
+  </div>
+</header>

@@ -1,0 +1,2 @@
+# Compêndios LevelDB são binários: nunca converter fim de linha
+packs/** -text

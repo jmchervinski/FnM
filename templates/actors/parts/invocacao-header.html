@@ -1,0 +1,38 @@
+<header class="ficha-cabecalho">
+  <img class="profile-img" src="{{actor.img}}" data-action="editImage" data-edit="img" title="{{actor.name}}" />
+
+  <div class="ficha-cabecalho-conteudo">
+    <div class="ficha-titulo">
+      <input class="nome-personagem" name="name" type="text" value="{{actor.name}}" placeholder="Nome da invocação" />
+      <span class="fnm-marca">式</span>
+    </div>
+
+    <div class="linha-dados">
+      <label>Tipo
+        <select name="system.detalhes.tipo">
+          {{#each tiposInvocacao as |t|}}
+          <option value="{{t}}" {{#if (eq t ../system.detalhes.tipo)}}selected{{/if}}>{{t}}</option>
+          {{/each}}
+        </select>
+      </label>
+      <label>Grau
+        <select name="system.detalhes.grau">
+          <option value="">—</option>
+          {{#each graus as |g|}}
+          <option value="{{g}}" {{#if (eq g ../system.detalhes.grau)}}selected{{/if}}>{{g}}</option>
+          {{/each}}
+        </select>
+      </label>
+      <label>Nível <input type="number" name="system.detalhes.nivel" value="{{system.detalhes.nivel}}" min="1" max="30" /></label>
+    </div>
+
+    <div class="linha-derivados">
+      <span class="derivado">DEF <b>{{system.combate.defesa}}</b></span>
+      <span class="derivado botao-inline" data-action="rolarIniciativa">INI <b>{{sinal system.combate.iniciativa}}</b> 🎲</span>
+      <span class="derivado">DESL <b>{{system.combate.deslocamentoAtual}}m</b></span>
+      <span class="derivado {{#if system.detalhes.ativa}}ativo{{/if}}">
+        {{#if system.detalhes.ativa}}Em campo{{else}}Fora de campo{{/if}}
+      </span>
+    </div>
+  </div>
+</header>

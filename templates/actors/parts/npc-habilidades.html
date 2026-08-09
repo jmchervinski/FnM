@@ -1,0 +1,61 @@
+<div class="tab habilidades {{tab.cssClass}}" data-group="primary" data-tab="habilidades">
+
+  {{!-- Invocações não têm bloco de jujutsu próprio; só NPCs e personagens --}}
+  {{#if system.jujutsu}}
+  <fieldset class="bloco">
+    <legend>Perfil Amaldiçoado</legend>
+    <div class="perfil-grid">
+      <label>Atributo da Técnica
+        <select name="system.jujutsu.atributoTecnica">
+          {{#each atributos as |a|}}
+          <option value="{{a.id}}" {{#if (eq a.id ../system.jujutsu.atributoTecnica)}}selected{{/if}}>{{a.nome}}</option>
+          {{/each}}
+        </select>
+      </label>
+      <label>Outros bônus na CD
+        <input type="number" name="system.jujutsu.cdOutros" value="{{system.jujutsu.cdOutros}}" step="1" />
+      </label>
+    </div>
+    <p class="dica">CD Amaldiçoada: <b>{{system.cdAmaldicoada}}</b> · Ataque Amaldiçoado: <b>{{sinal system.ataqueAmaldicoado}}</b></p>
+  </fieldset>
+  {{/if}}
+
+  <fieldset class="bloco">
+    {{> "systems/fnm/templates/actors/parts/actor-itens.html" titulo="Técnicas" tipo="tecnica" itens=itens.tecnica}}
+  </fieldset>
+
+  <fieldset class="bloco">
+    <legend>Feitiços</legend>
+    <header class="itens-header">
+      <span></span>
+      <button type="button" data-action="itemCreate" data-type="feitico"><i class="fas fa-plus"></i> Feitiço</button>
+    </header>
+    <ol class="item-list">
+      {{#each itens.feitico as |item|}}
+      <li class="item" data-item-id="{{item.id}}">
+        <a class="item-nome" data-action="itemExpand">{{item.name}}</a>
+        <span class="item-tag">{{item.system.nivelLabel}} · {{item.system.custoEfetivo}} PE · {{item.system.conjuracao}}</span>
+        <div class="item-controls">
+          <a data-action="conjurarFeitico" title="Conjurar"><i class="fas fa-hand-sparkles"></i></a>
+          <a data-action="itemChat"><i class="fas fa-comment"></i></a>
+          <a data-action="itemEdit"><i class="fas fa-edit"></i></a>
+          <a data-action="itemDelete"><i class="fas fa-trash"></i></a>
+        </div>
+        <div class="item-descricao">{{{item.system.description}}}</div>
+      </li>
+      {{/each}}
+    </ol>
+  </fieldset>
+
+  <fieldset class="bloco">
+    {{> "systems/fnm/templates/actors/parts/actor-itens.html" titulo="Aptidões Amaldiçoadas" tipo="aptidao" itens=itens.aptidao}}
+  </fieldset>
+
+  <fieldset class="bloco">
+    {{> "systems/fnm/templates/actors/parts/actor-itens.html" titulo="Habilidades" tipo="habilidade" itens=itens.habilidade}}
+  </fieldset>
+
+  <fieldset class="bloco">
+    {{> "systems/fnm/templates/actors/parts/actor-itens.html" titulo="Equipamentos" tipo="equipamento" itens=itens.equipamento}}
+  </fieldset>
+</div>

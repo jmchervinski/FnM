@@ -1,0 +1,40 @@
+<div class="tab conceito {{tab.cssClass}}" data-group="primary" data-tab="conceito">
+
+  {{!-- Aspectos Pessoais (p. 15-16) --}}
+  <fieldset class="bloco aspectos-bloco">
+    <legend>Aspectos Pessoais</legend>
+    <label class="campo-largo">Traços de Personalidade
+      <textarea name="system.aspectos.personalidade" rows="2"
+                placeholder="Descritivos, personalidade e comportamentos.">{{system.aspectos.personalidade}}</textarea>
+    </label>
+    <label class="campo-largo">Ideais
+      <textarea name="system.aspectos.ideais" rows="2"
+                placeholder="Princípios, valores e metas que guiam suas decisões.">{{system.aspectos.ideais}}</textarea>
+    </label>
+    <label class="campo-largo">Ligações
+      <textarea name="system.aspectos.ligacoes" rows="2"
+                placeholder="Conexões e laços valiosos para o personagem.">{{system.aspectos.ligacoes}}</textarea>
+    </label>
+    <label class="campo-largo">Complicações
+      <textarea name="system.aspectos.complicacoes" rows="2"
+                placeholder="Fraquezas, obstáculos e fragilidades.">{{system.aspectos.complicacoes}}</textarea>
+    </label>
+  </fieldset>
+
+  {{!-- Domínio Inato: o espaço interior do personagem (p. 21) --}}
+  <fieldset class="bloco">
+    <legend>Domínio Inato</legend>
+    <p class="dica">O "espaço interior" do personagem, refletindo mente e alma em um ambiente metafísico.</p>
+    {{editor enrichedDominio target="system.aspectos.dominioInato" button=true engine="prosemirror" editable=editable}}
+  </fieldset>
+
+  <fieldset class="bloco">
+    <legend>Biografia</legend>
+    {{editor enrichedBiografia target="system.biografia" button=true engine="prosemirror" editable=editable}}
+  </fieldset>
+
+  <fieldset class="bloco">
+    <legend>Anotações</legend>
+    {{editor enrichedAnotacoes target="system.anotacoes" button=true engine="prosemirror" editable=editable}}
+  </fieldset>
+</div>

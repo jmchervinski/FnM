@@ -1,0 +1,15 @@
+{{!-- Os seis atributos com valor e modificador derivado (p. 17-19) --}}
+<fieldset class="bloco atributos-bloco">
+  <legend>Atributos</legend>
+  <div class="atributos-grid">
+    {{#each atributosView as |attr|}}
+    <div class="atributo-box">
+      <label class="atributo-nome" title="{{attr.nome}}">{{attr.abrev}}</label>
+      <input class="atributo-valor" type="number" name="system.atributos.{{attr.key}}.value"
+             value="{{attr.value}}" min="1" max="30" />
+      <a class="atributo-mod" data-action="rolarAtributo" data-atributo="{{attr.key}}"
+         title="Rolar 1d20 + modificador de {{attr.nome}}">{{sinal attr.mod}}</a>
+    </div>
+    {{/each}}
+  </div>
+</fieldset>

@@ -1,0 +1,28 @@
+{{!-- Lista genérica de itens, reaproveitada pelas várias seções da ficha --}}
+<div class="itens-secao">
+  <header class="itens-header">
+    <h3>{{titulo}}</h3>
+    <button type="button" data-action="itemCreate" data-type="{{tipo}}"><i class="fas fa-plus"></i></button>
+  </header>
+  <ol class="item-list">
+    {{#each itens as |item|}}
+    <li class="item" data-item-id="{{item.id}}">
+      <img class="item-img" src="{{item.img}}" width="24" height="24" />
+      <a class="item-nome" data-action="itemExpand" title="Mostrar/ocultar descrição">{{item.name}}</a>
+      <span class="item-tag">
+        {{#if item.system.categoria}}{{item.system.categoria}}{{/if}}
+        {{#if item.system.tipo}}{{item.system.tipo}}{{/if}}
+        {{#if item.system.nivelRequerido}} · nível {{item.system.nivelRequerido}}{{/if}}
+        {{#if item.system.quantidade}} · x{{item.system.quantidade}}{{/if}}
+      </span>
+      <div class="item-controls">
+        <a data-action="itemChat" title="Enviar ao chat"><i class="fas fa-comment"></i></a>
+        <a data-action="itemEdit" title="Editar"><i class="fas fa-edit"></i></a>
+        <a data-action="itemDelete" title="Excluir"><i class="fas fa-trash"></i></a>
+      </div>
+      <div class="item-descricao">{{{item.system.description}}}</div>
+    </li>
+    {{/each}}
+  </ol>
+  {{#unless itens.length}}<p class="vazio">Nada aqui ainda.</p>{{/unless}}
+</div>

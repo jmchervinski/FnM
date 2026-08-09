@@ -1,0 +1,176 @@
+/**
+ * Feiticeiros & Maldições para Foundry VTT — sistema NÃO-OFICIAL, feito por fã.
+ *
+ * Feiticeiros & Maldições é um projeto gratuito de fãs (Setsugiri, Parker, Jou,
+ * Kame), ambientado no universo de Jujutsu Kaisen, de Gege Akutami.
+ * Baseado no Livro de Regras v2.5.2.
+ */
+import { FnmActor } from "./documents/actor.mjs";
+import { FnmItem } from "./documents/item.mjs";
+import { FnmCharacterSheet } from "./sheets/character-sheet.mjs";
+import { FnmNpcSheet } from "./sheets/npc-sheet.mjs";
+import { FnmInvocacaoSheet } from "./sheets/invocacao-sheet.mjs";
+import { FnmItemSheet } from "./sheets/item-sheet.mjs";
+import {
+  FNM,
+  modificador,
+  bonusTreinamento,
+  metadeNivel,
+  bonusProficiencia,
+  feiticosAcessiveis,
+  estadoDaAlma
+} from "./config.mjs";
+import {
+  CharacterDataModel,
+  NpcDataModel,
+  InvocacaoDataModel,
+  OrigemDataModel,
+  EspecializacaoDataModel,
+  HabilidadeDataModel,
+  TalentoDataModel,
+  AptidaoDataModel,
+  TecnicaDataModel,
+  FeiticoDataModel,
+  ArmaDataModel,
+  EquipamentoDataModel,
+  VotoDataModel
+} from "./data-models.mjs";
+
+Hooks.once("init", async function () {
+  console.log(
+    "F&M | Inicializando o sistema não-oficial de Feiticeiros & Maldições " +
+      "(créditos: Setsugiri, Parker, Jou e Kame — universo de Gege Akutami)"
+  );
+
+  // API do sistema, útil para macros e módulos de terceiros
+  game.fnm = {
+    FnmActor,
+    FnmItem,
+    config: FNM,
+    utils: {
+      modificador,
+      bonusTreinamento,
+      metadeNivel,
+      bonusProficiencia,
+      feiticosAcessiveis,
+      estadoDaAlma
+    }
+  };
+
+  CONFIG.Actor.documentClass = FnmActor;
+  CONFIG.Item.documentClass = FnmItem;
+
+  CONFIG.Actor.dataModels = {
+    character: CharacterDataModel,
+    npc: NpcDataModel,
+    invocacao: InvocacaoDataModel
+  };
+  CONFIG.Item.dataModels = {
+    origem: OrigemDataModel,
+    especializacao: EspecializacaoDataModel,
+    habilidade: HabilidadeDataModel,
+    talento: TalentoDataModel,
+    aptidao: AptidaoDataModel,
+    tecnica: TecnicaDataModel,
+    feitico: FeiticoDataModel,
+    arma: ArmaDataModel,
+    equipamento: EquipamentoDataModel,
+    voto: VotoDataModel
+  };
+
+  // Barras de token e valores rastreáveis
+  const barrasPadrao = {
+    bar: ["recursos.pv", "recursos.pe", "recursos.integridade"],
+    value: ["combate.defesa", "combate.atencao", "exaustao"]
+  };
+  CONFIG.Actor.trackableAttributes = {
+    character: barrasPadrao,
+    npc: barrasPadrao,
+    invocacao: { bar: ["recursos.pv", "recursos.pe"], value: ["combate.defesa"] }
+  };
+
+  // Iniciativa: 1d20 + modificador de Destreza + outros bônus (p. 291)
+  CONFIG.Combat.initiative = { formula: "1d20 + @iniciativa", decimals: 0 };
+
+  // Condições do sistema substituem os efeitos de status padrão do Foundry
+  CONFIG.statusEffects = FNM.condicoes.map(c => ({
+    id: c.id,
+    name: c.nome,
+    img: c.icone,
+    description: `<b>${c.grupo} · ${c.nivel}</b><br>${c.efeito}`
+  }));
+
+  // Sheets registradas pelo caminho namespaced (evita globais depreciados)
+  const { DocumentSheetConfig } = foundry.applications.apps;
+  DocumentSheetConfig.registerSheet(Actor, "fnm", FnmCharacterSheet, {
+    types: ["character"],
+    makeDefault: true,
+    label: "FNM.SheetCharacter"
+  });
+  DocumentSheetConfig.registerSheet(Actor, "fnm", FnmNpcSheet, {
+    types: ["npc"],
+    makeDefault: true,
+    label: "FNM.SheetNpc"
+  });
+  DocumentSheetConfig.registerSheet(Actor, "fnm", FnmInvocacaoSheet, {
+    types: ["invocacao"],
+    makeDefault: true,
+    label: "FNM.SheetInvocacao"
+  });
+  DocumentSheetConfig.registerSheet(Item, "fnm", FnmItemSheet, {
+    makeDefault: true,
+    label: "FNM.SheetItem"
+  });
+
+  registrarHelpers();
+  await preloadHandlebarsTemplates();
+});
+
+/** Helpers de template usados pelas fichas. */
+function registrarHelpers() {
+  Handlebars.registerHelper("eq", (a, b) => a === b);
+  Handlebars.registerHelper("gte", (a, b) => Number(a) >= Number(b));
+  Handlebars.registerHelper("lte", (a, b) => Number(a) <= Number(b));
+  Handlebars.registerHelper("add", (a, b) => Number(a) + Number(b));
+  // Monta uma lista literal dentro do template: {{#each (array "A" "B")}}
+  Handlebars.registerHelper("array", (...args) => args.slice(0, -1));
+  // Formata um valor como bônus assinado: 3 -> "+3", -2 -> "-2"
+  Handlebars.registerHelper("sinal", v => {
+    const n = Number(v) || 0;
+    return n >= 0 ? `+${n}` : `${n}`;
+  });
+  Handlebars.registerHelper("porcento", (v, max) => {
+    const m = Number(max) || 0;
+    if (!m) return 0;
+    return Math.clamp(Math.round((Number(v) / m) * 100), 0, 100);
+  });
+}
+
+async function preloadHandlebarsTemplates() {
+  const paths = [
+    "systems/fnm/templates/actors/parts/actor-itens.html",
+    "systems/fnm/templates/actors/parts/actor-recursos.html",
+    "systems/fnm/templates/actors/parts/actor-atributos.html",
+    "systems/fnm/templates/actors/parts/actor-footer.html"
+  ];
+  return foundry.applications.handlebars.loadTemplates(paths);
+}
+
+/* -------------------------------------------- */
+/*  Criação de atores: valores iniciais úteis   */
+/* -------------------------------------------- */
+
+Hooks.on("preCreateActor", (actor, data) => {
+  const updates = { prototypeToken: {} };
+
+  if (actor.type === "character") {
+    updates.prototypeToken.actorLink = true;
+    updates.prototypeToken.sight = { enabled: true };
+    updates.prototypeToken.disposition = CONST.TOKEN_DISPOSITIONS.FRIENDLY;
+  } else {
+    updates.prototypeToken.actorLink = false;
+    updates.prototypeToken.disposition = CONST.TOKEN_DISPOSITIONS.HOSTILE;
+  }
+
+  actor.updateSource(updates);
+});

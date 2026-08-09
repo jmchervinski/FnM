@@ -1,0 +1,13 @@
+<div class="tab biografia {{tab.cssClass}}" data-group="primary" data-tab="biografia">
+  <fieldset class="bloco">
+    <legend>Biografia</legend>
+    {{editor enrichedBiografia target="system.biografia" button=true engine="prosemirror" editable=editable}}
+  </fieldset>
+
+  {{#if enrichedTaticas}}
+  <fieldset class="bloco">
+    <legend>Táticas &amp; Notas do Narrador</legend>
+    {{editor enrichedTaticas target="system.taticas" button=true engine="prosemirror" editable=editable}}
+  </fieldset>
+  {{/if}}
+</div>

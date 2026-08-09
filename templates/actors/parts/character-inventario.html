@@ -1,0 +1,69 @@
+<div class="tab inventario {{tab.cssClass}}" data-group="primary" data-tab="inventario">
+
+  <p class="dica">
+    Espaços ocupados: <b>{{espacosOcupados}}</b>. Todo personagem inicia com dois equipamentos de
+    custo 1, um uniforme comum e um kit de ferramentas (p. 131).
+  </p>
+
+  <fieldset class="bloco">
+    <legend>Armas</legend>
+    <header class="itens-header">
+      <span></span>
+      <button type="button" data-action="itemCreate" data-type="arma"><i class="fas fa-plus"></i> Arma</button>
+    </header>
+    <ol class="item-list">
+      {{#each itens.arma as |item|}}
+      <li class="item {{#if item.system.equipada}}equipado{{/if}}" data-item-id="{{item.id}}">
+        <img class="item-img" src="{{item.img}}" width="24" height="24" />
+        <a class="item-nome" data-action="itemExpand">{{item.name}}</a>
+        <span class="item-tag">
+          {{item.system.categoria}} · {{item.system.dano}} · crít {{item.system.critico}} ·
+          {{item.system.espacos}} esp. · custo {{item.system.custo}}
+          {{#if item.system.grau}} · {{item.system.grau}}{{/if}}
+        </span>
+        <div class="item-controls">
+          <a data-action="atacarArma" title="Atacar"><i class="fas fa-crosshairs"></i></a>
+          <a data-action="danoArma" title="Dano"><i class="fas fa-burst"></i></a>
+          <a data-action="itemToggle" title="Equipar/desequipar"><i class="fas fa-hand"></i></a>
+          <a data-action="itemChat"><i class="fas fa-comment"></i></a>
+          <a data-action="itemEdit"><i class="fas fa-edit"></i></a>
+          <a data-action="itemDelete"><i class="fas fa-trash"></i></a>
+        </div>
+        <div class="item-descricao">
+          <p><b>Propriedades:</b> {{#if item.system.propriedades}}{{item.system.propriedades}}{{else}}—{{/if}}</p>
+          {{{item.system.description}}}
+        </div>
+      </li>
+      {{/each}}
+    </ol>
+    {{#unless itens.arma.length}}<p class="vazio">Nenhuma arma.</p>{{/unless}}
+  </fieldset>
+
+  <fieldset class="bloco">
+    <legend>Equipamentos, Uniformes e Ferramentas Amaldiçoadas</legend>
+    <header class="itens-header">
+      <span></span>
+      <button type="button" data-action="itemCreate" data-type="equipamento"><i class="fas fa-plus"></i> Equipamento</button>
+    </header>
+    <ol class="item-list">
+      {{#each itens.equipamento as |item|}}
+      <li class="item {{#if item.system.equipado}}equipado{{/if}}" data-item-id="{{item.id}}">
+        <img class="item-img" src="{{item.img}}" width="24" height="24" />
+        <a class="item-nome" data-action="itemExpand">{{item.name}}</a>
+        <span class="item-tag">
+          {{item.system.tipo}}{{#if item.system.grau}} · {{item.system.grau}}{{/if}} ·
+          {{item.system.espacos}} esp. · custo {{item.system.custo}} · x{{item.system.quantidade}}
+        </span>
+        <div class="item-controls">
+          <a data-action="itemToggle" title="Equipar/desequipar"><i class="fas fa-shirt"></i></a>
+          <a data-action="itemChat"><i class="fas fa-comment"></i></a>
+          <a data-action="itemEdit"><i class="fas fa-edit"></i></a>
+          <a data-action="itemDelete"><i class="fas fa-trash"></i></a>
+        </div>
+        <div class="item-descricao">{{{item.system.description}}}</div>
+      </li>
+      {{/each}}
+    </ol>
+    {{#unless itens.equipamento.length}}<p class="vazio">Inventário vazio.</p>{{/unless}}
+  </fieldset>
+</div>
