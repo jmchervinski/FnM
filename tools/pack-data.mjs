@@ -24,12 +24,13 @@ const HABILIDADES_ESPEC = JSON.parse(
 );
 
 /**
- * Talentos Gerais, transcritos do capítulo 7 por tools/extrai-talentos.py.
- * Talentos podem ser obtidos no lugar de uma habilidade de especialização, ou
- * vir de origens e treinamentos (p. 163).
+ * Talentos do capítulo 7, transcritos por tools/extrai-talentos.py. Talentos
+ * podem ser obtidos no lugar de uma habilidade de especialização, ou vir de
+ * origens e treinamentos (p. 163). Os de categoria "Origem" só estão
+ * disponíveis para a origem indicada no pré-requisito.
  */
-const TALENTOS_GERAIS = JSON.parse(
-  fs.readFileSync(path.join(import.meta.dirname, "dados/talentos-gerais.json"), "utf8")
+const TALENTOS = JSON.parse(
+  fs.readFileSync(path.join(import.meta.dirname, "dados/talentos.json"), "utf8")
 );
 
 /**
@@ -553,17 +554,24 @@ export const PACKS = {
   },
 
   "fnm-talentos": {
-    folders: [],
-    items: TALENTOS_GERAIS.map(t => ({
-      _id: id(`talento-geral-${t.nome}`),
+    folders: [
+      { _id: id("pasta-talentos-gerais"), name: "Talentos Gerais", sort: 100 },
+      { _id: id("pasta-talentos-origem"), name: "Talentos de Origem", sort: 200 }
+    ],
+    items: TALENTOS.map(t => ({
+      _id: id(`talento-${t.categoria}-${t.nome}`),
       name: t.nome,
       type: "talento",
-      img: "icons/svg/statue.svg",
+      img: t.categoria === "Origem" ? "icons/svg/aura.svg" : "icons/svg/statue.svg",
+      folder: id(
+        t.categoria === "Origem" ? "pasta-talentos-origem" : "pasta-talentos-gerais"
+      ),
       system: {
         description:
+          (t.origem ? `<p><i>Talento de Origem — ${t.origem}.</i></p>` : "") +
           (t.prerequisito ? `<p><b>Pré-Requisito:</b> ${t.prerequisito}</p>` : "") +
           t.descricao,
-        categoria: "Geral",
+        categoria: t.categoria,
         prerequisito: t.prerequisito,
         custoPE: 0,
         usos: { value: 0, max: 0 },

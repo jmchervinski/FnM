@@ -106,7 +106,7 @@ A ficha do sistema segue o layout do arquivo oficial, campo a campo:
 | **Origens** | As 7 origens e as 4 heranças de clã |
 | **Especializações** | As 6 especializações, com PV, PE, treinamentos e habilidades base |
 | **Habilidades de Especialização** | As 368 habilidades do capítulo 4, em uma pasta por especialização, com o nível de cada uma |
-| **Talentos Gerais** | Os 43 Talentos Gerais do capítulo 7, com os pré-requisitos em campo próprio |
+| **Talentos** | Os 51 talentos do capítulo 7 em duas pastas: 43 Gerais e 8 de Origem, com pré-requisitos em campo próprio |
 | **Aptidões Amaldiçoadas** | Amostra transcrita das Aptidões de Aura |
 | **Armas e Equipamentos** | A tabela completa de Armas Simples, a Distância e de Arremesso |
 | **Referência de Regras** | Diário com testes e CDs, ações em combate, condições, tipos de dano, tabelas de criação de Feitiços, alma, morte, exaustão e descansos |
@@ -120,7 +120,6 @@ O livro tem 369 páginas. O **motor de regras está completo** para o uso de mes
 compêndios são uma semente. Ainda não foram transcritos:
 
 - A maior parte das **Aptidões Amaldiçoadas** — só as de Aura foram transcritas (capítulo 8)
-- Os **Talentos de Origem** (capítulo 7; os Talentos Gerais já estão incluídos)
 - As tabelas de **Armas Complexas**, uniformes, escudos e kits de ferramentas (capítulos 5 e 6)
 - As **técnicas prontas** da Enciclopédia Amaldiçoada
 - Os **exemplos de Voto de Restrição** da obra (capítulo 14)
@@ -172,7 +171,7 @@ Rode-o sempre que mexer em templates, schemas ou ícones.
 `tools/build-packs.mjs` lê `tools/pack-data.mjs` e gera os compêndios LevelDB em `packs/`
 usando a CLI oficial do Foundry.
 
-As Habilidades de Especialização e os Talentos Gerais vêm de arquivos em `tools/dados/`,
+As Habilidades de Especialização e os Talentos vêm de arquivos em `tools/dados/`,
 gerados a partir do texto do livro. Os JSONs são versionados, então o build não depende do
 PDF — só é preciso rodar os extratores para atualizar as regras:
 
