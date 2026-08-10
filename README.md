@@ -105,7 +105,8 @@ A ficha do sistema segue o layout do arquivo oficial, campo a campo:
 | --- | --- |
 | **Origens** | As 7 origens e as 4 heranças de clã |
 | **Especializações** | As 6 especializações, com PV, PE, treinamentos e habilidades base |
-| **Habilidades de Especialização** | As 364 habilidades do capítulo 4, em uma pasta por especialização, com o nível de cada uma |
+| **Habilidades de Especialização** | As 368 habilidades do capítulo 4, em uma pasta por especialização, com o nível de cada uma |
+| **Talentos Gerais** | Os 43 Talentos Gerais do capítulo 7, com os pré-requisitos em campo próprio |
 | **Aptidões Amaldiçoadas** | Amostra transcrita das Aptidões de Aura |
 | **Armas e Equipamentos** | A tabela completa de Armas Simples, a Distância e de Arremesso |
 | **Referência de Regras** | Diário com testes e CDs, ações em combate, condições, tipos de dano, tabelas de criação de Feitiços, alma, morte, exaustão e descansos |
@@ -119,7 +120,7 @@ O livro tem 369 páginas. O **motor de regras está completo** para o uso de mes
 compêndios são uma semente. Ainda não foram transcritos:
 
 - A maior parte das **Aptidões Amaldiçoadas** — só as de Aura foram transcritas (capítulo 8)
-- Os **Talentos** gerais e de origem (capítulo 7)
+- Os **Talentos de Origem** (capítulo 7; os Talentos Gerais já estão incluídos)
 - As tabelas de **Armas Complexas**, uniformes, escudos e kits de ferramentas (capítulos 5 e 6)
 - As **técnicas prontas** da Enciclopédia Amaldiçoada
 - Os **exemplos de Voto de Restrição** da obra (capítulo 14)
@@ -171,18 +172,20 @@ Rode-o sempre que mexer em templates, schemas ou ícones.
 `tools/build-packs.mjs` lê `tools/pack-data.mjs` e gera os compêndios LevelDB em `packs/`
 usando a CLI oficial do Foundry.
 
-As Habilidades de Especialização vêm de `tools/dados/habilidades-especializacao.json`,
-gerado por `tools/extrai-habilidades.py` a partir do texto do livro. O JSON é versionado,
-então só é preciso rodar o extrator para atualizar as regras:
+As Habilidades de Especialização e os Talentos Gerais vêm de arquivos em `tools/dados/`,
+gerados a partir do texto do livro. Os JSONs são versionados, então o build não depende do
+PDF — só é preciso rodar os extratores para atualizar as regras:
 
 ```bash
 pdftotext -layout -enc UTF-8 "Livro de Regras v2.5.2.pdf" fnm.txt
 python tools/extrai-habilidades.py fnm.txt
+python tools/extrai-talentos.py fnm.txt
 npm run build:packs
 ```
 
-O capítulo 4 é diagramado em duas colunas, e o extrator detecta a calha entre elas para
-separar o texto. As faixas de página estão no topo do script; se a paginação mudar em uma
+Os capítulos 4 e 7 são diagramados em duas colunas. `tools/livro_texto.py` concentra a
+leitura desse layout: ele detecta a calha vertical de espaços entre as colunas e separa o
+texto. As faixas de página ficam no topo de cada extrator; se a paginação mudar em uma
 versão futura do livro, ajuste-as. Os `_id` são derivados do nome por hash, então permanecem
 estáveis entre builds — links de compêndio nos mundos não quebram.
 

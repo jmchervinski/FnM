@@ -79,6 +79,15 @@
       "flags": {}
     },
     {
+      "name": "fnm-talentos",
+      "label": "F&M: Talentos Gerais",
+      "system": "fnm",
+      "path": "packs/fnm-talentos",
+      "type": "Item",
+      "ownership": { "PLAYER": "OBSERVER", "ASSISTANT": "OWNER" },
+      "flags": {}
+    },
+    {
       "name": "fnm-aptidoes",
       "label": "F&M: Aptidões Amaldiçoadas",
       "system": "fnm",
@@ -123,6 +132,7 @@
         "fnm-origens",
         "fnm-especializacoes",
         "fnm-habilidades",
+        "fnm-talentos",
         "fnm-aptidoes",
         "fnm-armas",
         "fnm-regras",

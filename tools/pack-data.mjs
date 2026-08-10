@@ -24,6 +24,15 @@ const HABILIDADES_ESPEC = JSON.parse(
 );
 
 /**
+ * Talentos Gerais, transcritos do capítulo 7 por tools/extrai-talentos.py.
+ * Talentos podem ser obtidos no lugar de uma habilidade de especialização, ou
+ * vir de origens e treinamentos (p. 163).
+ */
+const TALENTOS_GERAIS = JSON.parse(
+  fs.readFileSync(path.join(import.meta.dirname, "dados/talentos-gerais.json"), "utf8")
+);
+
+/**
  * IDs determinísticos derivados do nome: o mesmo item mantém o mesmo _id entre
  * builds, o que preserva os links de compêndio já usados nos mundos.
  */
@@ -541,6 +550,26 @@ export const PACKS = {
         }
       }))
     )
+  },
+
+  "fnm-talentos": {
+    folders: [],
+    items: TALENTOS_GERAIS.map(t => ({
+      _id: id(`talento-geral-${t.nome}`),
+      name: t.nome,
+      type: "talento",
+      img: "icons/svg/statue.svg",
+      system: {
+        description:
+          (t.prerequisito ? `<p><b>Pré-Requisito:</b> ${t.prerequisito}</p>` : "") +
+          t.descricao,
+        categoria: "Geral",
+        prerequisito: t.prerequisito,
+        custoPE: 0,
+        usos: { value: 0, max: 0 },
+        ajustes: { ...semAjustes }
+      }
+    }))
   },
 
   "fnm-armas": {

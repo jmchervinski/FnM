@@ -2176,6 +2176,18 @@
         "descricao": "<p>Se você receber dano de um inimigo que esteja dentro de seu alcance, você pode gastar 2 pontos de estamina e usar sua reação para realizar um ataque contra ele.</p>"
       },
       {
+        "nome": "Adrenalina Absoluta",
+        "nivel": 12,
+        "base": false,
+        "descricao": "<p>Enquanto está em um surto de adrenalina, você se torna absoluto, extraindo ao máximo o seu potencial. Ao iniciar um surto de adrenalina, você pode escolher pagar 4 pontos para ativar e 2 por rodada para manter e, caso o faça, você recebe os seguintes benefícios: enquanto estiver em um surto de adrenalina, o seu ataque extra passa a custar 1 PE, você recebe +3 metros de Deslocamento e a sua DEF aumenta em 2.</p>"
+      },
+      {
+        "nome": "Pináculo Físico",
+        "nivel": 12,
+        "base": false,
+        "descricao": "<p>Você recebe +4 pontos de estamina máximos e pode escolher aumentar o valor de dois atributos entre Força, Destreza e Constituição em 2. No nível 16, o valor de ambos os atributos escolhidos aumentam novamente em 2.</p>"
+      },
+      {
         "nome": "Arsenal Amaldiçoado",
         "nivel": 16,
         "base": false,
@@ -2210,6 +2222,18 @@
         "nivel": 16,
         "base": false,
         "descricao": "<p>Enquanto seus pontos de estamina e de vida excederem metade do máximo deles, você recebe uma reação adicional por rodada. Pré-Requisito: Reação Rápida.</p>"
+      },
+      {
+        "nome": "Mesmo Morto",
+        "nivel": 16,
+        "base": false,
+        "descricao": "<p>Mesmo se você não tiver mais força vital, é necessário continuar lutando até o limite. Ao cair para 0 de vida, sem possuir um uso de Ainda de Pé, ao invés de ir para as Portas da Morte você continua de pé e realizando seus turnos normalmente; porém, no final de todo turno, você deve realizar um teste de resistência de Fortitude com CD25 + 1 para cada 5 pontos de vida negativos que possuir. Caso falhe no teste, você cai imediatamente, com 1 falha nos testes de morte. [Pré-Requisito: Rejeitar a Morte]</p>"
+      },
+      {
+        "nome": "Rejeitar a Morte",
+        "nivel": 16,
+        "base": false,
+        "descricao": "<p>Quando estiver nas portas da morte, você pode escolher receber uma falha garantida para fazer um teste de Fortitude contra a CD X, sendo X igual a 15 + 1 para cada 3 pontos de vida negativos. Se passar, você fica com 1 de vida e recebe 1 ponto de exaustão. [Pré-Requisito: Ainda de Pé]</p>"
       },
       {
         "nome": "Libertação do Destino",
