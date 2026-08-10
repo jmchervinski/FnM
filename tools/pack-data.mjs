@@ -34,6 +34,14 @@ const TALENTOS = JSON.parse(
 );
 
 /**
+ * Aptidões Amaldiçoadas do capítulo 8, transcritas por tools/extrai-aptidoes.py.
+ * Um personagem recebe uma aptidão por nível, exceto Restringidos (p. 172).
+ */
+const APTIDOES = JSON.parse(
+  fs.readFileSync(path.join(import.meta.dirname, "dados/aptidoes.json"), "utf8")
+);
+
+/**
  * IDs determinísticos derivados do nome: o mesmo item mantém o mesmo _id entre
  * builds, o que preserva os links de compêndio já usados nos mundos.
  */
@@ -326,88 +334,6 @@ const ESPECIALIZACOES = [
 ];
 
 /* -------------------------------------------- */
-/*  Aptidões Amaldiçoadas (amostra transcrita)  */
-/* -------------------------------------------- */
-
-const APTIDOES = [
-  {
-    nome: "Afinidade Ampliada",
-    categoria: "Aura",
-    area: "au",
-    texto: `<p>Sua aura é aprimorada para ter uma maior afinidade com um elemento específico. Ao obter
-      essa habilidade, você escolhe um tipo de dano elemental. Sempre que você infligir dano desse tipo
-      específico, você causa dano adicional igual a 1 + o seu Nível de Aptidão em Aura no total de dano.</p>`
-  },
-  {
-    nome: "Aura Anuladora",
-    categoria: "Aura",
-    area: "au",
-    texto: `<p>A aura que o cobre obtém uma propriedade anuladora, capaz de protegê-lo de certos
-      efeitos. Uma quantidade de vezes igual ao seu bônus de treinamento, caso você fosse sofrer uma
-      condição, você pode pagar uma quantidade variável de energia para ignorá-la, a depender do nível
-      da condição.</p>
-      <p>Esta aptidão não pode anular manobras e efeitos físicos, como a ação Agarrar ou Ferimentos
-      Complexos. Anular uma condição fraca custa 2 PE; uma média, 4 PE; uma forte, 6 PE; e uma extrema,
-      10 PE. Você recupera esses usos em um descanso longo.</p>`
-  },
-  {
-    nome: "Aura Chamativa",
-    categoria: "Aura",
-    area: "au",
-    prerequisito: "Presença 18 e Nível 6",
-    texto: `<p>Você cria uma aura ao seu redor que é chamativa, atraente e mágica, cativando a atenção
-      facilmente. Toda criatura que não for seu aliado, e começar um turno dentro de 4,5 metros de você,
-      precisa realizar um teste de resistência de Vontade (atributo principal da técnica). Em uma falha,
-      ela fica enfeitiçada, podendo repetir o teste no próximo turno dela.</p>
-      <p>Para cada vez que a criatura falhar no TR, ela recebe um bônus de +2 para resistir a esta
-      aptidão ou deixar de estar enfeitiçada, até o final da cena.</p>`
-  },
-  {
-    nome: "Aura Controlada",
-    categoria: "Aura",
-    area: "au",
-    prerequisito: "Treinado em Furtividade e Destreza 16",
-    texto: `<p>Você refinou seu controle sobre a aura, impedindo que ela se revele quando é
-      inconveniente, ajudando-o a se ocultar e esconder sua presença. Você soma metade do seu Nível de
-      Aptidão em Aura em testes de Furtividade.</p>
-      <p>Sempre que realizar uma rolagem de Furtividade, você pode gastar 1 ponto de energia
-      amaldiçoada para receber o seu Nível de Aptidão em Aura por completo, ao invés de metade.</p>`
-  },
-  {
-    nome: "Aura de Contenção",
-    categoria: "Aura",
-    area: "au",
-    prerequisito: "Força ou Constituição 16",
-    texto: `<p>Com foco em conter, tem-se uma aura mais pesada e densa. Sempre que for agarrar um alvo,
-      você adiciona metade do seu Nível de Aptidão em Aura na rolagem de Atletismo, assim como na
-      rolagem para evitar que uma criatura escape.</p>
-      <p>Uma quantidade de vezes por cena igual a metade do seu Nível de Aptidão em Aura, você pode
-      também gastar 1 ponto de energia amaldiçoada para receber vantagem para agarrar ou impor
-      desvantagem na criatura que tentar escapar.</p>`
-  },
-  {
-    nome: "Aura do Bastião",
-    categoria: "Aura",
-    area: "au",
-    texto: `<p>Sua aura é protetiva e auxilia seus aliados a não serem acertados. Todo aliado dentro de
-      4,5 metros de você recebe um bônus na Defesa igual ao seu Nível de Aptidão em Aura.</p>`
-  },
-  {
-    nome: "Aura do Comandante",
-    categoria: "Aura",
-    area: "au",
-    prerequisito: "Presença 16 e Nível 8",
-    custoPE: 2,
-    acao: "Ação Bônus",
-    texto: `<p>Refletindo uma personalidade ou presença forte, estar coberto pela sua aura parece ser uma
-      grande motivação para aliados. Você pode, como uma Ação Bônus, expandir sua aura para cobrir todo
-      aliado dentro de 4,5 metros, os quais recebem 1 + metade do seu Nível de Aptidão em Aura em
-      rolagens de dano e testes de perícia dentro do combate.</p>
-      <p>Para cada turno que você mantiver a aura ativa, você paga 2 pontos de energia amaldiçoada.</p>`
-  }
-];
-
-/* -------------------------------------------- */
 /*  Armas Simples (p. 132)                      */
 /* -------------------------------------------- */
 
@@ -504,20 +430,28 @@ export const PACKS = {
   },
 
   "fnm-aptidoes": {
-    folders: [],
+    // Uma pasta por área de aptidão, na ordem em que o livro as apresenta
+    folders: [...new Set(APTIDOES.map(a => a.categoria))].map((cat, i) => ({
+      _id: id(`pasta-aptidao-${cat}`),
+      name: cat === "Especial" ? "Aptidões Especiais" : `Aptidões de ${cat}`,
+      sort: (i + 1) * 100
+    })),
     items: APTIDOES.map(a => ({
       _id: id(`aptidao-${a.nome}`),
       name: a.nome,
       type: "aptidao",
       img: "icons/svg/explosion.svg",
+      folder: id(`pasta-aptidao-${a.categoria}`),
       system: {
-        description: a.texto,
+        description:
+          (a.prerequisito ? `<p><b>Pré-Requisito:</b> ${a.prerequisito}</p>` : "") +
+          a.descricao,
         categoria: a.categoria,
-        areaAptidao: a.area ?? "",
-        nivelAptidao: a.nivelAptidao ?? 0,
-        prerequisito: a.prerequisito ?? "",
-        custoPE: a.custoPE ?? 0,
-        acao: a.acao ?? "",
+        areaAptidao: a.areaAptidao,
+        nivelAptidao: a.nivelAptidao,
+        prerequisito: a.prerequisito,
+        custoPE: a.custoPE,
+        acao: "",
         ajustes: { ...semAjustes }
       }
     }))

@@ -107,7 +107,7 @@ A ficha do sistema segue o layout do arquivo oficial, campo a campo:
 | **Especializações** | As 6 especializações, com PV, PE, treinamentos e habilidades base |
 | **Habilidades de Especialização** | As 368 habilidades do capítulo 4, em uma pasta por especialização, com o nível de cada uma |
 | **Talentos** | Os 51 talentos do capítulo 7 em duas pastas: 43 Gerais e 8 de Origem, com pré-requisitos em campo próprio |
-| **Aptidões Amaldiçoadas** | Amostra transcrita das Aptidões de Aura |
+| **Aptidões Amaldiçoadas** | As 64 aptidões do capítulo 8, em uma pasta por área (Aura, Controle e Leitura, Domínio, Barreira, Energia Reversa e Especiais) |
 | **Armas e Equipamentos** | A tabela completa de Armas Simples, a Distância e de Arremesso |
 | **Referência de Regras** | Diário com testes e CDs, ações em combate, condições, tipos de dano, tabelas de criação de Feitiços, alma, morte, exaustão e descansos |
 | **Macros** | Teste rápido, iniciativa do grupo, aplicar dano em massa, descanso longo do grupo |
@@ -119,10 +119,21 @@ A ficha do sistema segue o layout do arquivo oficial, campo a campo:
 O livro tem 369 páginas. O **motor de regras está completo** para o uso de mesa, mas os
 compêndios são uma semente. Ainda não foram transcritos:
 
-- A maior parte das **Aptidões Amaldiçoadas** — só as de Aura foram transcritas (capítulo 8)
-- As tabelas de **Armas Complexas**, uniformes, escudos e kits de ferramentas (capítulos 5 e 6)
-- As **técnicas prontas** da Enciclopédia Amaldiçoada
-- Os **exemplos de Voto de Restrição** da obra (capítulo 14)
+- As tabelas de **Armas Complexas**, uniformes, escudos, kits de ferramentas e itens
+  especiais (capítulo 5), e os **encantamentos** de ferramentas amaldiçoadas (capítulo 6)
+- O guia de **Invocações** — shikigamis e corpos amaldiçoados (capítulo 10)
+- Os **exemplos de Voto de Restrição** (capítulo 14)
+- Os guias em prosa de **Criação de Técnica** (capítulo 9). As tabelas de custo, dano,
+  alcance e área já estão no diário de referência
+- A **Clarificação de Regras** do apêndice
+
+As **técnicas prontas** de Jujutsu Kaisen não estão aqui porque não estão neste livro: o
+próprio texto remete a elas no livro **Enciclopédia Amaldiçoada**, que é outra obra.
+
+Também vale registrar o que **não é automatizado**: habilidades, talentos, origens e
+aptidões entram na ficha como texto. Se uma delas concede +2 na CD ou +1 na Defesa, o valor
+precisa ser lançado nos campos "Outros" ou no bloco de ajustes do item — o sistema não usa
+Active Effects, e as condições não são aplicadas automaticamente pelas rolagens.
 
 Nada disso bloqueia o jogo: todos esses elementos podem ser criados à mão como itens, e as
 fichas já têm os campos para eles. Para incluí-los nos compêndios, adicione as entradas em
@@ -171,7 +182,7 @@ Rode-o sempre que mexer em templates, schemas ou ícones.
 `tools/build-packs.mjs` lê `tools/pack-data.mjs` e gera os compêndios LevelDB em `packs/`
 usando a CLI oficial do Foundry.
 
-As Habilidades de Especialização e os Talentos vêm de arquivos em `tools/dados/`,
+As Habilidades de Especialização, os Talentos e as Aptidões vêm de arquivos em `tools/dados/`,
 gerados a partir do texto do livro. Os JSONs são versionados, então o build não depende do
 PDF — só é preciso rodar os extratores para atualizar as regras:
 
@@ -179,10 +190,11 @@ PDF — só é preciso rodar os extratores para atualizar as regras:
 pdftotext -layout -enc UTF-8 "Livro de Regras v2.5.2.pdf" fnm.txt
 python tools/extrai-habilidades.py fnm.txt
 python tools/extrai-talentos.py fnm.txt
+python tools/extrai-aptidoes.py fnm.txt
 npm run build:packs
 ```
 
-Os capítulos 4 e 7 são diagramados em duas colunas. `tools/livro_texto.py` concentra a
+Os capítulos 4, 7 e 8 são diagramados em duas colunas. `tools/livro_texto.py` concentra a
 leitura desse layout: ele detecta a calha vertical de espaços entre as colunas e separa o
 texto. As faixas de página ficam no topo de cada extrator; se a paginação mudar em uma
 versão futura do livro, ajuste-as. Os `_id` são derivados do nome por hash, então permanecem
