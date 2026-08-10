@@ -39,24 +39,31 @@
   padding: 0.5rem 0.6rem;
 }
 
-.fnm-sheet input,
-.fnm-sheet select,
-.fnm-sheet textarea {
+/* Os seletores de elemento abaixo sao restritos a .window-content de proposito.
+   A classe .fnm-sheet fica na RAIZ da aplicacao, que inclui a barra de titulo,
+   e no Foundry v13 os controles da janela sao <button class="header-control
+   icon fa-solid fa-xmark">, com as classes do icone no proprio botao. Um
+   seletor como `.fnm-sheet button` tem especificidade maior que `.fa-solid` e
+   sobrescreveria o font-family dele, transformando os controles da janela em
+   quadrados de glifo ausente. */
+.fnm-sheet .window-content input,
+.fnm-sheet .window-content select,
+.fnm-sheet .window-content textarea {
   background: rgba(255, 255, 255, 0.6);
   border: 1px solid var(--fnm-cinza);
   border-radius: 3px;
   color: var(--fnm-tinta);
   font-family: inherit;
 }
-.fnm-sheet input:focus,
-.fnm-sheet select:focus,
-.fnm-sheet textarea:focus {
+.fnm-sheet .window-content input:focus,
+.fnm-sheet .window-content select:focus,
+.fnm-sheet .window-content textarea:focus {
   outline: none;
   border-color: var(--fnm-azul);
   box-shadow: 0 0 4px var(--fnm-azul-claro);
 }
 
-.fnm-sheet button {
+.fnm-sheet .window-content button {
   background: var(--fnm-tinta);
   color: var(--fnm-osso);
   border: 1px solid var(--fnm-azul);
@@ -65,11 +72,11 @@
   padding: 0.25rem 0.6rem;
   font-family: inherit;
 }
-.fnm-sheet button:hover:not(:disabled) {
+.fnm-sheet .window-content button:hover:not(:disabled) {
   background: var(--fnm-azul);
   box-shadow: 0 0 6px var(--fnm-azul-claro);
 }
-.fnm-sheet button:disabled {
+.fnm-sheet .window-content button:disabled {
   opacity: 0.4;
   cursor: not-allowed;
 }

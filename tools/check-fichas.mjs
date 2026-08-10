@@ -267,7 +267,30 @@ if (raizFoundry) {
   console.log("      (Foundry não encontrado: caminhos de ícone não conferidos)");
 }
 
-/* -------- 4. Nenhum emoji no código, nos templates ou no CSS -------- */
+/* -------- 4. O CSS não vaza para a moldura da janela -------- */
+
+/**
+ * A classe do sistema (`.fnm-sheet`) fica na RAIZ da aplicação, que inclui a
+ * barra de título. No Foundry v13 os controles da janela são
+ * `<button class="header-control icon fa-solid fa-xmark">`, com as classes do
+ * ícone no próprio botão — então um seletor como `.fnm-sheet button` tem
+ * especificidade maior que `.fa-solid` e sobrescreve o font-family dele,
+ * transformando fechar/minimizar em quadrados de glifo ausente.
+ *
+ * Seletores de elemento precisam ser ancorados em `.window-content`.
+ */
+const CSS = fs.readFileSync(path.join(ROOT, "styles/fnm.css"), "utf8");
+const ELEMENTOS_DE_MOLDURA = /(^|,)\s*\.fnm-[a-z]+\s+(button|input|select|textarea|a|i|img|h1)\b/gm;
+
+for (const m of CSS.matchAll(ELEMENTOS_DE_MOLDURA)) {
+  const trecho = m[0].trim().replace(/^,\s*/, "");
+  falha(
+    `styles/fnm.css: "${trecho}" atinge a moldura da janela — ` +
+      `ancore em .window-content (ex.: .fnm-sheet .window-content ${m[2]})`
+  );
+}
+
+/* -------- 5. Nenhum emoji no código, nos templates ou no CSS -------- */
 
 /**
  * O sistema não usa emoji: ícones vêm do Font Awesome e ênfase vem de <b>.
@@ -312,7 +335,7 @@ for (const arq of arquivosCodigo) {
   });
 }
 
-/* -------- 5. Nenhum name= repetido dentro da mesma ficha -------- */
+/* -------- 6. Nenhum name= repetido dentro da mesma ficha -------- */
 for (const [ficha, partes] of Object.entries(FICHAS)) {
   const todas = partes.flatMap(p => [p, ...(PARCIAIS[p] ?? [])]);
   const vistos = new Map();
