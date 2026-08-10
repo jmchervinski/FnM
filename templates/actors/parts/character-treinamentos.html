@@ -35,7 +35,7 @@
     <legend>Votos de Restrição</legend>
     <header class="itens-header">
       <span class="dica">Votos inativos não concedem seus ajustes mecânicos.</span>
-      <button type="button" data-action="itemCreate" data-type="voto"><i class="fa-solid fa-plus"></i> Voto</button>
+      <button type="button" data-action="itemCreate" data-type="voto"><i class="fas fa-plus"></i> Voto</button>
     </header>
     <ol class="item-list">
       {{#each itens.voto as |item|}}
@@ -43,10 +43,10 @@
         <a class="item-nome" data-action="itemExpand">{{item.name}}</a>
         <span class="item-tag">Peso {{item.system.peso}}</span>
         <div class="item-controls">
-          <a data-action="itemToggle" title="Ativar/desativar"><i class="fa-solid fa-power-off"></i></a>
-          <a data-action="itemChat"><i class="fa-solid fa-comment"></i></a>
-          <a data-action="itemEdit"><i class="fa-solid fa-edit"></i></a>
-          <a data-action="itemDelete"><i class="fa-solid fa-trash"></i></a>
+          <a data-action="itemToggle" title="Ativar/desativar"><i class="fas fa-power-off"></i></a>
+          <a data-action="itemChat"><i class="fas fa-comment"></i></a>
+          <a data-action="itemEdit"><i class="fas fa-edit"></i></a>
+          <a data-action="itemDelete"><i class="fas fa-trash"></i></a>
         </div>
         <div class="item-descricao">
           {{{item.system.restricao}}}

@@ -29,8 +29,8 @@
         <a class="col-nome" data-action="rolarPericia" data-pericia="{{p.key}}"
            title="{{#if p.bloqueada}}Exige treinamento para uso normal. {{/if}}Rolar {{p.nome}}">
           {{p.nome}}
-          {{#if p.exigeTreino}}<i class="fa-solid fa-lock" title="Exige treinamento (p. 284-287)"></i>{{/if}}
-          {{#if p.complementar}}<i class="fa-solid fa-asterisk" title="Perícia complementar: opcional na campanha"></i>{{/if}}
+          {{#if p.exigeTreino}}<i class="fas fa-lock" title="Exige treinamento (p. 284-287)"></i>{{/if}}
+          {{#if p.complementar}}<i class="fas fa-asterisk" title="Perícia complementar: opcional na campanha"></i>{{/if}}
         </a>
         <span class="col-attr">{{p.abrevAtributo}}</span>
         <span class="col-total">{{sinal p.total}}</span>
@@ -68,18 +68,18 @@
         <span class="col-attr">INT</span>
         <span class="col-total">{{sinal o.total}}</span>
         <input class="col-outros" type="number" name="system.oficios.{{o.idx}}.outros" value="{{o.outros}}" step="1" />
-        <a class="mini-btn" data-action="removerOficio" data-idx="{{o.idx}}" title="Remover"><i class="fa-solid fa-trash"></i></a>
+        <a class="mini-btn" data-action="removerOficio" data-idx="{{o.idx}}" title="Remover"><i class="fas fa-trash"></i></a>
       </li>
       {{/each}}
     </ol>
-    <button type="button" data-action="adicionarOficio"><i class="fa-solid fa-plus"></i> Adicionar Ofício</button>
+    <button type="button" data-action="adicionarOficio"><i class="fas fa-plus"></i> Adicionar Ofício</button>
     <p class="dica">Ofício só pode ser usado se você for Treinado, e cada linha exige escolher uma subcategoria (p. 287).</p>
   </fieldset>
   {{else}}
   <fieldset class="bloco">
     <legend>Ofícios</legend>
     <p class="vazio">Nenhuma linha de Ofício. A ficha oficial traz três.</p>
-    <button type="button" data-action="adicionarOficio"><i class="fa-solid fa-plus"></i> Adicionar Ofício</button>
+    <button type="button" data-action="adicionarOficio"><i class="fas fa-plus"></i> Adicionar Ofício</button>
   </fieldset>
   {{/if}}
   {{/if}}

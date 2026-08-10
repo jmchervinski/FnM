@@ -147,7 +147,14 @@ const ICONES_PERMITIDOS = new Set([
   "dice-d20", "edit", "fire", "ghost", "hand-fist", "heart", "lock", "minus",
   "plus", "power-off", "shield-alt", "skull", "suitcase", "trash"
 ]);
-/** Prefixos de estilo do Font Awesome, que não são nomes de ícone. */
+/**
+ * Prefixos de estilo do Font Awesome, que não são nomes de ícone.
+ *
+ * Os templates usam a forma curta (`fas`), e não `fa-solid`: `fas` existe no
+ * Font Awesome 5 e no 6, enquanto `fa-solid` só existe do 6 em diante. Como o
+ * Foundry troca a versão do Font Awesome entre releases, a forma curta é a que
+ * renderiza em mais versões.
+ */
 const ESTILOS_FA = new Set(["solid", "regular", "brands", "light", "thin", "duotone", "sharp"]);
 
 let problemas = 0;
@@ -209,7 +216,58 @@ for (const arq of arquivos) {
   }
 }
 
-/* -------- 3. Nenhum emoji no código, nos templates ou no CSS -------- */
+/* -------- 3. Caminhos de ícone do Foundry existem de fato -------- */
+
+/**
+ * Ícones `icons/svg/*.svg` são servidos pelo próprio Foundry. Um caminho que não
+ * existe na instalação vira imagem quebrada — um quadrado vazio na ficha, no
+ * compêndio ou na paleta de condições do token.
+ *
+ * A verificação só roda se houver uma instalação do Foundry para conferir;
+ * aponte FOUNDRY_PATH para a pasta que contém `public/icons`.
+ */
+const CANDIDATOS_FOUNDRY = [
+  process.env.FOUNDRY_PATH,
+  "D:/Foundry/v13/code",
+  "C:/Program Files/Foundry Virtual Tabletop/resources/app"
+].filter(Boolean);
+
+const raizFoundry = CANDIDATOS_FOUNDRY.find(p =>
+  fs.existsSync(path.join(p, "public/icons/svg"))
+);
+
+if (raizFoundry) {
+  const fontes = [];
+  const walkFontes = d => {
+    for (const e of fs.readdirSync(d, { withFileTypes: true })) {
+      if (["node_modules", ".git", "packs", "packs-src"].includes(e.name)) continue;
+      const p = path.join(d, e.name);
+      if (e.isDirectory()) walkFontes(p);
+      else if (/\.(mjs|html|json)$/.test(e.name)) fontes.push(p);
+    }
+  };
+  walkFontes(ROOT);
+
+  const vistos = new Set();
+  for (const arq of fontes) {
+    for (const m of fs.readFileSync(arq, "utf8").matchAll(/icons\/[a-z0-9/_-]+\.(?:svg|webp|png|jpg)/g)) {
+      const rel = m[0];
+      if (vistos.has(rel)) continue;
+      vistos.add(rel);
+      if (!fs.existsSync(path.join(raizFoundry, "public", rel))) {
+        falha(
+          `${path.relative(ROOT, arq).replace(/\\/g, "/")}: "${rel}" não existe no ` +
+            `Foundry — renderiza como imagem quebrada`
+        );
+      }
+    }
+  }
+  console.log(`      (${vistos.size} caminhos de ícone conferidos contra ${raizFoundry})`);
+} else {
+  console.log("      (Foundry não encontrado: caminhos de ícone não conferidos)");
+}
+
+/* -------- 4. Nenhum emoji no código, nos templates ou no CSS -------- */
 
 /**
  * O sistema não usa emoji: ícones vêm do Font Awesome e ênfase vem de <b>.
@@ -254,7 +312,7 @@ for (const arq of arquivosCodigo) {
   });
 }
 
-/* -------- 4. Nenhum name= repetido dentro da mesma ficha -------- */
+/* -------- 5. Nenhum name= repetido dentro da mesma ficha -------- */
 for (const [ficha, partes] of Object.entries(FICHAS)) {
   const todas = partes.flatMap(p => [p, ...(PARCIAIS[p] ?? [])]);
   const vistos = new Map();

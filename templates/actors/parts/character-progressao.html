@@ -45,7 +45,7 @@
       {{/if}}
       <header class="itens-header">
         <span></span>
-        <button type="button" data-action="itemCreate" data-type="especializacao"><i class="fa-solid fa-plus"></i> Especialização</button>
+        <button type="button" data-action="itemCreate" data-type="especializacao"><i class="fas fa-plus"></i> Especialização</button>
       </header>
       <ol class="item-list">
         {{#each itens.especializacao as |item|}}
@@ -53,9 +53,9 @@
           <a class="item-nome" data-action="itemExpand">{{item.name}}</a>
           <span class="item-tag">nível {{item.system.niveis}}</span>
           <div class="item-controls">
-            <a data-action="itemChat"><i class="fa-solid fa-comment"></i></a>
-            <a data-action="itemEdit"><i class="fa-solid fa-edit"></i></a>
-            <a data-action="itemDelete"><i class="fa-solid fa-trash"></i></a>
+            <a data-action="itemChat"><i class="fas fa-comment"></i></a>
+            <a data-action="itemEdit"><i class="fas fa-edit"></i></a>
+            <a data-action="itemDelete"><i class="fas fa-trash"></i></a>
           </div>
           <div class="item-descricao">{{{item.system.description}}}</div>
         </li>
@@ -75,7 +75,7 @@
         <label>Nível atual <span class="valor-somente-leitura">{{system.detalhes.nivel}}</span></label>
         <label>Experiência <span class="valor-somente-leitura">{{system.detalhes.experiencia}}</span></label>
       </div>
-      <button type="button" data-action="subirNivel"><i class="fa-solid fa-arrow-up"></i> Subir de Nível</button>
+      <button type="button" data-action="subirNivel"><i class="fas fa-arrow-up"></i> Subir de Nível</button>
       <p class="dica">
         Bônus de Treinamento atual: <b>{{sinal system.bonusTreinamento}}</b> (aumenta nos níveis 5, 9, 13 e 17).
       </p>

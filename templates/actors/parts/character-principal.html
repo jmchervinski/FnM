@@ -91,7 +91,7 @@
       {{/each}}
       <div class="combate-botoes">
         <button type="button" data-action="rolarDesarmado" title="Ataque desarmado com Força">
-          <i class="fa-solid fa-hand-fist"></i> Desarmado ({{system.danoDesarmado}})
+          <i class="fas fa-hand-fist"></i> Desarmado ({{system.danoDesarmado}})
         </button>
       </div>
       <p class="dica">O Ataque Amaldiçoado é sempre treinado e usa o atributo da técnica (p. 279).</p>
@@ -146,15 +146,15 @@
       <div class="morte-linha">
         <label>Sucessos <input type="number" name="system.morte.sucessos" value="{{system.morte.sucessos}}" min="0" max="3" /></label>
         <label>Falhas <input type="number" name="system.morte.falhas" value="{{system.morte.falhas}}" min="0" max="3" /></label>
-        <button type="button" data-action="testeDeMorte" {{#unless system.morrendo}}disabled{{/unless}}><i class="fa-solid fa-skull"></i> Rolar</button>
+        <button type="button" data-action="testeDeMorte" {{#unless system.morrendo}}disabled{{/unless}}><i class="fas fa-skull"></i> Rolar</button>
       </div>
       <p class="dica">1 = duas falhas · 2-9 = uma falha · 10-19 = um sucesso · 20 = dois sucessos (p. 313).</p>
 
       <div class="exaustao-linha">
         <label>Exaustão</label>
-        <button type="button" class="mini-btn" data-action="exaustaoMenos"><i class="fa-solid fa-minus"></i></button>
+        <button type="button" class="mini-btn" data-action="exaustaoMenos"><i class="fas fa-minus"></i></button>
         <span class="exaustao-valor">{{system.exaustao}}</span>
-        <button type="button" class="mini-btn" data-action="exaustaoMais"><i class="fa-solid fa-plus"></i></button>
+        <button type="button" class="mini-btn" data-action="exaustaoMais"><i class="fas fa-plus"></i></button>
       </div>
       <ol class="exaustao-lista">
         {{#each exaustaoView as |e|}}
@@ -174,11 +174,11 @@
           <label>Dados <input type="number" name="system.dadosVida.{{d.idx}}.total" value="{{d.total}}" min="0" /></label>
           <label>Gastos <input type="number" name="system.dadosVida.{{d.idx}}.gastos" value="{{d.gastos}}" min="0" /></label>
           <span class="restantes">{{d.restantes}} disp.</span>
-          <a class="mini-btn" data-action="removerDadoVida" data-idx="{{d.idx}}" title="Remover"><i class="fa-solid fa-trash"></i></a>
+          <a class="mini-btn" data-action="removerDadoVida" data-idx="{{d.idx}}" title="Remover"><i class="fas fa-trash"></i></a>
         </li>
         {{/each}}
       </ol>
-      <button type="button" data-action="adicionarDadoVida"><i class="fa-solid fa-plus"></i> Adicionar tipo de dado</button>
+      <button type="button" data-action="adicionarDadoVida"><i class="fas fa-plus"></i> Adicionar tipo de dado</button>
     </fieldset>
   </div>
 
@@ -187,7 +187,7 @@
     <legend>Ataques</legend>
     <header class="itens-header">
       <span class="dica">Shift + clique no dano usa a versão versátil (duas mãos).</span>
-      <button type="button" data-action="itemCreate" data-type="arma"><i class="fa-solid fa-plus"></i> Arma</button>
+      <button type="button" data-action="itemCreate" data-type="arma"><i class="fas fa-plus"></i> Arma</button>
     </header>
     <ol class="item-list">
       {{#each itens.arma as |item|}}
@@ -200,12 +200,12 @@
           {{#if item.system.alcance}} · {{item.system.alcance}}{{/if}}
         </span>
         <div class="item-controls">
-          <a data-action="atacarArma" title="Jogada de ataque"><i class="fa-solid fa-crosshairs"></i></a>
-          <a data-action="danoArma" title="Rolagem de dano"><i class="fa-solid fa-bolt"></i></a>
-          <a data-action="itemToggle" title="Equipar/desequipar"><i class="fa-solid fa-shield-alt"></i></a>
-          <a data-action="itemChat" title="Enviar ao chat"><i class="fa-solid fa-comment"></i></a>
-          <a data-action="itemEdit" title="Editar"><i class="fa-solid fa-edit"></i></a>
-          <a data-action="itemDelete" title="Excluir"><i class="fa-solid fa-trash"></i></a>
+          <a data-action="atacarArma" title="Jogada de ataque"><i class="fas fa-crosshairs"></i></a>
+          <a data-action="danoArma" title="Rolagem de dano"><i class="fas fa-bolt"></i></a>
+          <a data-action="itemToggle" title="Equipar/desequipar"><i class="fas fa-shield-alt"></i></a>
+          <a data-action="itemChat" title="Enviar ao chat"><i class="fas fa-comment"></i></a>
+          <a data-action="itemEdit" title="Editar"><i class="fas fa-edit"></i></a>
+          <a data-action="itemDelete" title="Excluir"><i class="fas fa-trash"></i></a>
         </div>
         <div class="item-descricao">
           <p><b>Propriedades:</b> {{#if item.system.propriedades}}{{item.system.propriedades}}{{else}}—{{/if}}</p>
@@ -223,8 +223,8 @@
     <header class="itens-header">
       <span class="dica">As colunas Atual/Máx. controlam usos por descanso.</span>
       <span>
-        <button type="button" data-action="itemCreate" data-type="habilidade"><i class="fa-solid fa-plus"></i> Habilidade</button>
-        <button type="button" data-action="itemCreate" data-type="talento"><i class="fa-solid fa-plus"></i> Talento</button>
+        <button type="button" data-action="itemCreate" data-type="habilidade"><i class="fas fa-plus"></i> Habilidade</button>
+        <button type="button" data-action="itemCreate" data-type="talento"><i class="fas fa-plus"></i> Talento</button>
       </span>
     </header>
     <ol class="item-list">

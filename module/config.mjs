@@ -334,7 +334,7 @@ FNM.condicoes = [
   { id: "enjoado", nome: "Enjoado", grupo: "Física", nivel: "Média", icone: "icons/svg/acid.svg", efeito: "Não pode converter ações dentro da Hierarquia de Ações." },
   { id: "envenenado", nome: "Envenenado", grupo: "Física", nivel: "Média", icone: "icons/svg/poison.svg", efeito: "-2 em jogadas de ataque, testes de resistência e testes de perícia." },
   { id: "sangramento", nome: "Sangramento", grupo: "Física", nivel: "Variável", icone: "icons/svg/blood.svg", efeito: "Perda de vida no início do turno; TR de Fortitude no fim do turno encerra a condição em um sucesso." },
-  { id: "sofrendo", nome: "Sofrendo", grupo: "Física", nivel: "Leve", icone: "icons/svg/pain.svg", efeito: "-5 em testes de concentração e de Prestidigitação para rituais; perde 3 metros de movimento." },
+  { id: "sofrendo", nome: "Sofrendo", grupo: "Física", nivel: "Leve", icone: "icons/svg/degen.svg", efeito: "-5 em testes de concentração e de Prestidigitação para rituais; perde 3 metros de movimento." },
   // Incapacitação
   { id: "atordoado", nome: "Atordoado", grupo: "Incapacitação", nivel: "Extrema", icone: "icons/svg/daze.svg", efeito: "Fica desprevenido e não pode realizar ações ou reações." },
   { id: "inconsciente", nome: "Inconsciente", grupo: "Incapacitação", nivel: "Extrema", icone: "icons/svg/unconscious.svg", efeito: "Não age nem reage, fica caído, larga o que segura. Falha automaticamente em TR de Reflexos; todo ataque contra ela acerta e é crítico." },
