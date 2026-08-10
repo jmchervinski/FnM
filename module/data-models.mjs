@@ -172,23 +172,69 @@ class BaseActorModel extends foundry.abstract.TypeDataModel {
     return 1;
   }
 
+  /** Um item vestível só vale enquanto estiver equipado. */
+  static _equipado(item) {
+    if (item.type !== "arma" && item.type !== "equipamento") return true;
+    return item.system.equipada === true || item.system.equipado === true;
+  }
+
   /**
    * Soma os ajustes mecânicos de todos os itens do ator (Origens, Talentos,
    * Uniformes, Escudos etc.). Equipamentos e armas só contam quando equipados.
+   *
+   * Um uniforme lança seu bônus na Defesa e um escudo a sua Redução de Dano
+   * pelos campos próprios; `ajustes` continua sendo a saída de emergência para
+   * qualquer outro efeito, e os dois se somam.
    */
   _ajustesDeItens() {
-    const total = { pv: 0, pe: 0, defesa: 0, deslocamento: 0, reducaoDano: 0 };
+    const total = { pv: 0, pe: 0, defesa: 0, deslocamento: 0, reducaoDano: 0, penalidade: 0 };
     for (const item of this.parent?.items ?? []) {
-      const aj = item.system?.ajustes;
-      if (!aj) continue;
-      // Itens vestíveis só valem enquanto equipados
-      const vestivel = item.type === "arma" || item.type === "equipamento";
-      if (vestivel && !(item.system.equipada || item.system.equipado)) continue;
+      if (!BaseActorModel._equipado(item)) continue;
       // Votos desativados não concedem seus benefícios
       if (item.type === "voto" && item.system.ativo === false) continue;
-      for (const chave of Object.keys(total)) total[chave] += aj[chave] ?? 0;
+
+      const aj = item.system?.ajustes;
+      if (aj) for (const chave of Object.keys(total)) total[chave] += aj[chave] ?? 0;
+
+      if (item.type === "equipamento") {
+        total.defesa += item.system.defesa ?? 0;
+        total.reducaoDano += item.system.rdTotal ?? item.system.reducaoDano ?? 0;
+        // Penalidades de uniforme e de escudo são cumulativas (p. 141)
+        total.penalidade += item.system.penalidade ?? 0;
+      }
     }
     return total;
+  }
+
+  /**
+   * Inventário e Carregamento (p. 129). O limite é 8 espaços + o dobro do
+   * modificador de Força; passar dele deixa o personagem sobrecarregado, e o
+   * teto absoluto é o dobro do limite.
+   */
+  _prepararCarga() {
+    let ocupados = 0;
+    for (const item of this.parent?.items ?? []) {
+      if (item.type !== "arma" && item.type !== "equipamento") continue;
+      ocupados += (item.system.espacos ?? 0) * (item.system.quantidade ?? 1);
+    }
+
+    ocupados = Math.round(ocupados * 2) / 2;
+
+    // Só a ficha de Personagem controla espaços; NPCs e Invocações carregam o
+    // que o Narrador quiser, então para eles fica só o total, sem penalidade.
+    if (!this.inventario) {
+      this.carga = { ocupados, limite: 0, maximo: 0, sobrecarregado: false, excedido: false };
+      return;
+    }
+
+    const limite = Math.max(0, this.inventario.limiteEspacos + 2 * this.atributos.forca.mod);
+    this.carga = {
+      ocupados,
+      limite,
+      maximo: limite * 2,
+      sobrecarregado: ocupados > limite,
+      excedido: ocupados > limite * 2
+    };
   }
 
   /** Modificadores derivados dos seis atributos. */
@@ -221,7 +267,9 @@ class BaseActorModel extends foundry.abstract.TypeDataModel {
         metade +
         bonusProficiencia(nivel, p) +
         p.outros +
-        this.penalidadeGlobal;
+        this.penalidadeGlobal +
+        // Uniformes e escudos pesam só nas perícias de Destreza (p. 140-141)
+        (cfg.atributo === "destreza" ? this.penalidadeDestreza : 0);
       // Perícias que exigem treino ficam inutilizáveis sem ele (salvo exceções da mesa)
       p.bloqueada = p.exigeTreino && !p.treinado && !p.mestre;
     }
@@ -244,6 +292,7 @@ class BaseActorModel extends foundry.abstract.TypeDataModel {
     const c = this.combate;
     const nivel = this.nivel;
     const itens = this.ajustesItens ?? { defesa: 0, deslocamento: 0, reducaoDano: 0 };
+    const sobrecarga = this.carga?.sobrecarregado === true;
 
     c.defesa =
       10 +
@@ -252,7 +301,8 @@ class BaseActorModel extends foundry.abstract.TypeDataModel {
       c.defesaEquip +
       c.defesaOutros +
       itens.defesa +
-      this.penalidadeGlobal;
+      this.penalidadeGlobal +
+      (sobrecarga ? FNM.carga.defesaSobrecarga : 0);
 
     // Atenção é uma percepção passiva: 10 + bônus de Percepção (p. 19)
     c.atencao = 10 + (this.pericias.percepcao?.total ?? 0) + c.atencaoOutros;
@@ -269,7 +319,10 @@ class BaseActorModel extends foundry.abstract.TypeDataModel {
     // Cada nível de exaustão reduz 1,5 m de deslocamento (p. 324)
     c.deslocamentoAtual = Math.max(
       0,
-      c.deslocamento + itens.deslocamento - this.exaustao * 1.5
+      c.deslocamento +
+        itens.deslocamento -
+        this.exaustao * 1.5 +
+        (sobrecarga ? FNM.carga.deslocamentoSobrecarga : 0)
     );
   }
 
@@ -322,6 +375,8 @@ class BaseActorModel extends foundry.abstract.TypeDataModel {
     this.penalidadeExaustao = this.exaustao > 0 ? -this.exaustao : 0;
     this.penalidadeAlma = this.alma?.penalidade ?? 0;
     this.penalidadeGlobal = this.penalidadeExaustao + this.penalidadeAlma;
+    // A do equipamento fica de fora do total global: só pesa em Destreza
+    this.penalidadeDestreza = Math.min(0, this.ajustesItens?.penalidade ?? 0);
   }
 
   /** Estado de consciência derivado dos Pontos de Vida (p. 313). */
@@ -343,6 +398,8 @@ class BaseActorModel extends foundry.abstract.TypeDataModel {
     this.penalidadeExaustao = 0;
     this.penalidadeAlma = 0;
     this.penalidadeGlobal = 0;
+    this.penalidadeDestreza = 0;
+    this.carga = { ocupados: 0, limite: 0, maximo: 0, sobrecarregado: false, excedido: false };
     this.alma = { estado: "Estável", penalidade: 0, custoExtra: 0, condicoes: [] };
   }
 
@@ -350,6 +407,8 @@ class BaseActorModel extends foundry.abstract.TypeDataModel {
     super.prepareDerivedData();
     this.ajustesItens = this._ajustesDeItens();
     this._prepararModificadores();
+    // Carga depende do modificador de Força e pesa na Defesa e no Deslocamento
+    this._prepararCarga();
     this._prepararAlma();
     this._prepararPenalidades();
     // Percepção precisa estar pronta antes da Atenção
@@ -487,8 +546,13 @@ export class CharacterDataModel extends BaseActorModel {
         descricao: new HTMLField({ required: true, blank: true })
       }),
       inventario: new SchemaField({
-        // A ficha oficial parte de um Limite de Espaços igual a 8
-        limiteEspacos: new NumberField({ required: true, integer: true, min: 0, initial: 8 })
+        // Base da ficha oficial; o limite em vigor soma o dobro da Força (p. 129)
+        limiteEspacos: new NumberField({
+          required: true,
+          integer: true,
+          min: 0,
+          initial: FNM.carga.base
+        })
       }),
       anotacoes: new HTMLField({ required: true, blank: true })
     };
@@ -576,6 +640,8 @@ export class CharacterDataModel extends BaseActorModel {
     // Ordem importa: PV/PE dependem dos itens; Integridade depende do PV.
     this.ajustesItens = this._ajustesDeItens();
     this._prepararModificadores();
+    // Carga depende do modificador de Força e pesa na Defesa e no Deslocamento
+    this._prepararCarga();
 
     const totais = this._somarEspecializacoes();
     const aj = this.ajustesItens;
@@ -964,11 +1030,32 @@ export class FeiticoDataModel extends BaseItemModel {
   }
 }
 
+/**
+ * Até a v0.1 o grau de uma arma ou equipamento vinha da lista de graus de
+ * feiticeiro, que tem semi-graus. Ferramentas Amaldiçoadas só têm os cinco
+ * degraus da tabela de benefícios (p. 154), então um semi-grau cai no grau
+ * cheio abaixo dele.
+ */
+const GRAUS_ANTIGOS = {
+  "Grau 4": "Quarto",
+  "Grau 3": "Terceiro",
+  "Semi-Grau 2": "Terceiro",
+  "Grau 2": "Segundo",
+  "Semi-Grau 1": "Segundo",
+  "Grau 1": "Primeiro",
+  "Grau Especial": "Especial"
+};
+
+function migrarGrauFerramenta(source) {
+  if (source.grau in GRAUS_ANTIGOS) source.grau = GRAUS_ANTIGOS[source.grau];
+}
+
 export class ArmaDataModel extends BaseItemModel {
   static defineSchema() {
     return {
       ...super.defineSchema(),
       categoria: new StringField({ required: true, initial: "Simples", choices: FNM.categoriasArma }),
+      tipo: new StringField({ required: true, initial: "Corpo a Corpo", choices: FNM.tiposArma }),
       grupo: new StringField({
         required: true,
         blank: true,
@@ -986,9 +1073,11 @@ export class ArmaDataModel extends BaseItemModel {
       critico: new NumberField({ required: true, integer: true, min: 15, max: 20, initial: 20 }),
       propriedades: new StringField({ required: true, blank: true }),
       alcance: new StringField({ required: true, blank: true }),
-      espacos: new NumberField({ required: true, integer: true, min: 0, initial: 1 }),
+      // Meio espaço para consumíveis, quatro para armas massivas (p. 129)
+      espacos: new NumberField({ required: true, min: 0, initial: 1 }),
       custo: new NumberField({ required: true, integer: true, min: 0, initial: 1 }),
-      grau: new StringField({ required: true, blank: true }),
+      grau: new StringField({ required: true, blank: true, choices: ["", ...Object.keys(FNM.grausFerramenta)] }),
+      encantamentos: new StringField({ required: true, blank: true }),
       // Fineza permite trocar Força por Destreza no ataque e no dano (p. 279)
       fineza: new BooleanField({ required: true, initial: false }),
       treinado: new BooleanField({ required: true, initial: true }),
@@ -1001,6 +1090,30 @@ export class ArmaDataModel extends BaseItemModel {
       preco: new StringField({ required: true, blank: true })
     };
   }
+
+  /**
+   * Antes da v0.2 a categoria misturava os dois eixos da arma, com "A Distância"
+   * e "De Arremesso" ocupando o lugar de Simples/Complexa. Repartimos o valor
+   * antigo entre `categoria` e `tipo` para não invalidar itens já criados.
+   */
+  static migrateData(source) {
+    if (source.categoria === "A Distância" || source.categoria === "De Arremesso") {
+      source.tipo ??= source.categoria;
+      source.categoria = "Simples";
+    }
+    migrarGrauFerramenta(source);
+    return super.migrateData(source);
+  }
+
+  prepareDerivedData() {
+    super.prepareDerivedData();
+    // Bônus de dano da Ferramenta Amaldiçoada: vale só o do grau atual (p. 154)
+    const grau = FNM.grausFerramenta[this.grau];
+    this.bonusFerramenta = grau?.bonusArma ?? 0;
+    this.danoTotal = this.bonusFerramenta + this.bonusDano;
+    this.encantamentosPermitidos = grau?.encantamentos.arma ?? 0;
+    this.habilidadeUnica = grau?.unica === true;
+  }
 }
 
 export class EquipamentoDataModel extends BaseItemModel {
@@ -1008,14 +1121,53 @@ export class EquipamentoDataModel extends BaseItemModel {
     return {
       ...super.defineSchema(),
       tipo: new StringField({ required: true, initial: "Diverso", choices: FNM.tiposEquipamento }),
-      grau: new StringField({ required: true, blank: true }),
-      espacos: new NumberField({ required: true, integer: true, min: 0, initial: 1 }),
+      // Só os Itens Especiais têm categoria: Acessório, Fármaco, Talismã… (p. 144)
+      categoria: new StringField({
+        required: true,
+        blank: true,
+        choices: ["", ...FNM.categoriasItemEspecial]
+      }),
+      grau: new StringField({ required: true, blank: true, choices: ["", ...Object.keys(FNM.grausFerramenta)] }),
+      encantamentos: new StringField({ required: true, blank: true }),
+      espacos: new NumberField({ required: true, min: 0, initial: 1 }),
       custo: new NumberField({ required: true, integer: true, min: 0, initial: 1 }),
       quantidade: new NumberField({ required: true, integer: true, min: 0, initial: 1 }),
       equipado: new BooleanField({ required: true, initial: false }),
+      // Bônus na Defesa do uniforme (p. 140) e RD do escudo empunhado (p. 141)
+      defesa: new NumberField({ required: true, integer: true, initial: 0 }),
+      reducaoDano: new NumberField({ required: true, integer: true, min: 0, initial: 0 }),
+      // Penalidade em testes de perícia de Destreza; as de uniforme e escudo somam
+      penalidade: new NumberField({ required: true, integer: true, max: 0, initial: 0 }),
+      // Escudos podem atacar, com o dano entre parênteses no nome (p. 141)
+      dano: new StringField({ required: true, blank: true }),
+      // Alvo do Encantamento: em qual tipo de ferramenta ele pode ser aplicado
+      alvo: new StringField({ required: true, blank: true }),
+      prerequisito: new StringField({ required: true, blank: true }),
+      acao: new StringField({ required: true, blank: true }),
+      consumivel: new BooleanField({ required: true, initial: false }),
+      usos: new SchemaField({
+        value: new NumberField({ required: true, integer: true, min: 0, initial: 0 }),
+        max: new NumberField({ required: true, integer: true, min: 0, initial: 0 })
+      }),
       peso: new NumberField({ required: true, min: 0, initial: 0 }),
       preco: new StringField({ required: true, blank: true })
     };
+  }
+
+  static migrateData(source) {
+    migrarGrauFerramenta(source);
+    return super.migrateData(source);
+  }
+
+  prepareDerivedData() {
+    super.prepareDerivedData();
+    // Um escudo amaldiçoado usa a RD do próprio grau no lugar da RD comum (p. 154)
+    const grau = FNM.grausFerramenta[this.grau];
+    this.rdFerramenta = this.tipo === "Escudo" ? (grau?.rdEscudo ?? 0) : 0;
+    this.rdTotal = Math.max(this.reducaoDano, this.rdFerramenta);
+    const chave = this.tipo === "Escudo" ? "escudo" : "uniforme";
+    this.encantamentosPermitidos = grau?.encantamentos[chave] ?? 0;
+    this.habilidadeUnica = grau?.unica === true;
   }
 }
 

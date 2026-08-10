@@ -40,6 +40,9 @@ export class FnmItemSheet extends HandlebarsApplicationMixin(ItemSheetV2) {
     context.origens = FNM.origens;
     context.especializacoes = FNM.especializacoes;
     context.graus = FNM.graus;
+    // Ferramentas Amaldiçoadas usam os cinco degraus da tabela de benefícios,
+    // sem os semi-graus da escala de feiticeiros (p. 154)
+    context.grausFerramenta = Object.entries(FNM.grausFerramenta).map(([id, g]) => ({ id, ...g }));
 
     context.enrichedDescription =
       await foundry.applications.ux.TextEditor.implementation.enrichHTML(sys.description ?? "", {

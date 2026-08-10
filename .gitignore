@@ -7,3 +7,7 @@ dist/
 
 # Configuração local de ferramentas, específica de cada máquina
 .claude/settings.local.json
+
+# Texto do Livro de Regras extraído com pdftotext, para os extratores.
+# O livro não é versionado aqui: gere-o localmente (veja o README).
+tools/fnm.txt

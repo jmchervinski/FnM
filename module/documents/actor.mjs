@@ -240,12 +240,12 @@ export class FnmActor extends Actor {
   async rolarAtaqueArma(item) {
     const sys = item.system;
     const s = this.system;
-    const distancia = ["A Distância", "De Arremesso"].includes(sys.categoria);
+    const distancia = ["A Distância", "De Arremesso"].includes(sys.tipo);
 
     // Arremesso pode usar Força ou Destreza; escolhemos o melhor (p. 306)
     let chaveAttr;
-    if (sys.categoria === "A Distância") chaveAttr = "destreza";
-    else if (sys.categoria === "De Arremesso") {
+    if (sys.tipo === "A Distância") chaveAttr = "destreza";
+    else if (sys.tipo === "De Arremesso") {
       chaveAttr =
         s.atributos.destreza.mod >= s.atributos.forca.mod ? "destreza" : "forca";
     } else if (sys.fineza && s.atributos.destreza.mod > s.atributos.forca.mod) {
@@ -309,7 +309,7 @@ export class FnmActor extends Actor {
 
     const chave =
       chaveAttr ??
-      (["A Distância"].includes(sys.categoria)
+      (sys.tipo === "A Distância"
         ? "destreza"
         : sys.fineza && s.atributos.destreza.mod > s.atributos.forca.mod
           ? "destreza"
@@ -321,15 +321,18 @@ export class FnmActor extends Actor {
     const dados = critico ? `(${base}) + (${base})` : base;
     const formula = `${dados} + @mod + @extra`;
 
-    const roll = new Roll(formula, { mod: modAttr, extra: sys.bonusDano });
+    // O grau da Ferramenta Amaldiçoada entra no dano junto do bônus manual (p. 154)
+    const roll = new Roll(formula, { mod: modAttr, extra: sys.danoTotal ?? sys.bonusDano });
     await roll.evaluate();
 
     const tipo = FNM.tiposDano[sys.tipoDano]?.nome ?? "";
+    const grau = FNM.grausFerramenta[sys.grau];
     await roll.toMessage({
       speaker: ChatMessage.getSpeaker({ actor: this }),
       flavor:
         `<b>Dano — ${item.name}</b>${critico ? " (Crítico)" : ""}` +
-        (tipo ? ` · ${tipo}` : "")
+        (tipo ? ` · ${tipo}` : "") +
+        (grau ? ` · Ferramenta de ${grau.nome} (+${grau.bonusArma})` : "")
     });
     return roll;
   }

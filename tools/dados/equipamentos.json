@@ -1,0 +1,1010 @@
+{
+  "propriedadesArma": [
+    {
+      "nome": "Ampla",
+      "descricao": "A arma é boa para ataques amplos ou giratórios. Uma vez por rodada, quando atacar com ela, você pode escolher outro alvo adjacente a criatura, caso a Defesa dela seja menor do que o resultado do seu crítico, ela recebe metade do dano causado."
+    },
+    {
+      "nome": "Aparar",
+      "descricao": "A arma pode ser usada de maneira defensiva, bloqueando ataques. Enquanto empunhando a arma, caso seja treinado, você pode usar uma ação de movimento para posicioná-la defensivamente, recebendo +2 em sua Defesa até o começo do próximo turno."
+    },
+    {
+      "nome": "Apunhaladora",
+      "descricao": "A arma é boa para apunhalar discretamente. Quando atingir uma criatura desprevenida, a arma causa dano adicional igual ao seu bônus de treinamento."
+    },
+    {
+      "nome": "Arremessável",
+      "descricao": "A arma pode ser usada em ataques de arremesso na distância especificada juntamente dos traços."
+    },
+    {
+      "nome": "Duas Mãos",
+      "descricao": "A arma só pode ser manuseada de maneira apropriada com as duas mãos."
+    },
+    {
+      "nome": "Dupla",
+      "descricao": "A arma pode ser usada com Lutando com Duas Armas, Estilo Duplo (e similares) para fazer ataques adicionais, como se fosse uma arma de uma mão e uma arma leve."
+    },
+    {
+      "nome": "Emperrar",
+      "descricao": "Em um desastre (1 natural em uma jogada de ataque), a arma emperra. A arma para de funcionar, sendo necessário uma ação comum para fazê-la funcionar novamente."
+    },
+    {
+      "nome": "Enérgica",
+      "descricao": "A arma acumula impulso para ficar mais poderosa. Quando realizar mais de um ataque com ela no mesmo turno, o segundo ataque recebe um bônus de dano igual à quantidade de dados de dano da arma. A cada outro ataque subsequente o bônus de dano aumenta em +1."
+    },
+    {
+      "nome": "Especial",
+      "descricao": "A arma possui um traço único dela."
+    },
+    {
+      "nome": "Estendida",
+      "descricao": "A arma tem um alcance maior. O alcance de seus ataques corpo a corpo com a arma aumenta em 1,5 metros."
+    },
+    {
+      "nome": "Fatal",
+      "descricao": "A arma é perigosa ao atingir o ponto certo. Junto do traço, é especificado um tamanho de dado. Em um acerto crítico, o dado de dano da arma aumenta para esse tamanho listado, o qual é considerado também para calcular o dano adicional do crítico. Caso o dado da arma se torne maior que o dado listado por aumento de níveis de dano, ao invés do normal, adicione 1 dado da categoria indicada no dano do acerto crítico."
+    },
+    {
+      "nome": "Fineza",
+      "descricao": "A arma tem certa fineza, permitindo-lhe escolher como manejar. Você pode escolher utilizar Destreza ao invés de Força em suas jogadas de ataque e rolagens de dano com a arma."
+    },
+    {
+      "nome": "Leve",
+      "descricao": "Uma arma leve pode ser usada no manuseio de duas armas."
+    },
+    {
+      "nome": "Marcial",
+      "descricao": "A arma é integrada ao uso do corpo, podendo se beneficiar de diversas habilidades de caminhos focados em formar um Lutador."
+    },
+    {
+      "nome": "Modular",
+      "descricao": "A arma pode ser moldada para causar um tipo diferente de dano. Junto do traço, será especificado um tipo de dano, o qual você pode optar por causar em ataques com a arma. Por exemplo, a Adaga tem como dano Perfurante, mas é Modular Ct, podendo causar dano cortante."
+    },
+    {
+      "nome": "Mortal",
+      "descricao": "A arma é especialmente mortal. Em um acerto crítico, a arma adiciona um dado de dano adicional do tamanho listado."
+    },
+    {
+      "nome": "Oscilante",
+      "descricao": "A arma permite aproveitar um impulso errado em seu próximo ataque. Quando erra um ataque com esta arma você recebe +2 em sua próxima rolagem de ataque realizada antes do final do seu turno."
+    },
+    {
+      "nome": "Pesada [X]",
+      "descricao": "A arma requer uma Força maior para usar. Quando manejando uma arma pesada, caso você não tenha um valor de Força igual ou superior ao especificado [X], você recebe desvantagem em rolagens de ataque com ela."
+    },
+    {
+      "nome": "Recarga [X]",
+      "descricao": "Uma arma com a propriedade Recarga irá exigir o uso de munições. Após realizar um número de ataques [X] você deve gastar uma ação bônus para recarregar a arma. Após recarregada ela pode atirar o mesmo número de vezes até precisar ser recarregada novamente."
+    },
+    {
+      "nome": "Versátil",
+      "descricao": "Uma arma versátil pode ser manuseada com uma mão ou com duas, modificando seu dano de acordo com a maneira usada. O primeiro dado mostrado é o dano com uma mão e o segundo é quando a arma é segurada com duas mãos."
+    }
+  ],
+  "propriedadesEspeciais": {
+    "Adagas Duplas": "Sendo duas adagas ligadas uma à outra e presas ao portador, você não pode ser desarmado. Além disso, contam como uma única arma de duas mãos.",
+    "Alabarda": "De lâmina curva e amplo alcance, concede +2 em testes da manobra Derrubar.",
+    "Bazuca": "Ao atacar um inimigo, compare seu teste contra a Defesa de todos os alvos a 7,5 metros do alvo original, causando o dano do ataque a todos cujo seu teste superar a Defesa. Recarregar uma bazuca custa uma Ação Completa. As munições da bazuca tem Custo e Espaço 1.",
+    "Chakram": "Feito para facilmente retornar ao portador. Sempre que realiza um ataque de arremesso com o Chakram a arma retorna para sua mão após o ataque.",
+    "Chicote": "Você pode usar a manobra Agarrar mesmo com a mão ocupada pelo chicote, desde que o alvo esteja dentro do seu alcance com a arma. Você recebe +2 em testes de Agarrar usando o chicote.",
+    "Chicote de Corrente": "Pesado e robusto, possui o traço especial de chicote. Além disso, como uma ação bônus você pode enrolar a corrente em volta do cabo de uma arma corpo a corpo que esteja empunhando. Enquanto uma arma está acoplada a uma corrente você passa a poder utilizar o alcance do chicote e efeito de crítico dele para os ataques dela e você ocupa duas mãos para se beneficiar deste efeito. Tirar uma corrente de uma arma gasta outra ação bônus.",
+    "Chicote Espinhento": "Devido a sua estrutura, o chicote espinhento causa 1d6 de dano cortante e 1d6 de dano perfurante. Ao subir o nível de dano de um chicote espinhento, sobe-se o nível de cada dado individualmente. Apenas o menor RD/ Resistência é contado para efeitos de diminuição de dano. Ele possui o traço especial de chicote.",
+    "Dardo": "O dardo é especialmente efetivo para aplicar venenos. Se o dardo atingir uma criatura, enquanto coberto por veneno, a CD do veneno aumenta em +2.",
+    "Escopeta": "Ao realizar um ataque com uma escopeta, além do alvo original, criaturas em um cone de 3 metros a sua frente também são afetadas. Compare o resultado de sua jogada de ataque com a Defesa de cada uma das criaturas na área. Você causa dano igual aos dados de dano da arma em todas aquelas em que acertar. Recarregar uma escopeta custa uma ação comum.",
+    "Espada Colossal": "Uma espada de tamanho excessivo, naturalmente mais forte. Como o efeito de Amplo, mas escolha uma terceira criatura adjacente ao alvo do primeiro ataque para também sofrer os efeitos.",
+    "Espada de Gancho": "Um modelo específico e peculiar de espadas, cuja ponta tem forma de gancho. Ao acertar um ataque você pode puxar o alvo 1,5 metros na sua direção, não podendo entrar no quadrado. Caso você esteja equipando duas, as duas espadas de gancho passam a receber o traço Estendida.",
+    "Faixas": "Simples faixas enroladas na mão do portador. As faixas não são consideradas armas, mas sim equipamentos, e ataques realizados com elas são considerados como ataques desarmados, possuindo o mesmo dano deles e se beneficiando de habilidades que afetam esse tipo de ataque. Você pode utilizar uma ou duas faixas, embora o item seja um conjunto. Embora não sejam consideradas armas, você pode transformar Faixas em Ferramentas Amaldiçoadas, recebendo os benefícios comuns da tabela para armas.",
+    "Kusarigama": "A kusarigama permite o uso tanto da foice, que causa dano cortante quanto do peso, que causa dano de impacto. Uma kusarigama concede +2 em testes de manobra. Ao subir o nível de dano de uma kusarigama, sobe-se o nível de cada dado individualmente.",
+    "Leque": "Você pode alternar entre usar o leque fechado, que causa dano de impacto, ou o leque aberto, que causa dano cortante. Alternar dentro de combate é uma ação livre. Enquanto fechado, conta como parte do grupo bastão; enquanto aberto, conta como parte do grupo faca. O leque também concede +2 em testes de Enganação para Fintar.",
+    "Manoplas": "Manoplas que ocupam completamente as duas mãos. Contam como arma para todos os efeitos, mas usam do seu dano desarmado base para ser aplicado. É possível carregar itens e agarrar e levantar pessoas enquanto usa as manoplas, mas não é possível manejar outras armas. Seu dano desarmado aumenta em 1 nível para cada 2 no seu modificador de força.",
+    "Metralhadora": "Uma metralhadora possui uma cadência superior de disparo. Quando realizar um ataque com a metralhadora, você pode também utilizar a sua ação bônus para realizar um ataque adicional, consumindo mais uma munição. Utiliza uma ação comum para recarregar.",
+    "Rede": "Caso acerte um ataque com uma rede, o alvo recebe a condição Enredado. Uma criatura enredada dessa maneira pode tentar escapar como uma Ação Completa, realizando um teste de Atletismo ou Acrobacia com CD20. Uma rede pode também ser atacada, possuindo 5 Pontos de Vida e, caso destruída, a criatura presa é solta.",
+    "Soco Inglês": "Um soco inglês destrutivo, colocado em uma mão. Conta como arma para todos os efeitos, mas usa do seu dano desarmado para ser aplicado. É possível agarrar e levantar pessoas enquanto usa o soco inglês, mas não é possível manejar outras armas ou itens. Enquanto usando soco inglês, seus ataques com ele também aplicam os efeitos críticos do grupo Faca e testes de resistência para resistir a efeitos de crítico têm a CD aumentada em 1 para cada 2 no modificador de força ou destreza."
+  },
+  "itensEspeciais": [
+    {
+      "nome": "Antídoto Simples",
+      "tipo": "Item Especial",
+      "categoria": "Fármaco",
+      "custo": 1,
+      "espacos": 1,
+      "consumivel": true,
+      "acao": "Ação Bônus",
+      "descricao": "<p>Um simples antídoto, capaz de neutralizar venenos mais leves. O antídoto pode ser consumido como uma ação bônus, curando da condição envenenado e/ou qualquer veneno de custo 1 ou que venha de uma maldição de quarto grau.</p>"
+    },
+    {
+      "nome": "Brinco da Comunicação",
+      "tipo": "Item Especial",
+      "categoria": "Acessório",
+      "custo": 1,
+      "espacos": 1,
+      "consumivel": false,
+      "acao": "Ação Completa",
+      "descricao": "<p>Um par de brincos imbuídos com uma técnica de comunicação. Usar um desses brincos permite que o usuário sintonize com até 6 outras pessoas que também estejam usando um. Todos sintonizados na mesma conexão conseguem se comunicar mentalmente desde que estejam dentro de 30 metros. Sintonizar um brinco dentro de combate é uma ação completa, e enquanto se comunica o brinco brilha em um brilho perceptível por qualquer pessoa.</p>"
+    },
+    {
+      "nome": "Chaveiro Canalizador",
+      "tipo": "Item Especial",
+      "categoria": "Acessório",
+      "custo": 1,
+      "espacos": 1,
+      "consumivel": false,
+      "acao": "",
+      "descricao": "<p>Um chaveiro que canaliza energia amaldiçoada, refinando-a e dificultando resistir. Um personagem com o chaveiro canalizador tem a sua CD Amaldiçoada aumentada em 1.</p>"
+    },
+    {
+      "nome": "Injeção Estimulante",
+      "tipo": "Item Especial",
+      "categoria": "Fármaco",
+      "custo": 1,
+      "espacos": 1,
+      "consumivel": true,
+      "acao": "Ação Bônus",
+      "descricao": "<p>Uma injeção criada a partir de uma mescla de medicina e controle de energia amaldiçoada. Ela tem uma única carga e a injetar faz com que você receba +2 de bônus em toda rolagem de perícia usando um atributo a sua escolha durante 10 minutos. Dentro de combate, injetar é uma ação bônus.</p>"
+    },
+    {
+      "nome": "Mix Energético Pequeno",
+      "tipo": "Item Especial",
+      "categoria": "Fármaco",
+      "custo": 1,
+      "espacos": 1,
+      "consumivel": true,
+      "acao": "Ação Bônus",
+      "descricao": "<p>Um conjunto de suplementos e substâncias que conseguem recuperar a energia e vigor físico, concentrados em uma cápsula. Como uma ação bônus, é possível consumir o mix, recuperando 3 pontos de estamina.</p>"
+    },
+    {
+      "nome": "Óleo Amolador",
+      "tipo": "Item Especial",
+      "categoria": "Mistura",
+      "custo": 1,
+      "espacos": 0.5,
+      "consumivel": true,
+      "acao": "",
+      "descricao": "<p>Um pequeno recipiente cheio de um óleo que aumenta o potencial de uma arma, amolando-a. Pode ser aplicado em duas armas antes de acabar; uma arma coberta com óleo amolador recebe o traço Mortal d6. O óleo dura um dia.</p>"
+    },
+    {
+      "nome": "Óleo Flamejante",
+      "tipo": "Item Especial",
+      "categoria": "Mistura",
+      "custo": 1,
+      "espacos": 0.5,
+      "consumivel": true,
+      "acao": "",
+      "descricao": "<p>Um óleo que deixa a arma extremamente inflamável, cobrindo-se de chamas com o menor dos esforços. Pode ser aplicado em duas armas antes de acabar; uma arma coberta com óleo flamejante recebe o traço Modular Queimante. O óleo dura 10 minutos.</p>"
+    },
+    {
+      "nome": "Pérola Carregada",
+      "tipo": "Item Especial",
+      "categoria": "Espiritual",
+      "custo": 1,
+      "espacos": 1,
+      "consumivel": true,
+      "acao": "Ação Bônus",
+      "descricao": "<p>Uma pequena pérola carregada com energia amaldiçoada, usada para recuperar do próprio estoque. Como uma ação bônus, é possível consumir a pérola, recuperando 3 pontos de energia amaldiçoada.</p>"
+    },
+    {
+      "nome": "Remédio Simples",
+      "tipo": "Item Especial",
+      "categoria": "Fármaco",
+      "custo": 1,
+      "espacos": 1,
+      "consumivel": true,
+      "acao": "Ação Comum",
+      "descricao": "<p>Um simples remédio, capaz de forçar uma reação regenerativa do corpo. Como uma ação comum, é possível consumir o remédio e gastar seus dados de vida para se curar, com um limite igual a quatro dados de vida.</p>"
+    },
+    {
+      "nome": "Símbolo da Vida",
+      "tipo": "Item Especial",
+      "categoria": "Talismã",
+      "custo": 1,
+      "espacos": 0.5,
+      "consumivel": true,
+      "acao": "Ação Bônus",
+      "descricao": "<p>Uma espécie de pequena ficha ou amuleto, encravado em madeira e imbuído com energia reversa. Como uma ação bônus, é possível o destruir para liberar a energia em si mesmo, curando-se em 10 pontos de vida.</p>"
+    },
+    {
+      "nome": "Talismã de Barreira",
+      "tipo": "Item Especial",
+      "categoria": "Talismã",
+      "custo": 1,
+      "espacos": 0.5,
+      "consumivel": true,
+      "acao": "Ação Bônus",
+      "descricao": "<p>Um pequeno talismã que armazena uma barreira amaldiçoada. Pode usá-lo como uma ação bônus, invocando quatro paredes, cada uma possuindo 15 pontos de vida e ocupando 1,5 metros cada. Após usado, o talismã se esvai.</p>"
+    },
+    {
+      "nome": "Veneno Debilitante",
+      "tipo": "Item Especial",
+      "categoria": "Mistura",
+      "custo": 1,
+      "espacos": 0.5,
+      "consumivel": true,
+      "acao": "",
+      "descricao": "<p>Um pote de veneno cujo foco é atingir o corpo, debilitando-o. Contato, o alvo terá seu deslocamento reduzido pela metade.</p>"
+    },
+    {
+      "nome": "Veneno Intenso",
+      "tipo": "Item Especial",
+      "categoria": "Mistura",
+      "custo": 1,
+      "espacos": 0.5,
+      "consumivel": true,
+      "acao": "",
+      "descricao": "<p>Um pote de veneno intenso e concentrado, com o propósito de invadir o corpo do alvo. Contato, o alvo ficará Envenenado durante uma rodada.</p>"
+    },
+    {
+      "nome": "Amuleto do Vislumbre",
+      "tipo": "Item Especial",
+      "categoria": "Acessório",
+      "custo": 2,
+      "espacos": 1,
+      "consumivel": false,
+      "acao": "Ação Bônus",
+      "descricao": "<p>Um amuleto amaldiçoado que fornece ao portador capacidade de vislumbrar tudo ao seu redor com perfeição. O usuário deste item recebe visão no escuro com alcance de 9 metros, além de um bônus de +2 em rolagens de Percepção. Uma vez ao dia, você pode, como uma ação bônus, se tornar capaz de enxergar com os olhos fechados em 9 metros de diâmetro por 1 minuto.</p>"
+    },
+    {
+      "nome": "Antídoto Intermediário",
+      "tipo": "Item Especial",
+      "categoria": "Fármaco",
+      "custo": 2,
+      "espacos": 1,
+      "consumivel": true,
+      "acao": "Ação Bônus",
+      "descricao": "<p>Um simples antídoto, capaz de neutralizar venenos mais leves. O antídoto pode ser consumido como uma ação bônus, curando da condição envenenado e/ou qualquer veneno de custo 2 ou que venha de uma maldição de terceiro grau ou inferior.</p>"
+    },
+    {
+      "nome": "Apanhador de Saúde",
+      "tipo": "Item Especial",
+      "categoria": "Acessório",
+      "custo": 2,
+      "espacos": 1,
+      "consumivel": false,
+      "acao": "",
+      "descricao": "<p>Um pequeno amuleto com formato semelhante ao de um apanhador de sonhos, o qual atrai boas energias. Sempre que um portador do acessório for curado, recebe +1 de cura por dado, com um limite de cura adicional igual a metade do seu nível.</p>"
+    },
+    {
+      "nome": "Bracelete do Vigor",
+      "tipo": "Item Especial",
+      "categoria": "Acessório",
+      "custo": 2,
+      "espacos": 1,
+      "consumivel": false,
+      "acao": "",
+      "descricao": "<p>Um bracelete que entra em sintonia com o corpo e acentua o físico, concedendo um maior vigor para o seu portador. Enquanto estiver utilizando o bracelete do vigor, os seus pontos de vida máximos aumentam em 10.</p>"
+    },
+    {
+      "nome": "Conjunto de Pérolas Carregadas",
+      "tipo": "Item Especial",
+      "categoria": "Espiritual",
+      "custo": 2,
+      "espacos": 1,
+      "consumivel": true,
+      "acao": "Ação Bônus",
+      "descricao": "<p>Um conjunto de pérolas carregadas com energia amaldiçoada. Como uma ação bônus, é possível consumir o conjunto de pérolas, recuperando 6 pontos de energia amaldiçoada.</p>"
+    },
+    {
+      "nome": "Faixa de Foco",
+      "tipo": "Item Especial",
+      "categoria": "Acessório",
+      "custo": 2,
+      "espacos": 1,
+      "consumivel": false,
+      "acao": "",
+      "descricao": "<p>Uma faixa que quando presa ao seu portador o permite focar e manter a concentração. Você recebe um bônus de +2 em testes para manter a concentração e, uma vez por dia, você pode escolher não perder a concentração ao invés de realizar um teste.</p>"
+    },
+    {
+      "nome": "Injeção de Adrenalina",
+      "tipo": "Item Especial",
+      "categoria": "Fármaco",
+      "custo": 2,
+      "espacos": 1,
+      "consumivel": true,
+      "acao": "Ação Bônus",
+      "descricao": "<p>Uma injeção com uma dose considerável de adrenalina, que o faz esquecer temporariamente do cansaço. Usar a injeção é uma ação bônus; ao usar ela, seu nível de Exaustão é reduzido em 1 até o final da cena, voltando imediatamente após o término dela.</p>"
+    },
+    {
+      "nome": "Mix Energético Médio",
+      "tipo": "Item Especial",
+      "categoria": "Fármaco",
+      "custo": 2,
+      "espacos": 1,
+      "consumivel": true,
+      "acao": "Ação Bônus",
+      "descricao": "<p>Um conjunto reforçado de suplementos e substâncias que aumentam a recuperação do vigor físico. Como uma ação bônus, é possível consumir o mix, recuperando 6 pontos de estamina.</p>"
+    },
+    {
+      "nome": "Pulseira Magistral",
+      "tipo": "Item Especial",
+      "categoria": "Acessório",
+      "custo": 2,
+      "espacos": 1,
+      "consumivel": false,
+      "acao": "",
+      "descricao": "<p>Uma pulseira cujas propriedades conseguem extrair mais as capacidades de quem a usa, melhorando uma perícia. Enquanto estiver usando a pulseira magistral, o usuário se torna treinado em uma perícia a sua escolha.</p>"
+    },
+    {
+      "nome": "Remédio Intermediário",
+      "tipo": "Item Especial",
+      "categoria": "Fármaco",
+      "custo": 2,
+      "espacos": 1,
+      "consumivel": true,
+      "acao": "Ação Comum",
+      "descricao": "<p>Um remédio mais complexo, capaz de forçar uma reação regenerativa avançada no corpo. Como uma ação comum, é possível consumir o remédio e gastar seus dados de vida para se curar, com um limite igual a oito dados de vida.</p>"
+    },
+    {
+      "nome": "Símbolo de Vida Florescente",
+      "tipo": "Item Especial",
+      "categoria": "Talismã",
+      "custo": 2,
+      "espacos": 0.5,
+      "consumivel": true,
+      "acao": "Ação Bônus",
+      "descricao": "<p>Uma ficha ou amuleto encravado em madeira e com quantidades modestas de energia reversa, o que dá um sutil brilho e calor. Como uma ação bônus, é possível o destruir para liberar energia em si mesmo, curando-se em 25 pontos de vida.</p>"
+    },
+    {
+      "nome": "Talismã de Barreira Superior",
+      "tipo": "Item Especial",
+      "categoria": "Talismã",
+      "custo": 2,
+      "espacos": 0.5,
+      "consumivel": true,
+      "acao": "Ação Bônus",
+      "descricao": "<p>Melhorando no talismã de barreira, ela é tecida com mais cuidado e foco em uma maior agilidade. Pode usá-lo como uma ação bônus ou como uma reação, invocando quatro paredes, cada uma possuindo 25 pontos de vida e ocupando 1,5 metros cada. Após usado, o talismã se esvai.</p>"
+    },
+    {
+      "nome": "Veneno Desnorteante",
+      "tipo": "Item Especial",
+      "categoria": "Mistura",
+      "custo": 2,
+      "espacos": 0.5,
+      "consumivel": true,
+      "acao": "",
+      "descricao": "<p>Um pote de veneno cuja composição foca em atingir o sistema nervoso de uma criatura. Contato, o alvo ficará Desprevenido durante uma rodada.</p>"
+    },
+    {
+      "nome": "Anéis do Conhecimento",
+      "tipo": "Item Especial",
+      "categoria": "Acessório",
+      "custo": 3,
+      "espacos": 1,
+      "consumivel": false,
+      "acao": "",
+      "descricao": "<p>Um conjunto de peculiares anéis, forjados e imbuídos com energia amaldiçoada e conhecimentos, prendendo-se na pele e se conectando ao usuário. Os anéis aumentam o valor de Sabedoria do usuário em 2, podendo superar o seu limite de atributo, até o máximo de 30.</p>"
+    },
+    {
+      "nome": "Antídoto Superior",
+      "tipo": "Item Especial",
+      "categoria": "Fármaco",
+      "custo": 3,
+      "espacos": 1,
+      "consumivel": true,
+      "acao": "Ação Bônus",
+      "descricao": "<p>Um simples antídoto, capaz de neutralizar venenos mais leves. O antídoto pode ser consumido como uma ação bônus, curando da condição envenenado e/ou qualquer veneno de custo 3 ou que venha de uma maldição de segundo grau ou inferior.</p>"
+    },
+    {
+      "nome": "Bracelete da Força",
+      "tipo": "Item Especial",
+      "categoria": "Acessório",
+      "custo": 3,
+      "espacos": 1,
+      "consumivel": false,
+      "acao": "",
+      "descricao": "<p>Firme e forjado a partir do mais forte aço, esse bracelete aumenta o valor de Força do usuário em 2, podendo superar o seu limite de atributo, até o máximo de 30.</p>"
+    },
+    {
+      "nome": "Chaveiro Absorsor",
+      "tipo": "Item Especial",
+      "categoria": "Acessório",
+      "custo": 3,
+      "espacos": 1,
+      "consumivel": false,
+      "acao": "",
+      "descricao": "<p>Um pequeno adereço espiritual, semelhante a um chaveiro, o qual é capaz de absorver energia amaldiçoada a partir de vestígios. Sempre que eliminar um inimigo que possua energia amaldiçoada ou seja formado por energia, você recupera 2 pontos de energia amaldiçoada.</p>"
+    },
+    {
+      "nome": "Cinturão do Inabalável",
+      "tipo": "Item Especial",
+      "categoria": "Acessório",
+      "custo": 3,
+      "espacos": 1,
+      "consumivel": false,
+      "acao": "",
+      "descricao": "<p>Um robusto cinturão metálico, com uma correnteza de energia amaldiçoada que é transmitida e reforça o físico do usuário. O cinturão aumenta o valor de Constituição do usuário em 2, podendo superar o seu limite de atributo, até o máximo de 30.</p>"
+    },
+    {
+      "nome": "Domínio Simples Contido",
+      "tipo": "Item Especial",
+      "categoria": "Talismã",
+      "custo": 3,
+      "espacos": 0.5,
+      "consumivel": true,
+      "acao": "Ação Comum",
+      "descricao": "<p>Um pequeno tubo com um domínio simples armazenado. Pode ser usado como uma ação comum, erguendo um domínio simples sem custo de energia, o qual se mantém por até 2 rodadas, protegendo apenas o portador do item. Após ser usado, o tubo se torna inútil, com a técnica armazenada se esvaindo.</p>"
+    },
+    {
+      "nome": "Faixas Céleres",
+      "tipo": "Item Especial",
+      "categoria": "Acessório",
+      "custo": 3,
+      "espacos": 1,
+      "consumivel": false,
+      "acao": "",
+      "descricao": "<p>Várias faixas leves e quase transparentes, as quais quando amarradas em uma pessoa, usam da energia imbuída para estimular os reflexos e agilidade. As faixas aumentam o valor de Destreza do usuário em 2, podendo superar o seu limite de atributo, até o máximo de 30.</p>"
+    },
+    {
+      "nome": "Mistura Profana",
+      "tipo": "Item Especial",
+      "categoria": "Mistura",
+      "custo": 3,
+      "espacos": 0.5,
+      "consumivel": true,
+      "acao": "Ação Comum",
+      "descricao": "<p>Uma mistura feita a partir de energia amaldiçoada concentrada e em estado ativo, capaz de estimular o fluxo interno de energia de um feiticeiro, mas possuindo um preço. Como uma ação comum, pode-se consumir a mistura profana, reduzindo o custo de todas as habilidades que utilizem energia amaldiçoada em 1 ponto, durante uma cena. Após o fim da cena, o personagem recebe 1 nível de exaustão.</p>"
+    },
+    {
+      "nome": "Mix Energético Grande",
+      "tipo": "Item Especial",
+      "categoria": "Fármaco",
+      "custo": 3,
+      "espacos": 1,
+      "consumivel": true,
+      "acao": "Ação Bônus",
+      "descricao": "<p>Uma pílula robusta e com concentrações extremas de substâncias que recuperam o físico e vigor. Como uma ação bônus, é possível consumir o mix, recuperando 10 pontos de estamina.</p>"
+    },
+    {
+      "nome": "Ombreiras do Vigor Superior",
+      "tipo": "Item Especial",
+      "categoria": "Acessório",
+      "custo": 3,
+      "espacos": 1,
+      "consumivel": false,
+      "acao": "",
+      "descricao": "<p>Ombreiras que quando usadas em conjunto dos Braceletes do Vigor, trazem todo o potencial de resistência de um feiticeiro. Enquanto estiver utilizando as Ombreiras do Vigor Superior, os seus pontos de vida máximos aumentam em 20.</p>"
+    },
+    {
+      "nome": "Ornamento Fascinante",
+      "tipo": "Item Especial",
+      "categoria": "Acessório",
+      "custo": 3,
+      "espacos": 1,
+      "consumivel": false,
+      "acao": "",
+      "descricao": "<p>Um ornamento com joias e uma beleza notável, além de um toque do jujutsu para o conceder um aspecto agradável que um acessório não poderia alcançar normalmente. O ornamento aumenta o valor de Presença do usuário em 2, podendo superar o seu limite de atributo, até o máximo de 30.</p>"
+    },
+    {
+      "nome": "Pingente do Intelecto",
+      "tipo": "Item Especial",
+      "categoria": "Acessório",
+      "custo": 3,
+      "espacos": 1,
+      "consumivel": false,
+      "acao": "",
+      "descricao": "<p>Leve, sutil e coberto de inscrições anciãs, esse pingente aumenta o valor de Inteligência do usuário em 2, podendo superar o seu limite de atributo, até o máximo de 30.</p>"
+    },
+    {
+      "nome": "Pulseira Primacial",
+      "tipo": "Item Especial",
+      "categoria": "Acessório",
+      "custo": 3,
+      "espacos": 1,
+      "consumivel": false,
+      "acao": "",
+      "descricao": "<p>Uma pulseira especial, a qual consegue levar além uma perícia do usuário. Enquanto estiver usando a pulseira primacial, o usuário se torna mestre em uma perícia a sua escolha, desde que já seja treinado nela.</p>"
+    },
+    {
+      "nome": "Remédio Complexo",
+      "tipo": "Item Especial",
+      "categoria": "Fármaco",
+      "custo": 3,
+      "espacos": 1,
+      "consumivel": true,
+      "acao": "Ação Comum",
+      "descricao": "<p>Um remédio de criação complexa. Como uma ação comum, é possível consumir o remédio e gastar seus dados de vida para se curar, com um limite igual a doze dados de vida.</p>"
+    },
+    {
+      "nome": "Terço de Pérolas Carregadas",
+      "tipo": "Item Especial",
+      "categoria": "Espiritual",
+      "custo": 3,
+      "espacos": 1,
+      "consumivel": true,
+      "acao": "Ação Bônus",
+      "descricao": "<p>Um terço criado a partir de pérolas carregadas com energia amaldiçoada. Como uma ação bônus, é possível consumir o terço, recuperando 10 pontos de energia amaldiçoada.</p>"
+    },
+    {
+      "nome": "Veneno Maldito",
+      "tipo": "Item Especial",
+      "categoria": "Mistura",
+      "custo": 3,
+      "espacos": 0.5,
+      "consumivel": true,
+      "acao": "",
+      "descricao": "<p>Um veneno feito a partir de uma substância semelhante ao sangue de maldições, com propriedades extremamente nocivas. Contato, o alvo ficará Exposto (Envenenado) durante três rodadas.</p>"
+    },
+    {
+      "nome": "Antídoto Absoluto",
+      "tipo": "Item Especial",
+      "categoria": "Fármaco",
+      "custo": 4,
+      "espacos": 1,
+      "consumivel": true,
+      "acao": "Ação Bônus",
+      "descricao": "<p>Um antídoto absoluto, confeccionado com a mais refinada medicina, capaz de neutralizar qualquer veneno ou toxina. O antídoto pode ser consumido como uma ação bônus, sendo curado da condição envenenado e/ou qualquer veneno de custo 4 ou que venha de uma maldição de primeiro grau ou inferior.</p>"
+    },
+    {
+      "nome": "Elixir da Vida",
+      "tipo": "Item Especial",
+      "categoria": "Espiritual",
+      "custo": 4,
+      "espacos": 1,
+      "consumivel": true,
+      "acao": "Ação Bônus",
+      "descricao": "<p>Sendo o suprassumo da energia amaldiçoada, o elixir da vida incita uma vitalidade sem precedentes naquele que o consumir, usando da essência de várias maldições e junção de energia reversa. Como uma ação bônus, é possível consumir o elixir da vida, podendo usar todos os seus dados de vida para se curar, somando o dobro do seu modificador de constituição em cada um; você recebe vantagem e +5 em testes de resistência de Fortitude pelo resto da cena, assim como em Integridade.</p>"
+    },
+    {
+      "nome": "Laço da Vida",
+      "tipo": "Item Especial",
+      "categoria": "Acessório",
+      "custo": 4,
+      "espacos": 1,
+      "consumivel": false,
+      "acao": "",
+      "descricao": "<p>Um pequeno laço vermelho, imbuído com quantidades excessivas de energia reversa. Um feiticeiro que tenha o laço preso a si é capaz de se prender a vida: caso um personagem com um laço da vida vá morrer, tal morte é ignorada e o laço se desgasta, sumindo. Ao evitar a morte com este item, o personagem cura metade dos seus pontos de vida, mas recebe 1 nível de exaustão. O Laço da Vida não funciona caso o feiticeiro já esteja com 5 níveis de Exaustão.</p>"
+    },
+    {
+      "nome": "Lágrima de Shinigami",
+      "tipo": "Item Especial",
+      "categoria": "Mistura",
+      "custo": 4,
+      "espacos": 0.5,
+      "consumivel": true,
+      "acao": "",
+      "descricao": "<p>O mais letal veneno já conhecido, capaz de imbuir uma arma com tamanha letalidade que passou a ser conhecido como a lágrima de um shinigami. Contato, o alvo perde 2d10 pontos de vida e tem sua Defesa reduzida em 4, e passa a gastar 2 PE adicionais sempre que usar energia amaldiçoada até o final da cena (perde 2d10 de vida, fica Amedrontado e Exposto por 2 rodadas).</p>"
+    },
+    {
+      "nome": "Símbolo de Vida Absoluta",
+      "tipo": "Item Especial",
+      "categoria": "Talismã",
+      "custo": 4,
+      "espacos": 0.5,
+      "consumivel": true,
+      "acao": "Ação Livre",
+      "descricao": "<p>Encravado e entalhado com os símbolos de absoluta saúde e vida, esse símbolo consegue canalizar em sua máxima a vida. Como uma ação livre, é possível o destruir para liberar energia em si mesmo, recuperando todos os seus pontos de vida, até o máximo, além de receber pontos de vida temporários igual ao triplo do seu nível de personagem.</p>"
+    },
+    {
+      "nome": "Talismã do Ápice",
+      "tipo": "Item Especial",
+      "categoria": "Talismã",
+      "custo": 4,
+      "espacos": 0.5,
+      "consumivel": true,
+      "acao": "",
+      "descricao": "<p>Um talismã que quando destruído liberta uma quantidade excessiva de energia, a qual é direcionada a um atributo específico do usuário. Ao usar o talismã, o valor de um atributo a sua escolha se torna 30 durante um minuto (10 rodadas dentro de um combate) e ele se quebra.</p>"
+    }
+  ],
+  "kits": [
+    {
+      "nome": "Ferramentas de Alfaiate",
+      "tipo": "Kit de Ferramentas",
+      "custo": 1,
+      "espacos": 1,
+      "descricao": "<p>O kit de ferramentas de alfaiate é focado na criação de acessórios especiais e uniformes, feitos sob medida com o uso de habilidade manual e jujutsu. Entretanto, criar acessórios amaldiçoados é complexo e custoso: do nível 1 ao 9, você só pode criar 1 acessório por interlúdio; a partir do nível 10 você pode criar 2 acessórios por interlúdio. Você pode criar um uniforme com revestimento por interlúdio.</p>"
+    },
+    {
+      "nome": "Ferramentas de Alquimia",
+      "tipo": "Kit de Ferramentas",
+      "custo": 1,
+      "espacos": 1,
+      "descricao": "<p>O kit de ferramentas de alquimia possibilita misturar elementos e substâncias para criar algo novo, podendo ser tanto venenos quanto misturas com efeitos diferenciados. Possuir treinamento em ferramentas de alquimia permite criar itens especiais do tipo Mistura; não há um limite de quantas misturas podem ser criadas.</p>"
+    },
+    {
+      "nome": "Ferramentas de Canalizador",
+      "tipo": "Kit de Ferramentas",
+      "custo": 1,
+      "espacos": 1,
+      "descricao": "<p>O kit de ferramentas de canalizador é um conjunto de peculiares amuletos, pérolas e outros itens espirituais, que permitem canalizar energia amaldiçoada e alguns espíritos amaldiçoados menores em itens. Possuir treinamento em ferramentas de canalizador permite criar itens especiais do tipo Espiritual; não há um limite de quantos itens espirituais podem ser criados.</p>"
+    },
+    {
+      "nome": "Ferramentas de Cozinheiro",
+      "tipo": "Kit de Ferramentas",
+      "custo": 1,
+      "espacos": 1,
+      "descricao": "<p>O kit de ferramentas de cozinheiro dá a capacidade de extrair ao máximo habilidades culinárias, criando refeições da maior qualidade, as quais passam a até mesmo conferir benefícios para aqueles que as consumirem. Ser treinado em Ofício (cozinheiro) permite produzir refeições com propriedades especiais. Durante um descanso, um personagem treinado pode preparar uma refeição que concede benefícios especiais. Produzir uma refeição com um benefício exige sucesso em um teste de Ofício (Cozinheiro) CD 15. A CD aumenta em +5 para cada benefício adicional. Falhar no teste implica que a comida foi estragada e desperdiçada. Todos os benefícios duram até o próximo descanso longo e uma mesma refeição pode beneficiar um número de criaturas igual ao seu bônus de treinamento.</p><ul><li>Energética. Consumir uma refeição energética concede energia amaldiçoada temporária igual ao bônus de treinamento do cozinheiro.</li><li>Leve. Consumir uma refeição leve concede um aumento no Deslocamento de 3 metros para cada grau do cozinheiro. 3 para quarto, 6 para terceiro, 9 para segundo, 12 para primeiro e 15 para especial.</li><li>Nutritiva. Consumir uma refeição nutritiva concede um bônus de +2 em um número de TRs igual a metade do bônus de treinamento do cozinheiro.</li><li>Picante. Consumir uma refeição picante concede +2 em jogadas de ataque.</li><li>Reforçada. Consumir uma refeição reforçada concede +2 na Defesa.</li><li>Refrescante. Consumir uma refeição refrescante permite a quem a comeu escolher realizar um teste com vantagem. Após isso, este benefício se encerra.</li><li>Revigorante. Consumir uma refeição revigorante concede 5 pontos de vida temporários para cada grau do cozinheiro.</li></ul>"
+    },
+    {
+      "nome": "Ferramentas de Entalhador",
+      "tipo": "Kit de Ferramentas",
+      "custo": 1,
+      "espacos": 1,
+      "descricao": "<p>O kit de ferramentas de entalhador junta instrumentos e utensílios utilizados na arte de se entalhar e encravar, a qual quando unida a energia amaldiçoada permite criar amuletos e talismãs. Possuir treinamento em ferramentas de entalhador permite criar itens especiais do tipo Talismã; não há um limite de quantos talismãs podem ser criados.</p>"
+    },
+    {
+      "nome": "Ferramentas de Farmacêutico",
+      "tipo": "Kit de Ferramentas",
+      "custo": 1,
+      "espacos": 1,
+      "descricao": "<p>O kit de ferramentas de farmacêutico permite cuidar efetivamente da saúde, além de sintetizar substâncias medicinais refinadas, criando antídotos ou remédios. Possuir treinamento nas ferramentas de farmacêutico permite criar itens especiais do tipo Fármacos; não há um limite de quantas medicinas podem ser criadas.</p>"
+    },
+    {
+      "nome": "Ferramentas de Ferreiro",
+      "tipo": "Kit de Ferramentas",
+      "custo": 1,
+      "espacos": 1,
+      "descricao": "<p>O kit de ferramentas de ferreiro é utilizado na criação e melhoria de armas e escudos, eventualmente utilizando do jujutsu para as transformar em ferramentas amaldiçoadas. Possuir treinamento nas ferramentas de ferreiro permite criar tanto armas e escudos comuns quanto ferramentas amaldiçoadas. Ao se tentar criar ou melhorar uma ferramenta amaldiçoada, segue-se o guia e as dificuldades especificadas no Capítulo 6: Itens e Ferramentas Amaldiçoadas. É o principal para se manter os equipamentos em um bom estado, realizando a sua manutenção e otimização, permitindo assim que o máximo do seu potencial seja extraído. Durante um descanso curto, um personagem com treinamento em ferramentas de ferreiro pode melhorar temporariamente uma quantidade de equipamentos igual a metade do seu bônus de treinamento; em um descanso longo, essa quantidade é igual ao bônus de treinamento. Uma arma melhorada adiciona +2 em jogadas de ataque realizadas com ela; um escudo melhorado adiciona metade do bônus de treinamento do ferreiro na RD concedida enquanto empunhado. As melhorias duram até o próximo descanso.</p>"
+    }
+  ],
+  "encantamentos": [
+    {
+      "nome": "Afiada",
+      "tipo": "Encantamento",
+      "alvo": "Arma",
+      "prerequisito": "A arma causa dano cortante ou perfurante",
+      "descricao": "<p>A energia amaldiçoada se concentra na lâmina ou ponta da arma, deixando-a mais afiada e perigosa. A arma recebe o traço Fatal d8. Caso a arma já possua o traço, o dado dele aumenta em um nível.</p>"
+    },
+    {
+      "nome": "Amplificadora",
+      "tipo": "Encantamento",
+      "alvo": "Arma",
+      "prerequisito": "",
+      "descricao": "<p>A sua ferramenta amaldiçoada se torna capaz de amplificar a capacidade da sua técnica, seja física ou marcial, estando conectada a ela. Após realizar um ataque com esta arma, o portador causa metade do bônus de treinamento em dados de dano a mais no próximo Feitiço de Dano ou Técnica Marcial de Ataque que cause dano que utilizar até o final do próximo turno (caso ela realize diversos golpes, é aplicado apenas no primeiro). O dano adicional deste Encantamento é considerado Após Ataque.</p>"
+    },
+    {
+      "nome": "Armazenadora",
+      "tipo": "Encantamento",
+      "alvo": "Arma",
+      "prerequisito": "",
+      "descricao": "<p>A ferramenta amaldiçoada é capaz de guardar energia e deixar a sua disposição. Durante um descanso longo você pode armazenar até 5 PE na arma, não gastando estes pontos de energia pois armazenou eles durante um longo período. Você pode, desde que esteja empunhando a arma, recuperar os cinco pontos de energia armazenados nela. Só é possível recuperar energia amaldiçoada de uma arma armazenadora por vez.</p>"
+    },
+    {
+      "nome": "Balanceada",
+      "tipo": "Encantamento",
+      "alvo": "Arma",
+      "prerequisito": "",
+      "descricao": "<p>Uma ferramenta perfeitamente balanceada para permitir uma mobilidade maior. Enquanto empunhar a arma você recebe um bônus de +2 em testes de manobras.</p>"
+    },
+    {
+      "nome": "Canalizadora",
+      "tipo": "Encantamento",
+      "alvo": "Arma",
+      "prerequisito": "",
+      "descricao": "<p>A ferramenta amaldiçoada serve como uma forma de canalizar a sua energia amaldiçoada. Enquanto empunhar a arma, a sua CD Amaldiçoada aumenta em 2.</p>"
+    },
+    {
+      "nome": "Cano Alongado",
+      "tipo": "Encantamento",
+      "alvo": "Arma",
+      "prerequisito": "Só pode ser aplicada em armas a distância",
+      "descricao": "<p>Enquanto modificando e encantando a arma, você estende o cano dela. A arma tem o seu alcance aumentado em 1/4 do total em metros.</p>"
+    },
+    {
+      "nome": "Certeira",
+      "tipo": "Encantamento",
+      "alvo": "Arma",
+      "prerequisito": "",
+      "descricao": "<p>A arma se torna perfeitamente balanceada para golpes certeiros. Reduza a margem de crítico da arma em 1. Uma arma não pode ser certeira e destruidora ao mesmo tempo.</p>"
+    },
+    {
+      "nome": "Compartimento",
+      "tipo": "Encantamento",
+      "alvo": "Arma",
+      "prerequisito": "",
+      "descricao": "<p>Um compartimento é criado na arma, o qual pode armazenar um item de Mistura que seja um óleo ou um veneno que possa ser aplicado na arma. Durante um combate, você pode usar a arma com a mistura armazenada como uma ação livre, consumindo o veneno ou óleo imediatamente.</p>"
+    },
+    {
+      "nome": "Complementar",
+      "tipo": "Encantamento",
+      "alvo": "Arma",
+      "prerequisito": "",
+      "descricao": "<p>A arma se torna perfeita para suas capacidades e forças, complementando com eficiência. Enquanto empunhar esta arma o portador da arma recebe +2 na sua CD de Especialização e de Estilo Marcial.</p>"
+    },
+    {
+      "nome": "Cruel",
+      "tipo": "Encantamento",
+      "alvo": "Arma",
+      "prerequisito": "",
+      "descricao": "<p>A arma passa a ter espinhos e partes que aumentam o perigo dela. Uma arma com esta melhoria recebe +3 em rolagens de dano.</p>"
+    },
+    {
+      "nome": "Defensora",
+      "tipo": "Encantamento",
+      "alvo": "Arma",
+      "prerequisito": "Esta melhoria apenas pode ser aplicada em armas corpo a corpo",
+      "descricao": "<p>Esta arma lhe concede uma capacidade de defesa adicional. A arma recebe o traço de arma: Aparar. Se já possuir o traço o bônus em Defesa fornecido por Aparar aumenta em 1.</p>"
+    },
+    {
+      "nome": "Destruidora",
+      "tipo": "Encantamento",
+      "alvo": "Arma",
+      "prerequisito": "",
+      "descricao": "<p>A arma causa um dado de dano adicional em um acerto crítico. Uma arma não pode ser destruidora e certeira ao mesmo tempo.</p>"
+    },
+    {
+      "nome": "Discreta",
+      "tipo": "Encantamento",
+      "alvo": "Arma",
+      "prerequisito": "",
+      "descricao": "<p>Uma arma com uma construção fácil de se esconder. Você recebe +5 em rolagens de Furtividade e Prestidigitação para esconder apenas a arma.</p>"
+    },
+    {
+      "nome": "Drenadora",
+      "tipo": "Encantamento",
+      "alvo": "Arma",
+      "prerequisito": "",
+      "descricao": "<p>A ferramenta se torna capaz de drenar energia de uma criatura após exorcizá-la. Uma vez por turno, ao matar uma criatura que utiliza energia amaldiçoada com esta arma, o portador recebe 2 pontos de energia amaldiçoada temporária para cada grau que a criatura possua (2 para Quarto grau, 4 para Terceiro, 6 para Segundo, 8 para Primeiro e 10 para Especial).</p>"
+    },
+    {
+      "nome": "Elemental",
+      "tipo": "Encantamento",
+      "alvo": "Arma",
+      "prerequisito": "Ferramenta de Segundo Grau",
+      "descricao": "<p>A arma é constantemente imbuída com um elemento, até alcançar um ponto em que esse elemento se torna característico dela. Você pode trocar o tipo de dano da arma para um dano elemental à sua escolha. Depois de feita essa escolha não pode ser mudada.</p>"
+    },
+    {
+      "nome": "Harmonizada",
+      "tipo": "Encantamento",
+      "alvo": "Arma",
+      "prerequisito": "",
+      "descricao": "<p>Uma ferramenta harmonizada com a energia, permitindo que você administre o momentum dos seus golpes entre as suas habilidades. Sempre que acertar um ataque crítico, você reduz em 1 o custo da próxima habilidade que gaste PE ou Pontos de Estamina que você utilizar até o fim do seu próximo turno.</p>"
+    },
+    {
+      "nome": "Horrenda",
+      "tipo": "Encantamento",
+      "alvo": "Arma",
+      "prerequisito": "Já possuir outro encantamento",
+      "descricao": "<p>Esta arma possui uma aura macabra e horripilante capaz de assustar até a prole da negatividade humana, as maldições. Enquanto empunhar esta arma toda habilidade que exige um TR e cause Abalado ou Amedrontado tem sua CD aumentada em um valor igual ao bônus de ferramenta da arma.</p>"
+    },
+    {
+      "nome": "Longa",
+      "tipo": "Encantamento",
+      "alvo": "Arma",
+      "prerequisito": "Esta melhoria apenas pode ser aplicada em armas corpo a corpo",
+      "descricao": "<p>O alcance da arma aumenta em 1,5 metros.</p>"
+    },
+    {
+      "nome": "Otimizada",
+      "tipo": "Encantamento",
+      "alvo": "Arma",
+      "prerequisito": "",
+      "descricao": "<p>Uma arma cujo saque foi otimizado, para ser mais ágil e rápido. Sacar uma arma Otimizada é uma Ação Livre e, enquanto empunhar a arma, o portador recebe +2 em testes de Iniciativa.</p>"
+    },
+    {
+      "nome": "Penetrante",
+      "tipo": "Encantamento",
+      "alvo": "Arma",
+      "prerequisito": "",
+      "descricao": "<p>Uma ferramenta preparada para penetrar através de resistências. Todo ataque com uma ferramenta penetrante ignora redução de dano em um valor igual ao bônus de treinamento do portador.</p>"
+    },
+    {
+      "nome": "Poderosa",
+      "tipo": "Encantamento",
+      "alvo": "Arma",
+      "prerequisito": "Ter Cruel na arma",
+      "descricao": "<p>Adiciona +2 as rolagens de dano da arma.</p>"
+    },
+    {
+      "nome": "Potente",
+      "tipo": "Encantamento",
+      "alvo": "Arma",
+      "prerequisito": "Primeiro Grau",
+      "descricao": "<p>Adiciona mais um dado de dano ao dano padrão da arma.</p>"
+    },
+    {
+      "nome": "Precisa",
+      "tipo": "Encantamento",
+      "alvo": "Arma",
+      "prerequisito": "",
+      "descricao": "<p>A arma foi modificada e trabalhada para permitir um manejo mais preciso. Você recebe um bônus de +2 em jogadas de ataque manejando esta arma.</p>"
+    },
+    {
+      "nome": "Reluzente",
+      "tipo": "Encantamento",
+      "alvo": "Arma",
+      "prerequisito": "",
+      "descricao": "<p>Sua arma reluz, distraindo o inimigo. Enquanto empunhar esta arma, seu portador recebe +2 em testes para fintar e quando tem um acerto crítico com esta arma contra uma criatura ela deve realizar um TR contra a CD de especialização ou estilo marcial do portador, em uma falha ela fica Desprevenida (e se já estiver, fica Cega) por uma rodada. Enquanto estiver empunhando esta arma ela causa -5 de penalidade em testes de Furtividade em qualquer lugar minimamente iluminado.</p>"
+    },
+    {
+      "nome": "Retorno",
+      "tipo": "Encantamento",
+      "alvo": "Arma",
+      "prerequisito": "",
+      "descricao": "<p>Este encantamento apenas pode ser posto em uma arma de arremesso. Ao arremessar uma arma com este encantamento, desde que não esteja completamente presa, retorna para a mão do portador logo após completar o ataque.</p>"
+    },
+    {
+      "nome": "Sintonizada",
+      "tipo": "Encantamento",
+      "alvo": "Arma",
+      "prerequisito": "Ferramenta de Segundo Grau",
+      "descricao": "<p>Sua ferramenta amaldiçoada é sintonizada para um tipo de elemento em específico, ampliando seus danos. Escolha um tipo de dano, exceto danos físicos ou na alma; sempre que você causar dano desse tipo com algum Feitiço ou Aptidão, até o final do próximo turno, seus ataques com uma arma com este encantamento causam 1d8 de dano adicional do mesmo tipo.</p>"
+    },
+    {
+      "nome": "Avassalador",
+      "tipo": "Encantamento",
+      "alvo": "Escudo",
+      "prerequisito": "ter Destruidor no escudo",
+      "descricao": "<p>O escudo é levado ao limite, para ter um impacto avassalador. Caso seja usado para atacar, o dano dele conta como três níveis acima.</p>"
+    },
+    {
+      "nome": "Bloqueador",
+      "tipo": "Encantamento",
+      "alvo": "Escudo",
+      "prerequisito": "",
+      "descricao": "<p>O escudo é construído de forma a ser maior e mais pesado, permitindo-o bloquear para criaturas atrás de você. Qualquer criatura atrás de você a 1,5 metros recebe os efeitos de Meia Cobertura.</p>"
+    },
+    {
+      "nome": "Destruidor",
+      "tipo": "Encantamento",
+      "alvo": "Escudo",
+      "prerequisito": "ter Espinhoso no escudo",
+      "descricao": "<p>O escudo é reforçado ainda mais com o intuito de ataques. Caso seja usado para atacar, o dano dele conta como dois níveis acima.</p>"
+    },
+    {
+      "nome": "Disco",
+      "tipo": "Encantamento",
+      "alvo": "Escudo",
+      "prerequisito": "Apenas pode ser colocada em escudos leves e médios",
+      "descricao": "<p>Construído como um disco e feito de materiais mais maleável em sua ponta o permitindo ser arremessado. Este escudo recebe o traço Arremesso (6/18).</p>"
+    },
+    {
+      "nome": "Espinhoso",
+      "tipo": "Encantamento",
+      "alvo": "Escudo",
+      "prerequisito": "",
+      "descricao": "<p>O escudo tem espinhos colocados. Caso seja usado para atacar, o dano dele conta como um nível acima.</p>"
+    },
+    {
+      "nome": "Esponja",
+      "tipo": "Encantamento",
+      "alvo": "Escudo",
+      "prerequisito": "",
+      "descricao": "<p>Este escudo possui uma textura gelatinosa que se endurece nos momentos certos. Enquanto empunhar este escudo, sempre que cair ou sofrer dano de uma estrutura, o portador pode gastar sua reação para reduzir o dano recebido em 10. Se for uma ferramenta de segundo grau mude o dano reduzido para 15 e se for de primeiro o dano reduzido se torna 20.</p>"
+    },
+    {
+      "nome": "Expansão de Escudo",
+      "tipo": "Encantamento",
+      "alvo": "Escudo",
+      "prerequisito": "",
+      "descricao": "<p>Como uma ação bônus, o escudo se fragmenta em uma versão maior dele feito de pura energia. Escolha uma segunda criatura dentro de 1,5 metros para receber os benefícios do escudo.</p>"
+    },
+    {
+      "nome": "Intangível",
+      "tipo": "Encantamento",
+      "alvo": "Escudo",
+      "prerequisito": "",
+      "descricao": "<p>O escudo se manifesta como uma mera sombra, uma torrente de água sempre em movimento ou qualquer outro meio que permita ao portador mover sua mão com liberdade. Utilizar um escudo com esta propriedade não ocupa a mão do portador para propósitos de habilidades, mas ainda não o permite empunhar ou carregar outros objetos.</p>"
+    },
+    {
+      "nome": "Isolante",
+      "tipo": "Encantamento",
+      "alvo": "Escudo",
+      "prerequisito": "",
+      "descricao": "<p>A redução de dano do escudo passa também a ser aplicado a um tipo de dano elemental à sua escolha. Esta propriedade pode ser pega diversas vezes para tipos de dano diferentes.</p>"
+    },
+    {
+      "nome": "Polido",
+      "tipo": "Encantamento",
+      "alvo": "Escudo",
+      "prerequisito": "",
+      "descricao": "<p>O escudo foi polido, removendo pesos desnecessários e o dando uma forma e composição mais leve. A penalidade do escudo é reduzida em 2.</p>"
+    },
+    {
+      "nome": "Reforçado",
+      "tipo": "Encantamento",
+      "alvo": "Escudo",
+      "prerequisito": "",
+      "descricao": "<p>Recebe 2 de RD adicional contra dano físico.</p>"
+    },
+    {
+      "nome": "Aeronauta",
+      "tipo": "Encantamento",
+      "alvo": "Uniforme",
+      "prerequisito": "",
+      "descricao": "<p>Seu uniforme possui uma espécie de capa ou tecido extra que lhe permite planar no ar normalmente. Enquanto estiver caindo, como uma reação o portador pode puxar suas roupas e planar no ar, no final dos turnos do portador ele cai apenas 6 metros até chegar ao chão ou alguma superfície.</p>"
+    },
+    {
+      "nome": "Ajustado",
+      "tipo": "Encantamento",
+      "alvo": "Uniforme",
+      "prerequisito": "",
+      "descricao": "<p>Mesmo com modificações, o uniforme é ajustado perfeitamente para o seu próprio corpo, requerendo um sacrifício menor da agilidade. Ao utilizar um uniforme ajustado, a penalidade dele é reduzida em 1, caso possua. Se o uniforme já possuir 0 de penalidade ele concede um bônus em testes de Furtividade de +2.</p>"
+    },
+    {
+      "nome": "Blindado",
+      "tipo": "Encantamento",
+      "alvo": "Uniforme",
+      "prerequisito": "",
+      "descricao": "<p>Adiciona-se uma blindagem no uniforme, eliminando as possíveis brechas. A Defesa concedida pelo uniforme aumenta em 2.</p>"
+    },
+    {
+      "nome": "Distorcivo",
+      "tipo": "Encantamento",
+      "alvo": "Uniforme",
+      "prerequisito": "",
+      "descricao": "<p>Com o uso de uma peculiar imbuição amaldiçoada, a energia distorce o uniforme, permitindo que ele também distorça o espaço. Este Encantamento possui cargas. Uma vez por turno, como uma Ação Livre, você pode usar uma carga para se mover imediatamente para um lugar desocupado dentro de 6 metros, sem permitir ataque de oportunidade, você deve ver ou perceber de forma eficaz para onde se move.</p>"
+    },
+    {
+      "nome": "Escaldante",
+      "tipo": "Encantamento",
+      "alvo": "Uniforme",
+      "prerequisito": "",
+      "descricao": "<p>Coberto de energia altamente volátil e concentrada, o uniforme se torna quase escaldante, ferindo em caso de contato constante. Uma criatura agarrada ou que esteja agarrando o portador deve realizar um TR contra a CD de Especialização do portador, em uma falha ele receberá Xd6 de perda de vida ou metade disso em um sucesso (onde X é igual a metade do bônus de treinamento). Todo início de turno a criatura deve refazer o TR, recebendo o efeito do encantamento enquanto cumprir as condições dele.</p>"
+    },
+    {
+      "nome": "Estimulante",
+      "tipo": "Encantamento",
+      "alvo": "Uniforme",
+      "prerequisito": "",
+      "descricao": "<p>O uniforme passa a contar com um compartimento cheio de estimulantes, os quais podem ser diretamente aplicados no usuário. Este Encantamento possui cargas. Você pode gastar uma reação e uma carga para conceder vantagem a uma rolagem de Fortitude, Reflexos ou Vontade que esteja fazendo.</p>"
+    },
+    {
+      "nome": "Furtivo",
+      "tipo": "Encantamento",
+      "alvo": "Uniforme",
+      "prerequisito": "",
+      "descricao": "<p>Um uniforme que busca ocultar o fluxo de energia de um feiticeiro, além de ser mais fácil de se camuflar e eliminar o barulho de passos. O portador de um uniforme com esta melhoria recebe um bônus em rolagens de Furtividade igual ao custo do uniforme.</p>"
+    },
+    {
+      "nome": "Impulso",
+      "tipo": "Encantamento",
+      "alvo": "Uniforme",
+      "prerequisito": "Propulsor",
+      "descricao": "<p>Você propulsiona o uniforme por meio de uma explosão de energia amaldiçoada. Este Encantamento possui cargas. O portador pode gastar uma carga e uma ação de movimento, então ele deve traçar uma linha com tamanho igual ao dobro do movimento dele. Ele se move até o final da linha. Se o movimento do portador por meio da linha passar por uma estrutura, objeto ou criatura ela deve realizar um TR de Reflexos e recebe 1d10 de dano de impacto para cada 6 metros percorrido até ela em uma falha ou metade disso em um sucesso.</p>"
+    },
+    {
+      "nome": "Isolante",
+      "tipo": "Encantamento",
+      "alvo": "Uniforme",
+      "prerequisito": "",
+      "descricao": "<p>Seu uniforme é feito de materiais únicos, propícios para resistir a altas e baixas temperaturas. Você recebe 5 de RD contra dano Queimante e Congelante.</p>"
+    },
+    {
+      "nome": "Marcial",
+      "tipo": "Encantamento",
+      "alvo": "Uniforme",
+      "prerequisito": "",
+      "descricao": "<p>Pensado e projetado perfeitamente para artes marciais. Um uniforme marcial concede um bônus de +2 em testes para realizar manobras.</p>"
+    },
+    {
+      "nome": "Material Pesado",
+      "tipo": "Encantamento",
+      "alvo": "Uniforme",
+      "prerequisito": "O uniforme precisa possuir revestimento médio ou robusto",
+      "descricao": "<p>Este uniforme possui mais camadas de tecido, pedaços de metal ou uma capa embutida nele. Este uniforme concede +2 em TRs de Fortitude.</p>"
+    },
+    {
+      "nome": "Propulsor",
+      "tipo": "Encantamento",
+      "alvo": "Uniforme",
+      "prerequisito": "",
+      "descricao": "<p>Ao imbuir o uniforme com energia amaldiçoada, o fluxo constante parece acelerar o usuário. Enquanto vestir o uniforme o usuário recebe 3 metros de Deslocamento adicional.</p>"
+    },
+    {
+      "nome": "Repulsor",
+      "tipo": "Encantamento",
+      "alvo": "Uniforme",
+      "prerequisito": "A ferramenta precisa ser de pelo menos segundo grau",
+      "descricao": "<p>Ao armazenar recipientes lotados de energia amaldiçoada, possibilita os descarregar em resposta a uma tentativa de ataque. Este Encantamento possui cargas. Você pode consumir uma carga para, como uma Reação a um ataque corpo- a-corpo, liberar um impulso de repulsão à sua volta. Toda criatura a 1,5 metros de você deve realizar um TR de Fortitude contra sua CD de Especialização. Em uma falha ela é empurrada 3 metros na direção contrária do portador, ou metade disso se for bem sucedido.</p>"
+    },
+    {
+      "nome": "Resiliente",
+      "tipo": "Encantamento",
+      "alvo": "Uniforme",
+      "prerequisito": "",
+      "descricao": "<p>O uniforme é melhorado com foco em ser resistente a um tipo específico de danos. Concede redução de dano igual a 5 contra um tipo de dano (exceto os danos físicos, alma e energética). A RD aumenta para 10 se for uma ferramenta de Grau Especial.</p>"
+    },
+    {
+      "nome": "Revestido com Espinhos",
+      "tipo": "Encantamento",
+      "alvo": "Uniforme",
+      "prerequisito": "",
+      "descricao": "<p>O uniforme é revestido de espinhos. Sempre que o portador de um uniforme com esta Melhoria for alvo de um ataque corpo a corpo e o agressor estiver adjacente ao portador o agressor deve realizar um TR de Fortitude contra a CD de Especialização do portador, em uma falha ele recebe Xd6 + modificador de constituição do portador, de dano perfurante (onde X é igual ao bônus de treinamento) ou metade disso em um sucesso.</p>"
+    },
+    {
+      "nome": "Ricochete",
+      "tipo": "Encantamento",
+      "alvo": "Uniforme",
+      "prerequisito": "",
+      "descricao": "<p>Emanando uma densa aura, o uniforme passa a poder ricochetear projéteis. Você recebe 20% (2 ou menos em 1d10) de chance de falha contra todo ataque a distância que o tenho como alvo. Este é um Encantamento com cargas. Você pode consumir uma carga para, como uma reação a um ataque a distância, aumentar a porcentagem de falha para 50% (5 ou menos em uma rolagem 1d10) até o começo do seu próximo turno.</p>"
+    }
+  ]
+}

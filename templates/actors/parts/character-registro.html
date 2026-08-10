@@ -52,13 +52,18 @@
   {{!-- Inventário, com Espaços Ocupados x Limite de Espaços --}}
   <fieldset class="bloco inventario-bloco">
     <legend>Inventário</legend>
-    <div class="inventario-resumo {{#if sobrecarregado}}sobrecarregado{{/if}}">
-      <span>Espaços Ocupados <b>{{espacosOcupados}}</b></span>
-      <label>Limite de Espaços
+    <div class="inventario-resumo {{#if carga.sobrecarregado}}sobrecarregado{{/if}}">
+      <span>Espaços Ocupados <b>{{carga.ocupados}}</b> / {{carga.limite}}</span>
+      <label title="Base da ficha oficial. O limite soma o dobro do modificador de Força (p. 129).">Base
         <input type="number" name="system.inventario.limiteEspacos" value="{{system.inventario.limiteEspacos}}" min="0" />
       </label>
       <span>Peso total <b>{{pesoTotal}}</b></span>
-      {{#if sobrecarregado}}<span class="aviso">Acima do limite de espaços</span>{{/if}}
+      {{#if carga.sobrecarregado}}
+      <span class="aviso">Sobrecarregado: -5 na Defesa e -4,5 m de Deslocamento</span>
+      {{/if}}
+      {{#if carga.excedido}}
+      <span class="aviso">Acima do dobro do limite — é impossível carregar tudo isso</span>
+      {{/if}}
     </div>
 
     <header class="itens-header">
@@ -75,7 +80,10 @@
         <img class="item-img" src="{{item.img}}" width="24" height="24" />
         <a class="item-nome" data-action="itemExpand">{{item.name}}</a>
         <span class="item-tag">
-          x{{item.system.quantidade}} · {{item.system.espacos}} esp.
+          {{item.system.categoria}} · {{item.system.tipo}}
+          {{#if item.system.dano}} · {{item.system.dano}}{{/if}}
+          {{#if item.system.grau}} · {{item.system.grau}} Grau (+{{item.system.bonusFerramenta}}){{/if}}
+          · x{{item.system.quantidade}} · {{item.system.espacos}} esp.
           {{#if item.system.peso}} · {{item.system.peso}} kg{{/if}}
           {{#if item.system.preco}} · {{item.system.preco}}{{/if}}
         </span>
@@ -93,7 +101,12 @@
         <img class="item-img" src="{{item.img}}" width="24" height="24" />
         <a class="item-nome" data-action="itemExpand">{{item.name}}</a>
         <span class="item-tag">
-          {{item.system.tipo}}{{#if item.system.grau}} · {{item.system.grau}}{{/if}}
+          {{item.system.tipo}}{{#if item.system.categoria}} · {{item.system.categoria}}{{/if}}
+          {{#if item.system.grau}} · {{item.system.grau}} Grau{{/if}}
+          {{#if item.system.defesa}} · Defesa +{{item.system.defesa}}{{/if}}
+          {{#if item.system.rdTotal}} · RD {{item.system.rdTotal}}{{/if}}
+          {{#if item.system.penalidade}} · {{item.system.penalidade}} em Destreza{{/if}}
+          {{#if item.system.acao}} · {{item.system.acao}}{{/if}}
           · x{{item.system.quantidade}} · {{item.system.espacos}} esp.
           {{#if item.system.peso}} · {{item.system.peso}} kg{{/if}}
           {{#if item.system.preco}} · {{item.system.preco}}{{/if}}

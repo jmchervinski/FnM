@@ -4,6 +4,30 @@
  */
 import { FNM, custoSustento } from "../config.mjs";
 
+/**
+ * Resumo do grau de uma Ferramenta Amaldiçoada (p. 154), comum a armas,
+ * escudos e uniformes. O bônus é o do grau atual e não acumula com os
+ * anteriores; a contagem de Encantamentos, sim.
+ */
+function linhasFerramenta(sys) {
+  const grau = FNM.grausFerramenta[sys.grau];
+  if (!grau) return [];
+  // O uniforme não ganha valor numérico do grau: só Encantamentos
+  const efeito =
+    sys.tipo === "Escudo"
+      ? [`RD ${grau.rdEscudo}`]
+      : sys.tipo === "Uniforme"
+        ? []
+        : [`+${grau.bonusArma} no dano`];
+  return [
+    `<b>Ferramenta Amaldiçoada de ${grau.nome}:</b> ` +
+      [...efeito, `${sys.encantamentosPermitidos ?? 0} Encantamento(s)`]
+        .concat(grau.unica ? ["habilidade única"] : [])
+        .join(" · "),
+    ...(sys.encantamentos ? [`<b>Encantamentos:</b> ${sys.encantamentos}`] : [])
+  ];
+}
+
 export class FnmItem extends Item {
   /** @override */
   getRollData() {
@@ -98,7 +122,7 @@ export class FnmItem extends Item {
         const grupo = FNM.gruposArma[sys.grupo];
         const tipo = FNM.tiposDano[sys.tipoDano]?.nome ?? "";
         linhas.push(
-          `<b>Arma ${sys.categoria}</b>${grupo ? ` · Grupo ${grupo.nome}` : ""}`
+          `<b>Arma ${sys.categoria} ${sys.tipo}</b>${grupo ? ` · Grupo ${grupo.nome}` : ""}`
         );
         linhas.push(
           `<b>Dano:</b> ${sys.dano}${sys.danoVersatil ? `/${sys.danoVersatil}` : ""}` +
@@ -107,17 +131,29 @@ export class FnmItem extends Item {
         if (sys.propriedades) linhas.push(`<b>Propriedades:</b> ${sys.propriedades}`);
         if (sys.alcance) linhas.push(`<b>Alcance:</b> ${sys.alcance}`);
         linhas.push(`<b>Espaços:</b> ${sys.espacos} · <b>Custo:</b> ${sys.custo}`);
-        if (sys.grau) linhas.push(`<b>Grau:</b> ${sys.grau}`);
+        linhas.push(...linhasFerramenta(sys));
         if (grupo) linhas.push(`<i>Efeito de crítico:</i> ${grupo.critico}`);
         break;
       }
-      case "equipamento":
-        linhas.push(`<b>${sys.tipo}</b>`);
-        if (sys.grau) linhas.push(`<b>Grau:</b> ${sys.grau}`);
+      case "equipamento": {
+        linhas.push(
+          `<b>${sys.tipo}</b>${sys.categoria ? ` · ${sys.categoria}` : ""}` +
+            `${sys.acao ? ` · ${sys.acao}` : ""}`
+        );
+        if (sys.alvo) linhas.push(`<b>Aplica-se a:</b> ${sys.alvo}`);
+        if (sys.prerequisito) linhas.push(`<b>Pré-Requisito:</b> ${sys.prerequisito}`);
+        const efeitos = [];
+        if (sys.defesa) efeitos.push(`Defesa +${sys.defesa}`);
+        if (sys.rdTotal) efeitos.push(`Redução de Dano ${sys.rdTotal}`);
+        if (sys.penalidade) efeitos.push(`${sys.penalidade} em perícias de Destreza`);
+        if (sys.dano) efeitos.push(`dano ${sys.dano}`);
+        if (efeitos.length) linhas.push(`<b>Enquanto equipado:</b> ${efeitos.join(" · ")}`);
         linhas.push(
           `<b>Espaços:</b> ${sys.espacos} · <b>Custo:</b> ${sys.custo} · <b>Qtd.:</b> ${sys.quantidade}`
         );
+        linhas.push(...linhasFerramenta(sys));
         break;
+      }
       case "voto":
         linhas.push(`<b>Voto de Restrição — Peso ${sys.peso}</b>`);
         if (sys.restricao) linhas.push(`<b>Restrição:</b> ${sys.restricao}`);

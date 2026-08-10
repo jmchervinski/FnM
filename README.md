@@ -77,6 +77,12 @@ Tudo abaixo é calculado ou executado pelo sistema, com a página do livro anota
 - **Dano na Alma**: ignora RD e PV temporários, reduz a vida máxima junto da atual
 - **Portas da Morte** completas, incluindo dano massivo, morte instantânea e aviso de Ferimento Complexo
 - **Exaustão** de 0 a 6, com penalidade progressiva e perda de deslocamento
+- **Carregamento**: limite de 8 espaços + o dobro do modificador de Força, com a **sobrecarga**
+  cobrando -5 na Defesa e -4,5 m de Deslocamento, e aviso ao passar do dobro do limite
+- **Uniformes e escudos** equipados lançam o bônus na Defesa e a Redução de Dano na ficha, e a
+  penalidade deles — cumulativa entre os dois — pesa só nas perícias de Destreza
+- **Ferramentas Amaldiçoadas**: o grau da ferramenta define o bônus de dano da arma, a RD do
+  escudo e quantos Encantamentos ela acumula
 - **Descanso Curto e Longo**
 - As **28 condições** do livro registradas como efeitos de status do Foundry
 
@@ -108,8 +114,9 @@ A ficha do sistema segue o layout do arquivo oficial, campo a campo:
 | **Habilidades de Especialização** | As 368 habilidades do capítulo 4, em uma pasta por especialização, com o nível de cada uma |
 | **Talentos** | Os 51 talentos do capítulo 7 em duas pastas: 43 Gerais e 8 de Origem, com pré-requisitos em campo próprio |
 | **Aptidões Amaldiçoadas** | As 64 aptidões do capítulo 8, em uma pasta por área (Aura, Controle e Leitura, Domínio, Barreira, Energia Reversa e Especiais) |
-| **Armas e Equipamentos** | A tabela completa de Armas Simples, a Distância e de Arremesso |
-| **Referência de Regras** | Diário com testes e CDs, ações em combate, condições, tipos de dano, tabelas de criação de Feitiços, alma, morte, exaustão e descansos |
+| **Armas** | As 52 armas dos capítulos 5, em duas pastas: 20 Simples e 32 Complexas, com o efeito de crítico do grupo e o traço especial de cada uma na descrição |
+| **Equipamentos** | 117 itens: 5 uniformes, 4 escudos, 7 kits de ferramentas, os 48 itens especiais (em pastas por custo) e os 53 encantamentos de ferramenta amaldiçoada |
+| **Referência de Regras** | Diário com testes e CDs, ações em combate, condições, tipos de dano, tabelas de criação de Feitiços, equipamentos e carregamento, ferramentas amaldiçoadas, alma, morte, exaustão e descansos |
 | **Macros** | Teste rápido, iniciativa do grupo, aplicar dano em massa, descanso longo do grupo |
 
 ---
@@ -119,8 +126,6 @@ A ficha do sistema segue o layout do arquivo oficial, campo a campo:
 O livro tem 369 páginas. O **motor de regras está completo** para o uso de mesa, mas os
 compêndios são uma semente. Ainda não foram transcritos:
 
-- As tabelas de **Armas Complexas**, uniformes, escudos, kits de ferramentas e itens
-  especiais (capítulo 5), e os **encantamentos** de ferramentas amaldiçoadas (capítulo 6)
 - O guia de **Invocações** — shikigamis e corpos amaldiçoados (capítulo 10)
 - Os **exemplos de Voto de Restrição** (capítulo 14)
 - Os guias em prosa de **Criação de Técnica** (capítulo 9). As tabelas de custo, dano,
@@ -139,9 +144,16 @@ Nada disso bloqueia o jogo: todos esses elementos podem ser criados à mão como
 fichas já têm os campos para eles. Para incluí-los nos compêndios, adicione as entradas em
 `tools/pack-data.mjs` e rode o build.
 
-**Um aviso sobre a tabela de armas:** as tabelas do PDF têm nomes e valores em colunas separadas,
-e a extração de texto os desalinha. A Tabela de Armas Simples foi remontada seguindo a ordem das
-linhas — confira contra o livro antes de usar em mesa.
+**Um aviso sobre as tabelas de equipamento:** as tabelas do PDF têm nomes e valores em colunas
+separadas, e a extração de texto os desalinha. As Tabelas de Armas Simples e Complexas, as
+modificações de uniforme e os escudos foram remontados à mão, linha a linha, em
+`tools/pack-data.mjs` — confira contra o livro antes de usar em mesa. O resto do capítulo é lista
+corrida e sai do extrator (`tools/extrai-equipamentos.py`).
+
+**Uma leitura do livro:** o Chicote Espinhento e a Kusarigama aparecem na tabela com dois dados
+(`1d6/1d6`), no mesmo lugar em que as armas versáteis trazem o dano de uma e de duas mãos. Pelas
+Propriedades Especiais (p. 136-137) não é versatilidade: são dois golpes de tipos diferentes no
+mesmo ataque. O sistema os registra como `1d6 + 1d6`, sem dano versátil.
 
 **Uma ambiguidade do livro:** na p. 49, o dano desarmado do Lutador é descrito como "1d8; nos
 níveis 5, 9, 13 e 17 aumenta para 1d10, 1d12, e 2d12" — quatro níveis para três valores. O sistema
@@ -182,23 +194,26 @@ Rode-o sempre que mexer em templates, schemas ou ícones.
 `tools/build-packs.mjs` lê `tools/pack-data.mjs` e gera os compêndios LevelDB em `packs/`
 usando a CLI oficial do Foundry.
 
-As Habilidades de Especialização, os Talentos e as Aptidões vêm de arquivos em `tools/dados/`,
-gerados a partir do texto do livro. Os JSONs são versionados, então o build não depende do
-PDF — só é preciso rodar os extratores para atualizar as regras:
+As Habilidades de Especialização, os Talentos, as Aptidões e os Equipamentos vêm de arquivos em
+`tools/dados/`, gerados a partir do texto do livro. Os JSONs são versionados, então o build não
+depende do PDF — só é preciso rodar os extratores para atualizar as regras:
 
 ```bash
 pdftotext -layout -enc UTF-8 "Livro de Regras v2.5.2.pdf" fnm.txt
 python tools/extrai-habilidades.py fnm.txt
 python tools/extrai-talentos.py fnm.txt
 python tools/extrai-aptidoes.py fnm.txt
+python tools/extrai-equipamentos.py fnm.txt
 npm run build:packs
 ```
 
 Os capítulos 4, 7 e 8 são diagramados em duas colunas. `tools/livro_texto.py` concentra a
 leitura desse layout: ele detecta a calha vertical de espaços entre as colunas e separa o
-texto. As faixas de página ficam no topo de cada extrator; se a paginação mudar em uma
-versão futura do livro, ajuste-as. Os `_id` são derivados do nome por hash, então permanecem
-estáveis entre builds — links de compêndio nos mundos não quebram.
+texto. Os capítulos 5 e 6 são listas de marcadores em coluna única, e o extrator de
+equipamentos usa o recuo pendente da lista para saber onde um verbete termina. As faixas de
+página ficam no topo de cada extrator; se a paginação mudar em uma versão futura do livro,
+ajuste-as. Os `_id` são derivados do nome por hash, então permanecem estáveis entre builds —
+links de compêndio nos mundos não quebram.
 
 ```
 module/
@@ -211,7 +226,8 @@ templates/           Handlebars das fichas
 styles/fnm.css       tema
 tools/
   build-packs.mjs    geração dos compêndios
-  check-fichas.mjs   validação estática das fichas
+  check-fichas.mjs   validação estática das fichas e dos compêndios
+  extrai-*.py        transcrição dos capítulos do PDF para tools/dados/
 ```
 
 ### Estrutura de dados úteis para macros

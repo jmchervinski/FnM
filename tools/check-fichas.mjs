@@ -359,9 +359,53 @@ for (const [ficha, partes] of Object.entries(FICHAS)) {
   }
 }
 
+/* -------- 7. Os itens dos compêndios cabem no schema do seu tipo -------- */
+
+/**
+ * Um campo fora do schema não quebra o build: o Foundry simplesmente descarta o
+ * valor ao carregar o compêndio, e o item aparece com o padrão em vez do que
+ * está na tabela do livro. Como os packs são gerados por código, um nome errado
+ * some em silêncio nos 500+ itens — daí conferir aqui.
+ */
+const { PACKS } = await import(new URL("./pack-data.mjs", import.meta.url));
+
+/** Achata o `system` de um item nos mesmos caminhos de folha do schema. */
+function folhas(valor, prefixo = "", saida = []) {
+  if (valor && typeof valor === "object" && !Array.isArray(valor)) {
+    for (const [k, v] of Object.entries(valor)) {
+      folhas(v, prefixo ? `${prefixo}.${k}` : k, saida);
+    }
+  } else if (prefixo) saida.push(prefixo);
+  return saida;
+}
+
+for (const [pack, dados] of Object.entries(PACKS)) {
+  const pastas = new Set((dados.folders ?? []).map(f => f._id));
+  for (const f of dados.folders ?? []) {
+    if (f.folder && !pastas.has(f.folder)) {
+      falha(`${pack}: pasta "${f.name}" aponta para uma pasta-mãe inexistente`);
+    }
+  }
+  for (const item of dados.items) {
+    const esquema = esquemas[item.type];
+    if (!esquema) {
+      falha(`${pack}: item "${item.name}" tem tipo desconhecido "${item.type}"`);
+      continue;
+    }
+    if (item.folder && !pastas.has(item.folder)) {
+      falha(`${pack}: item "${item.name}" aponta para uma pasta inexistente`);
+    }
+    for (const campo of folhas(item.system)) {
+      // Um HTMLField é folha, mesmo quando o valor traz objetos aninhados
+      if (esquema.has(campo) || [...esquema].some(k => campo.startsWith(`${k}.`))) continue;
+      falha(`${pack}: item "${item.name}" tem system.${campo} fora do schema de ${item.type}`);
+    }
+  }
+}
+
 console.log(
   problemas === 0
-    ? "OK    Fichas consistentes: todos os campos existem no schema e nenhum está duplicado."
+    ? "OK    Fichas e compêndios consistentes: todos os campos existem no schema."
     : `\n${problemas} problema(s) encontrado(s).`
 );
 process.exit(problemas ? 1 : 0);

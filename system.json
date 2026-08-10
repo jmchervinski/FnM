@@ -98,9 +98,18 @@
     },
     {
       "name": "fnm-armas",
-      "label": "F&M: Armas e Equipamentos",
+      "label": "F&M: Armas",
       "system": "fnm",
       "path": "packs/fnm-armas",
+      "type": "Item",
+      "ownership": { "PLAYER": "OBSERVER", "ASSISTANT": "OWNER" },
+      "flags": {}
+    },
+    {
+      "name": "fnm-equipamentos",
+      "label": "F&M: Equipamentos",
+      "system": "fnm",
+      "path": "packs/fnm-equipamentos",
       "type": "Item",
       "ownership": { "PLAYER": "OBSERVER", "ASSISTANT": "OWNER" },
       "flags": {}
@@ -135,6 +144,7 @@
         "fnm-talentos",
         "fnm-aptidoes",
         "fnm-armas",
+        "fnm-equipamentos",
         "fnm-regras",
         "fnm-macros"
       ]

@@ -235,10 +235,17 @@
 
     {{#if (eq item.type "arma")}}
     <div class="campos-grid">
-      <label>Categoria
+      <label title="A tabela em que a arma aparece no livro (p. 132-134)">Categoria
         <select name="system.categoria">
           {{#each config.categoriasArma as |c|}}
           <option value="{{c}}" {{#if (eq c ../system.categoria)}}selected{{/if}}>{{c}}</option>
+          {{/each}}
+        </select>
+      </label>
+      <label title="Como a arma é manejada (p. 130)">Tipo
+        <select name="system.tipo">
+          {{#each config.tiposArma as |t|}}
+          <option value="{{t}}" {{#if (eq t ../system.tipo)}}selected{{/if}}>{{t}}</option>
           {{/each}}
         </select>
       </label>
@@ -265,19 +272,23 @@
       <label title="Valor mínimo no d20 para crítico">Crítico
         <input type="number" name="system.critico" value="{{system.critico}}" min="15" max="20" />
       </label>
-      <label>Espaços <input type="number" name="system.espacos" value="{{system.espacos}}" min="0" /></label>
+      <label title="Meio espaço para consumíveis, quatro para armas massivas (p. 129)">Espaços
+        <input type="number" name="system.espacos" value="{{system.espacos}}" min="0" step="0.5" />
+      </label>
       <label>Custo <input type="number" name="system.custo" value="{{system.custo}}" min="0" /></label>
       <label>Alcance <input type="text" name="system.alcance" value="{{system.alcance}}" placeholder="12/24m" /></label>
-      <label>Grau
+      <label title="Grau da Ferramenta Amaldiçoada (p. 154)">Grau
         <select name="system.grau">
-          <option value="">—</option>
-          {{#each graus as |g|}}
-          <option value="{{g}}" {{#if (eq g ../system.grau)}}selected{{/if}}>{{g}}</option>
+          <option value="">Não é ferramenta amaldiçoada</option>
+          {{#each grausFerramenta as |g|}}
+          <option value="{{g.id}}" {{#if (eq g.id ../system.grau)}}selected{{/if}}>{{g.nome}} (+{{g.bonusArma}})</option>
           {{/each}}
         </select>
       </label>
       <label>Bônus de ataque <input type="number" name="system.bonusAtaque" value="{{system.bonusAtaque}}" step="1" /></label>
-      <label>Bônus de dano <input type="number" name="system.bonusDano" value="{{system.bonusDano}}" step="1" /></label>
+      <label title="Somado ao bônus do grau da ferramenta">Bônus de dano
+        <input type="number" name="system.bonusDano" value="{{system.bonusDano}}" step="1" />
+      </label>
       <label>Quantidade <input type="number" name="system.quantidade" value="{{system.quantidade}}" min="0" /></label>
       <label>Peso (kg) <input type="number" name="system.peso" value="{{system.peso}}" min="0" step="0.1" /></label>
       <label>Preço <input type="text" name="system.preco" value="{{system.preco}}" /></label>
@@ -285,7 +296,18 @@
         <input type="text" name="system.propriedades" value="{{system.propriedades}}"
                placeholder="Fineza, leve, marcial, versátil…" />
       </label>
+      <label class="largo">Encantamentos
+        <input type="text" name="system.encantamentos" value="{{system.encantamentos}}"
+               placeholder="Afiada, Certeira, Precisa…" />
+      </label>
     </div>
+    {{#if system.grau}}
+    <p class="dica">Ferramenta de {{system.grau}} Grau: <b>+{{system.bonusFerramenta}}</b> nas rolagens de
+      dano (o bônus é só o do grau atual, não acumula com os anteriores) e
+      <b>{{system.encantamentosPermitidos}}</b> Encantamento(s).
+      {{#if system.habilidadeUnica}} Uma ferramenta de grau especial ainda recebe uma habilidade única,
+      criada com o Narrador (p. 154).{{/if}}</p>
+    {{/if}}
     <div class="checkboxes">
       <label class="checkbox" title="Permite usar Destreza no lugar de Força (p. 279)">
         <input type="checkbox" name="system.fineza" {{#if system.fineza}}checked{{/if}} /> Fineza
@@ -308,23 +330,74 @@
           {{/each}}
         </select>
       </label>
-      <label>Grau
-        <select name="system.grau">
+      <label title="Só os Itens Especiais têm categoria (p. 144)">Categoria
+        <select name="system.categoria">
           <option value="">—</option>
-          {{#each graus as |g|}}
-          <option value="{{g}}" {{#if (eq g ../system.grau)}}selected{{/if}}>{{g}}</option>
+          {{#each config.categoriasItemEspecial as |c|}}
+          <option value="{{c}}" {{#if (eq c ../system.categoria)}}selected{{/if}}>{{c}}</option>
           {{/each}}
         </select>
       </label>
-      <label>Espaços <input type="number" name="system.espacos" value="{{system.espacos}}" min="0" /></label>
+      <label title="Grau da Ferramenta Amaldiçoada (p. 154)">Grau
+        <select name="system.grau">
+          <option value="">Não é ferramenta amaldiçoada</option>
+          {{#each grausFerramenta as |g|}}
+          <option value="{{g.id}}" {{#if (eq g.id ../system.grau)}}selected{{/if}}>{{g.nome}}</option>
+          {{/each}}
+        </select>
+      </label>
+      <label title="Bônus na Defesa da modificação de uniforme (p. 140)">Bônus na Defesa
+        <input type="number" name="system.defesa" value="{{system.defesa}}" step="1" />
+      </label>
+      <label title="Redução de Dano do escudo enquanto empunhado (p. 141)">Redução de Dano
+        <input type="number" name="system.reducaoDano" value="{{system.reducaoDano}}" min="0" />
+      </label>
+      <label title="Penalidade em testes de perícia de Destreza; uniforme e escudo somam">Penalidade
+        <input type="number" name="system.penalidade" value="{{system.penalidade}}" max="0" step="1" />
+      </label>
+      <label title="Dano do escudo usado em ataque (p. 141)">Dano
+        <input type="text" name="system.dano" value="{{system.dano}}" placeholder="1d4" />
+      </label>
+      <label>Ação <input type="text" name="system.acao" value="{{system.acao}}" placeholder="Ação Bônus…" /></label>
+      <label title="Meio espaço para consumíveis (p. 129)">Espaços
+        <input type="number" name="system.espacos" value="{{system.espacos}}" min="0" step="0.5" />
+      </label>
       <label>Custo <input type="number" name="system.custo" value="{{system.custo}}" min="0" /></label>
       <label>Quantidade <input type="number" name="system.quantidade" value="{{system.quantidade}}" min="0" /></label>
+      <label title="Cargas restantes">Usos — Atual
+        <input type="number" name="system.usos.value" value="{{system.usos.value}}" min="0" />
+      </label>
+      <label title="0 = sem controle de cargas">Usos — Máx.
+        <input type="number" name="system.usos.max" value="{{system.usos.max}}" min="0" />
+      </label>
       <label>Peso (kg) <input type="number" name="system.peso" value="{{system.peso}}" min="0" step="0.1" /></label>
       <label>Preço <input type="text" name="system.preco" value="{{system.preco}}" /></label>
+      <label title="Em qual tipo de ferramenta este Encantamento pode ser aplicado">Alvo do Encantamento
+        <input type="text" name="system.alvo" value="{{system.alvo}}" placeholder="Arma, Escudo, Uniforme" />
+      </label>
+      <label class="largo">Pré-requisito
+        <input type="text" name="system.prerequisito" value="{{system.prerequisito}}" />
+      </label>
+      <label class="largo">Encantamentos
+        <input type="text" name="system.encantamentos" value="{{system.encantamentos}}"
+               placeholder="Polido, Reforçado…" />
+      </label>
+    </div>
+    <div class="checkboxes">
       <label class="checkbox">
         <input type="checkbox" name="system.equipado" {{#if system.equipado}}checked{{/if}} /> Equipado
       </label>
+      <label class="checkbox" title="Gasto ao ser usado (talismãs, misturas, fármacos)">
+        <input type="checkbox" name="system.consumivel" {{#if system.consumivel}}checked{{/if}} /> Consumível
+      </label>
     </div>
+    {{#if system.grau}}
+    <p class="dica">Ferramenta de {{system.grau}} Grau:
+      {{#if system.rdFerramenta}}RD <b>{{system.rdFerramenta}}</b> e {{/if}}
+      <b>{{system.encantamentosPermitidos}}</b> Encantamento(s) acumulados.
+      {{#if system.habilidadeUnica}} Uma ferramenta de grau especial ainda recebe uma habilidade única,
+      criada com o Narrador (p. 154).{{/if}}</p>
+    {{/if}}
     {{/if}}
 
     {{#if (eq item.type "voto")}}

@@ -408,20 +408,57 @@ FNM.gruposArma = {
   tiro: { nome: "Tiro", critico: "O alvo faz um TR de Fortitude contra sua CD de Especialização ou fica Lento por 1 rodada." }
 };
 
-FNM.categoriasArma = ["Simples", "Complexa", "A Distância", "De Arremesso"];
+/**
+ * As armas se cruzam em dois eixos independentes (p. 130-134): a tabela em que
+ * a arma aparece — Simples ou Complexa — e como ela é manejada. Uma Katana é
+ * Complexa e corpo a corpo; um Rifle é Complexo e a distância.
+ */
+FNM.categoriasArma = ["Simples", "Complexa"];
+FNM.tiposArma = ["Corpo a Corpo", "A Distância", "De Arremesso"];
 
+/**
+ * Tipos de equipamento. Uniforme, Escudo, Kit de Ferramentas e Item Especial
+ * são as quatro famílias do capítulo 5; Encantamento é a melhoria que uma
+ * Ferramenta Amaldiçoada recebe ao subir de grau (p. 155-159).
+ */
 FNM.tiposEquipamento = [
   "Uniforme",
   "Escudo",
   "Kit de Ferramentas",
   "Item Especial",
+  "Encantamento",
   "Ferramenta Amaldiçoada",
   "Acessório",
   "Diverso"
 ];
 
+/** Categorias de Item Especial (p. 144). */
+FNM.categoriasItemEspecial = ["Acessório", "Espiritual", "Fármaco", "Mistura", "Talismã"];
+
 /** Graus de ferramentas amaldiçoadas e de feiticeiros/maldições (p. 10-11). */
 FNM.graus = ["Grau 4", "Grau 3", "Semi-Grau 2", "Grau 2", "Semi-Grau 1", "Grau 1", "Grau Especial"];
+
+/**
+ * Graus de Ferramenta Amaldiçoada (p. 154). Diferente do grau de um feiticeiro,
+ * não há semi-graus: são só os cinco degraus das tabelas de benefícios.
+ * `bonusArma` entra nas rolagens de dano da arma e `rdEscudo` na RD do escudo —
+ * ambos valem só o do próprio grau, sem acumular com os anteriores.
+ * `encantamentos` é cumulativo, pois eles se somam a cada grau.
+ */
+FNM.grausFerramenta = {
+  Quarto: { nome: "Quarto Grau", bonusArma: 1, rdEscudo: 1, encantamentos: { arma: 0, escudo: 0, uniforme: 1 } },
+  Terceiro: { nome: "Terceiro Grau", bonusArma: 2, rdEscudo: 2, encantamentos: { arma: 1, escudo: 1, uniforme: 2 } },
+  Segundo: { nome: "Segundo Grau", bonusArma: 3, rdEscudo: 3, encantamentos: { arma: 2, escudo: 2, uniforme: 3 } },
+  Primeiro: { nome: "Primeiro Grau", bonusArma: 4, rdEscudo: 4, encantamentos: { arma: 4, escudo: 3, uniforme: 4 } },
+  Especial: { nome: "Grau Especial", bonusArma: 5, rdEscudo: 5, unica: true, encantamentos: { arma: 4, escudo: 3, uniforme: 4 } }
+};
+
+/**
+ * Inventário e Carregamento (p. 129). O limite é 8 espaços + o dobro do
+ * modificador de Força; passar dele deixa o personagem sobrecarregado, e é
+ * impossível carregar mais do que o dobro do limite.
+ */
+FNM.carga = { base: 8, defesaSobrecarga: -5, deslocamentoSobrecarga: -4.5 };
 
 /* -------------------------------------------- */
 /*  Votos de Restrição (p. 351-357)             */

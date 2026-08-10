@@ -42,6 +42,16 @@ const APTIDOES = JSON.parse(
 );
 
 /**
+ * Itens Especiais, Kits de Ferramentas, Encantamentos e as propriedades de arma
+ * dos capítulos 5 e 6, transcritos por tools/extrai-equipamentos.py. As tabelas
+ * desses capítulos (armas, uniformes e escudos) não saem de lá: estão
+ * transcritas à mão mais abaixo.
+ */
+const EQUIPAMENTOS = JSON.parse(
+  fs.readFileSync(path.join(import.meta.dirname, "dados/equipamentos.json"), "utf8")
+);
+
+/**
  * IDs determinísticos derivados do nome: o mesmo item mantém o mesmo _id entre
  * builds, o que preserva os links de compêndio já usados nos mundos.
  */
@@ -55,6 +65,49 @@ function id(chave) {
 
 /** Ajustes zerados — o formato que todo item do sistema espera. */
 const semAjustes = { pv: 0, pe: 0, defesa: 0, deslocamento: 0, reducaoDano: 0 };
+
+/** Campos comuns a todo equipamento; cada família sobrescreve o que lhe importa. */
+const equipamentoBase = () => ({
+  categoria: "",
+  grau: "",
+  encantamentos: "",
+  espacos: 1,
+  custo: 1,
+  quantidade: 1,
+  equipado: false,
+  defesa: 0,
+  reducaoDano: 0,
+  penalidade: 0,
+  dano: "",
+  alvo: "",
+  prerequisito: "",
+  acao: "",
+  consumivel: false,
+  usos: { value: 0, max: 0 },
+  peso: 0,
+  preco: "",
+  ajustes: { ...semAjustes }
+});
+
+const ALVOS_ENCANTAMENTO = ["Arma", "Escudo", "Uniforme"];
+
+/** Um ícone por categoria de Item Especial (p. 144). */
+const ICONE_ITEM = {
+  Acessório: "icons/svg/aura.svg",
+  Espiritual: "icons/svg/sun.svg",
+  Fármaco: "icons/svg/pill.svg",
+  Mistura: "icons/svg/poison.svg",
+  Talismã: "icons/svg/hanging-sign.svg"
+};
+
+/**
+ * O traço "especial" de uma arma é descrito em Propriedades Especiais
+ * (p. 136-137), longe da tabela. Aqui ele volta para junto da arma.
+ */
+function propriedadeEspecial(nome) {
+  const texto = EQUIPAMENTOS.propriedadesEspeciais[nome];
+  return texto ? `<p><b>Especial.</b> ${texto}</p>` : "";
+}
 
 /* -------------------------------------------- */
 /*  Origens                                     */
@@ -334,37 +387,131 @@ const ESPECIALIZACOES = [
 ];
 
 /* -------------------------------------------- */
-/*  Armas Simples (p. 132)                      */
+/*  Armas (p. 132-134)                          */
 /* -------------------------------------------- */
 
 /**
- * Transcrição da Tabela de Armas Simples. A tabela do PDF tem os nomes em uma
- * coluna e os valores em outra: a correspondência abaixo segue a ordem das
- * linhas. Confira contra o livro antes de usar em mesa.
+ * Transcrição das Tabelas de Armas Simples e Complexas. As tabelas do PDF têm
+ * os nomes em uma coluna e os valores em outra, e o extrator não consegue
+ * recasá-los: a correspondência abaixo foi conferida linha a linha contra o
+ * livro. Confira de novo antes de usar em mesa.
+ *
+ * `cat` é a tabela em que a arma aparece e `tipo`, como ela é manejada — os
+ * dois eixos são independentes (uma Katana é Complexa e corpo a corpo).
  */
+const CORPO = "Corpo a Corpo";
+const DISTANCIA = "A Distância";
+const ARREMESSO = "De Arremesso";
+
 const ARMAS = [
-  { nome: "Adaga", cat: "Simples", dano: "1d6", tipo: "perfurante", crit: 18, esp: 1, custo: 1, grupo: "faca", fineza: true, props: "Apunhaladora, arremessável [6/18m], fineza, leve, marcial, modular Ct" },
-  { nome: "Bastão", cat: "Simples", dano: "1d6", vers: "1d8", tipo: "impacto", crit: 19, esp: 2, custo: 1, grupo: "bastao", props: "Amplo, dupla, marcial, versátil" },
-  { nome: "Clava", cat: "Simples", dano: "1d8", vers: "1d10", tipo: "impacto", crit: 20, esp: 1, custo: 1, grupo: "bastao", props: "Versátil" },
-  { nome: "Espada Curta", cat: "Simples", dano: "1d6", tipo: "cortante", crit: 19, esp: 1, custo: 1, grupo: "espada", fineza: true, props: "Fineza, leve, marcial, modular Pf" },
-  { nome: "Faixas", cat: "Simples", dano: "—", tipo: "", crit: 20, esp: 1, custo: 1, grupo: "pugilato", props: "Especial" },
-  { nome: "Foice", cat: "Simples", dano: "1d6", tipo: "cortante", crit: 19, esp: 1, custo: 1, grupo: "haste", fineza: true, props: "Fineza, leve, marcial" },
-  { nome: "Lança", cat: "Simples", dano: "1d6", vers: "1d8", tipo: "perfurante", crit: 19, esp: 1, custo: 1, grupo: "haste", props: "Arremessável [6/18m], estendida, versátil" },
-  { nome: "Leque", cat: "Simples", dano: "1d6", tipo: "impacto", crit: 18, esp: 1, custo: 1, grupo: "", fineza: true, props: "Fineza, enérgica, leve, especial" },
-  { nome: "Machado", cat: "Simples", dano: "1d8", vers: "1d10", tipo: "cortante", crit: 20, esp: 1, custo: 1, grupo: "machado", props: "Versátil" },
-  { nome: "Mangual", cat: "Simples", dano: "1d8", tipo: "impacto", crit: 20, esp: 1, custo: 1, grupo: "chicote", props: "Ampla, enérgica" },
-  { nome: "Manoplas", cat: "Simples", dano: "Especial", tipo: "impacto", crit: 20, esp: 1, custo: 2, grupo: "pugilato", props: "Aparar, duas mãos, dupla, especial, pesado [16]" },
-  { nome: "Martelo", cat: "Simples", dano: "1d8", vers: "1d10", tipo: "impacto", crit: 20, esp: 1, custo: 1, grupo: "martelo", props: "Versátil" },
-  { nome: "Soco Inglês", cat: "Simples", dano: "Especial", tipo: "impacto", crit: 20, esp: 1, custo: 2, grupo: "pugilato", fineza: true, props: "Enérgica, especial, fineza, marcial" },
-  { nome: "Tridente", cat: "Simples", dano: "1d6", vers: "1d8", tipo: "perfurante", crit: 19, esp: 1, custo: 1, grupo: "haste", props: "Arremessável [6/18m], estendida, versátil" },
+  // Tabela de Armas Simples (p. 132)
+  { nome: "Adaga", cat: "Simples", tipo: CORPO, dano: "1d6", tipoDano: "perfurante", crit: 18, esp: 1, custo: 1, grupo: "faca", fineza: true, props: "Apunhaladora, arremessável [6/18m], fineza, leve, marcial, modular Ct" },
+  { nome: "Bastão", cat: "Simples", tipo: CORPO, dano: "1d6", vers: "1d8", tipoDano: "impacto", crit: 19, esp: 2, custo: 1, grupo: "bastao", props: "Amplo, dupla, marcial, versátil" },
+  { nome: "Clava", cat: "Simples", tipo: CORPO, dano: "1d8", vers: "1d10", tipoDano: "impacto", crit: 20, esp: 1, custo: 1, grupo: "bastao", props: "Versátil" },
+  { nome: "Espada Curta", cat: "Simples", tipo: CORPO, dano: "1d6", tipoDano: "cortante", crit: 19, esp: 1, custo: 1, grupo: "espada", fineza: true, props: "Fineza, leve, marcial, modular Pf" },
+  { nome: "Faixas", cat: "Simples", tipo: CORPO, dano: "—", tipoDano: "", crit: 20, esp: 1, custo: 1, grupo: "pugilato", props: "Especial" },
+  { nome: "Foice", cat: "Simples", tipo: CORPO, dano: "1d6", tipoDano: "cortante", crit: 19, esp: 1, custo: 1, grupo: "haste", fineza: true, props: "Fineza, leve, marcial" },
+  { nome: "Lança", cat: "Simples", tipo: CORPO, dano: "1d6", vers: "1d8", tipoDano: "perfurante", crit: 19, esp: 1, custo: 1, grupo: "haste", props: "Arremessável [6/18m], estendida, versátil" },
+  { nome: "Leque", cat: "Simples", tipo: CORPO, dano: "1d6", tipoDano: "impacto", crit: 18, esp: 1, custo: 1, grupo: "", fineza: true, props: "Fineza, enérgica, leve, especial" },
+  { nome: "Machado", cat: "Simples", tipo: CORPO, dano: "1d8", vers: "1d10", tipoDano: "cortante", crit: 20, esp: 1, custo: 1, grupo: "machado", props: "Versátil" },
+  { nome: "Mangual", cat: "Simples", tipo: CORPO, dano: "1d8", tipoDano: "impacto", crit: 20, esp: 1, custo: 1, grupo: "chicote", props: "Ampla, enérgica" },
+  { nome: "Manoplas", cat: "Simples", tipo: CORPO, dano: "Especial", tipoDano: "impacto", crit: 20, esp: 1, custo: 2, grupo: "pugilato", props: "Aparar, duas mãos, dupla, especial, pesado [16]" },
+  { nome: "Martelo", cat: "Simples", tipo: CORPO, dano: "1d8", vers: "1d10", tipoDano: "impacto", crit: 20, esp: 1, custo: 1, grupo: "martelo", props: "Versátil" },
+  { nome: "Soco Inglês", cat: "Simples", tipo: CORPO, dano: "Especial", tipoDano: "impacto", crit: 20, esp: 1, custo: 2, grupo: "pugilato", fineza: true, props: "Enérgica, especial, fineza, marcial" },
+  { nome: "Tridente", cat: "Simples", tipo: CORPO, dano: "1d6", vers: "1d8", tipoDano: "perfurante", crit: 19, esp: 1, custo: 1, grupo: "haste", props: "Arremessável [6/18m], estendida, versátil" },
 
-  { nome: "Arco Curto", cat: "A Distância", dano: "1d6", tipo: "perfurante", crit: 19, esp: 2, custo: 1, grupo: "arco", alcance: "24/48m", props: "Duas mãos, mortal d10, alcance [24/48m]" },
-  { nome: "Besta Leve", cat: "A Distância", dano: "1d8", tipo: "perfurante", crit: 19, esp: 1, custo: 1, grupo: "arco", alcance: "24/48m", props: "Mortal d10, leve, alcance [24/48m], recarga [1]" },
-  { nome: "Pistola", cat: "A Distância", dano: "1d10", tipo: "perfurante", crit: 20, esp: 1, custo: 2, grupo: "tiro", alcance: "36/72m", props: "Alcance [36/72m], emperrar, leve, recarga [12]" },
+  { nome: "Arco Curto", cat: "Simples", tipo: DISTANCIA, dano: "1d6", tipoDano: "perfurante", crit: 19, esp: 2, custo: 1, grupo: "arco", alcance: "24/48m", props: "Duas mãos, mortal d10, alcance [24/48m]" },
+  { nome: "Besta Leve", cat: "Simples", tipo: DISTANCIA, dano: "1d8", tipoDano: "perfurante", crit: 19, esp: 1, custo: 1, grupo: "arco", alcance: "24/48m", props: "Mortal d10, leve, alcance [24/48m], recarga [1]" },
+  { nome: "Pistola", cat: "Simples", tipo: DISTANCIA, dano: "1d10", tipoDano: "perfurante", crit: 20, esp: 1, custo: 2, grupo: "tiro", alcance: "36/72m", props: "Alcance [36/72m], emperrar, leve, recarga [12]" },
 
-  { nome: "Azagaia", cat: "De Arremesso", dano: "1d6", tipo: "perfurante", crit: 20, esp: 1, custo: 1, grupo: "dardo", alcance: "12/24m", props: "Leve, alcance [12/24m]" },
-  { nome: "Dardo", cat: "De Arremesso", dano: "1d4", tipo: "perfurante", crit: 18, esp: 1, custo: 1, grupo: "dardo", alcance: "12/24m", props: "Leve, alcance [12/24m], especial" },
-  { nome: "Faca de Arremesso", cat: "De Arremesso", dano: "1d6", tipo: "perfurante", crit: 20, esp: 1, custo: 1, grupo: "faca", alcance: "12/24m", props: "Leve, alcance [12/24m], modular Ct" }
+  { nome: "Azagaia", cat: "Simples", tipo: ARREMESSO, dano: "1d6", tipoDano: "perfurante", crit: 20, esp: 1, custo: 1, grupo: "dardo", alcance: "12/24m", props: "Leve, alcance [12/24m]" },
+  { nome: "Dardo", cat: "Simples", tipo: ARREMESSO, dano: "1d4", tipoDano: "perfurante", crit: 18, esp: 1, custo: 1, grupo: "dardo", alcance: "12/24m", props: "Leve, alcance [12/24m], especial" },
+  { nome: "Faca de Arremesso", cat: "Simples", tipo: ARREMESSO, dano: "1d6", tipoDano: "perfurante", crit: 20, esp: 1, custo: 1, grupo: "faca", alcance: "12/24m", props: "Leve, alcance [12/24m], modular Ct" },
+
+  // Tabela de Armas Complexas (p. 133-134)
+  { nome: "Adagas Duplas", cat: "Complexa", tipo: CORPO, dano: "2d4", tipoDano: "perfurante", crit: 18, esp: 2, custo: 2, grupo: "faca", fineza: true, props: "Apunhaladora, duas mãos, fineza, leve, marcial, modular Ct, especial" },
+  { nome: "Adaga de Aparar", cat: "Complexa", tipo: CORPO, dano: "1d4", tipoDano: "perfurante", crit: 18, esp: 1, custo: 1, grupo: "faca", fineza: true, props: "Aparar, apunhaladora, fineza, leve, marcial, modular Ct" },
+  { nome: "Alabarda", cat: "Complexa", tipo: CORPO, dano: "1d10", tipoDano: "cortante", crit: 20, esp: 2, custo: 2, grupo: "haste", props: "Duas mãos, estendida, modular Pf, pesada [14], especial" },
+  { nome: "Chicote", cat: "Complexa", tipo: CORPO, dano: "1d4", tipoDano: "cortante", crit: 19, esp: 1, custo: 1, grupo: "chicote", fineza: true, props: "Estendida, fineza, leve, especial" },
+  { nome: "Chicote de Corrente", cat: "Complexa", tipo: CORPO, dano: "1d6", vers: "1d8", tipoDano: "impacto", crit: 19, esp: 2, custo: 2, grupo: "chicote", props: "Estendida, pesada [14], versátil, especial" },
+  // Os dois dados do Chicote Espinhento e da Kusarigama não são versatilidade:
+  // são golpes de tipos diferentes, somados no mesmo ataque (p. 136-137)
+  { nome: "Chicote Espinhento", cat: "Complexa", tipo: CORPO, dano: "1d6 + 1d6", tipoDano: "cortante", crit: 19, esp: 1, custo: 3, grupo: "chicote", fineza: true, props: "Estendida, fineza, leve, especial" },
+  { nome: "Clava Pesada", cat: "Complexa", tipo: CORPO, dano: "2d6", tipoDano: "impacto", crit: 20, esp: 2, custo: 2, grupo: "bastao", props: "Duas mãos, pesada [16], oscilante" },
+  { nome: "Corrente de Aço", cat: "Complexa", tipo: CORPO, dano: "2d4", vers: "2d6", tipoDano: "impacto", crit: 20, esp: 2, custo: 1, grupo: "chicote", props: "Estendida, enérgica, pesada [14], versátil" },
+  { nome: "Espada de Gancho", cat: "Complexa", tipo: CORPO, dano: "1d8", tipoDano: "cortante", crit: 20, esp: 1, custo: 2, grupo: "espada", fineza: true, props: "Fineza, leve, marcial, especial" },
+  { nome: "Espada Longa", cat: "Complexa", tipo: CORPO, dano: "1d8", vers: "1d10", tipoDano: "cortante", crit: 20, esp: 1, custo: 1, grupo: "espada", props: "Modular Pf, versátil" },
+  { nome: "Katana", cat: "Complexa", tipo: CORPO, dano: "1d6", vers: "1d8", tipoDano: "cortante", crit: 19, esp: 1, custo: 1, grupo: "espada", fineza: true, props: "Versátil, fatal d10, fineza" },
+  { nome: "Espada Grande", cat: "Complexa", tipo: CORPO, dano: "1d12", tipoDano: "cortante", crit: 20, esp: 2, custo: 2, grupo: "espada", props: "Ampla, duas mãos, modular Pf, pesada [14]" },
+  { nome: "Espada Colossal", cat: "Complexa", tipo: CORPO, dano: "2d8", tipoDano: "cortante", crit: 20, esp: 4, custo: 3, grupo: "espada", props: "Ampla, duas mãos, modular Im, pesada [20], especial" },
+  { nome: "Foice Grande", cat: "Complexa", tipo: CORPO, dano: "1d8", vers: "1d10", tipoDano: "cortante", crit: 20, esp: 2, custo: 2, grupo: "haste", props: "Ampla, versátil" },
+  { nome: "Kusarigama", cat: "Complexa", tipo: CORPO, dano: "1d6 + 1d6", tipoDano: "cortante", crit: 19, esp: 1, custo: 2, grupo: "haste", props: "Duas mãos, dupla, especial, estendida, enérgica" },
+  { nome: "Lança Grande", cat: "Complexa", tipo: CORPO, dano: "1d12", tipoDano: "perfurante", crit: 20, esp: 2, custo: 1, grupo: "haste", props: "Duas mãos, enérgica, estendida, pesada [14]" },
+  { nome: "Machado Grande", cat: "Complexa", tipo: CORPO, dano: "1d10", tipoDano: "cortante", crit: 20, esp: 2, custo: 1, grupo: "machado", props: "Ampla, duas mãos, pesada [16]" },
+  { nome: "Martelo Grande", cat: "Complexa", tipo: CORPO, dano: "1d12", tipoDano: "impacto", crit: 20, esp: 2, custo: 1, grupo: "martelo", props: "Duas mãos, pesada [16]" },
+  { nome: "Nunchaku", cat: "Complexa", tipo: CORPO, dano: "1d8", tipoDano: "impacto", crit: 19, esp: 1, custo: 1, grupo: "bastao", fineza: true, props: "Dupla, enérgica, fineza, marcial" },
+  { nome: "Nunchaku Pesado", cat: "Complexa", tipo: CORPO, dano: "2d6", tipoDano: "impacto", crit: 20, esp: 2, custo: 2, grupo: "bastao", props: "Duas mãos, dupla, estendida, marcial, pesada [14], enérgica" },
+  { nome: "Rapieira", cat: "Complexa", tipo: CORPO, dano: "1d8", tipoDano: "perfurante", crit: 19, esp: 1, custo: 1, grupo: "espada", fineza: true, props: "Fineza, mortal d10" },
+
+  { nome: "Arco Longo", cat: "Complexa", tipo: DISTANCIA, dano: "1d10", tipoDano: "perfurante", crit: 19, esp: 2, custo: 1, grupo: "arco", alcance: "30/60m", props: "Duas mãos, mortal d12, alcance [30/60m]" },
+  { nome: "Bazuca", cat: "Complexa", tipo: DISTANCIA, dano: "3d12", tipoDano: "impacto", crit: 19, esp: 4, custo: 4, grupo: "tiro", alcance: "9/18m", props: "Alcance [9/18m], duas mãos, emperrar, recarga [1], especial, pesada [16]" },
+  { nome: "Besta Pesada", cat: "Complexa", tipo: DISTANCIA, dano: "1d12", tipoDano: "perfurante", crit: 20, esp: 2, custo: 1, grupo: "besta", alcance: "45/90m", props: "Pesada [14], alcance [45/90m], recarga [1], mortal d12" },
+  { nome: "Escopeta", cat: "Complexa", tipo: DISTANCIA, dano: "2d6", tipoDano: "perfurante", crit: 20, esp: 2, custo: 2, grupo: "tiro", alcance: "9/18m", props: "Alcance [9/18m], duas mãos, emperrar, especial, recarga [2]" },
+  { nome: "Metralhadora", cat: "Complexa", tipo: DISTANCIA, dano: "1d12", tipoDano: "perfurante", crit: 19, esp: 4, custo: 3, grupo: "tiro", alcance: "30/60m", props: "Alcance [30/60m], duas mãos, emperrar, especial, recarga [30]" },
+  { nome: "Rifle", cat: "Complexa", tipo: DISTANCIA, dano: "2d8", tipoDano: "perfurante", crit: 20, esp: 2, custo: 2, grupo: "tiro", alcance: "60/120m", props: "Alcance [60/120m], duas mãos, emperrar, recarga [20]" },
+  { nome: "Rifle de Precisão", cat: "Complexa", tipo: DISTANCIA, dano: "2d10", tipoDano: "perfurante", crit: 19, esp: 4, custo: 3, grupo: "tiro", alcance: "120/240m", props: "Alcance [120/240m], duas mãos, emperrar, recarga [5]" },
+
+  { nome: "Chakram", cat: "Complexa", tipo: ARREMESSO, dano: "2d4", tipoDano: "cortante", crit: 20, esp: 1, custo: 1, grupo: "faca", alcance: "12/24m", props: "Arremessável [12/24m], especial, leve" },
+  { nome: "Kunai", cat: "Complexa", tipo: ARREMESSO, dano: "1d6", tipoDano: "perfurante", crit: 19, esp: 1, custo: 1, grupo: "dardo", alcance: "9/18m", fineza: true, props: "Apunhaladora, arremessável [9/18m], fineza, leve" },
+  { nome: "Rede", cat: "Complexa", tipo: ARREMESSO, dano: "—", tipoDano: "", crit: 20, esp: 1, custo: 2, grupo: "", alcance: "9/27m", props: "Alcance [9/27m], especial" },
+  { nome: "Shuriken", cat: "Complexa", tipo: ARREMESSO, dano: "1d4", tipoDano: "cortante", crit: 18, esp: 1, custo: 1, grupo: "dardo", alcance: "12/24m", props: "Arremessável [12/24m], mortal d8, leve" }
+];
+
+/* -------------------------------------------- */
+/*  Uniformes e Escudos (p. 140-141)            */
+/* -------------------------------------------- */
+
+/**
+ * Um uniforme só pode ter uma modificação, que substitui a forma e a base dele.
+ * Os espaços seguem a regra de carregamento (p. 129): uniformes sem
+ * revestimento, com Revestimento Leve ou Sob Medida não ocupam espaço;
+ * Revestimento Médio ocupa dois e Revestimento Robusto, quatro.
+ */
+const UNIFORMES = [
+  { nome: "Uniforme Comum", defesa: 0, penalidade: 0, custo: 0, espacos: 0,
+    texto: `Todo personagem inicia com um uniforme comum. Ele não altera a Defesa, que fica no
+      valor padrão do sistema, mas pode receber uma modificação para reforçá-la.` },
+  { nome: "Uniforme com Revestimento Leve", defesa: 2, penalidade: 0, custo: 1, espacos: 0,
+    texto: `Um revestimento leve é colocado no uniforme, concedendo-o um leve reforço defensivo.` },
+  { nome: "Uniforme com Revestimento Médio", defesa: 4, penalidade: -2, custo: 2, espacos: 2,
+    texto: `O uniforme tem uma quantidade demorada de revestimentos colocados, através de algumas
+      placas e camadas adicionais, o que dá um peso considerável ao uniforme.` },
+  { nome: "Uniforme com Revestimento Robusto", defesa: 6, penalidade: -4, custo: 3, espacos: 4,
+    texto: `Um revestimento pesado é implementado no uniforme, com placas fortes, camadas densas e a
+      adição de peças que se assemelham a armaduras ou coletes, o que o dá um peso equivalente.` },
+  { nome: "Uniforme Sob Medida", defesa: 1, penalidade: 0, custo: 2, espacos: 0,
+    texto: `O uniforme é feito sob medida, encaixando-se perfeitamente no corpo do feiticeiro,
+      beneficiando-o em acrobacias e destacando a sua agilidade. Enquanto estiver usando um uniforme
+      sob medida, você recebe +2 em testes de Acrobacia e Furtividade.` }
+];
+
+/**
+ * Escudos ocupam dois espaços, como os demais itens mais pesados (p. 129). O
+ * dano entre parênteses no livro é o do escudo usado para atacar — e atacar com
+ * ele suspende a RD até o início do seu próximo turno.
+ */
+const ESCUDOS = [
+  { nome: "Escudo Pequeno", dano: "1d3", rd: 2, penalidade: 0, custo: 2,
+    texto: `Um escudo pequeno, otimizado para ser preso ao braço, mantendo uma mão livre enquanto dá
+      um impulso na guarda. O escudo pequeno não ocupa uma das suas mãos.` },
+  { nome: "Escudo Leve", dano: "1d4", rd: 2, penalidade: -1, custo: 1,
+    texto: `Um pequeno escudo, leve em peso e capaz de auxiliar na defesa de golpes mais simples.` },
+  { nome: "Escudo Médio", dano: "1d6", rd: 4, penalidade: -2, custo: 2,
+    texto: `Um escudo de porte médio, equilibrando uma boa defesa com um sacrifício mediano de sua
+      agilidade.` },
+  { nome: "Escudo Pesado", dano: "1d8", rd: 6, penalidade: -4, custo: 3,
+    texto: `Um escudo maior e pesado, cobrindo uma parte considerável do corpo, em troca de uma certa
+      dificuldade no seu manejo.` }
 ];
 
 /* -------------------------------------------- */
@@ -515,26 +662,36 @@ export const PACKS = {
   },
 
   "fnm-armas": {
-    folders: [],
+    folders: [
+      { _id: id("pasta-armas-simples"), name: "Armas Simples", sort: 100 },
+      { _id: id("pasta-armas-complexas"), name: "Armas Complexas", sort: 200 }
+    ],
     items: ARMAS.map(a => ({
       _id: id(`arma-${a.nome}`),
       name: a.nome,
       type: "arma",
-      img: "icons/svg/sword.svg",
+      img: a.tipo === CORPO ? "icons/svg/sword.svg" : "icons/svg/thrust.svg",
+      folder: id(a.cat === "Complexa" ? "pasta-armas-complexas" : "pasta-armas-simples"),
       system: {
-        description: `<p>Arma ${a.cat.toLowerCase()} do grupo ${a.grupo || "—"}.
-          Transcrita da tabela de armas do Livro de Regras v2.5.2 (p. 132).</p>`,
+        description:
+          `<p><i>Arma ${a.cat.toLowerCase()} ${a.tipo === CORPO ? "corpo a corpo" : a.tipo.toLowerCase()}` +
+          `${a.grupo ? `, do grupo ${FNM.gruposArma[a.grupo].nome}` : ""}. ` +
+          `Transcrita das tabelas de armas do Livro de Regras v2.5.2 (p. 132-134).</i></p>` +
+          (a.grupo ? `<p><b>Crítico do grupo.</b> ${FNM.gruposArma[a.grupo].critico}</p>` : "") +
+          propriedadeEspecial(a.nome),
         categoria: a.cat,
+        tipo: a.tipo,
         grupo: a.grupo ?? "",
         dano: a.dano,
         danoVersatil: a.vers ?? "",
-        tipoDano: a.tipo ?? "",
+        tipoDano: a.tipoDano ?? "",
         critico: a.crit,
         propriedades: a.props,
         alcance: a.alcance ?? "",
         espacos: a.esp,
         custo: a.custo,
         grau: "",
+        encantamentos: "",
         fineza: a.fineza === true,
         treinado: true,
         equipada: false,
@@ -544,12 +701,265 @@ export const PACKS = {
         ajustes: { ...semAjustes }
       }
     }))
+  },
+
+  "fnm-equipamentos": {
+    folders: [
+      { _id: id("pasta-uniformes"), name: "Uniformes", sort: 100 },
+      { _id: id("pasta-escudos"), name: "Escudos", sort: 200 },
+      { _id: id("pasta-kits"), name: "Kits de Ferramentas", sort: 300 },
+      { _id: id("pasta-itens"), name: "Itens Especiais", sort: 400 },
+      ...[1, 2, 3, 4].map(c => ({
+        _id: id(`pasta-itens-${c}`),
+        name: `Custo ${c}`,
+        folder: id("pasta-itens"),
+        sort: c * 100
+      })),
+      { _id: id("pasta-encantamentos"), name: "Encantamentos", sort: 500 },
+      ...ALVOS_ENCANTAMENTO.map((alvo, i) => ({
+        _id: id(`pasta-encantamentos-${alvo}`),
+        name: `Para ${alvo}s`,
+        folder: id("pasta-encantamentos"),
+        sort: (i + 1) * 100
+      }))
+    ],
+    items: [
+      ...UNIFORMES.map(u => ({
+        _id: id(`uniforme-${u.nome}`),
+        name: u.nome,
+        type: "equipamento",
+        img: "icons/svg/mage-shield.svg",
+        folder: id("pasta-uniformes"),
+        system: {
+          ...equipamentoBase(),
+          description:
+            `<p>${u.texto}</p>` +
+            `<p><i>Modificação de uniforme, Livro de Regras v2.5.2, p. 140.</i></p>`,
+          tipo: "Uniforme",
+          defesa: u.defesa,
+          penalidade: u.penalidade,
+          custo: u.custo,
+          espacos: u.espacos
+        }
+      })),
+
+      ...ESCUDOS.map(e => ({
+        _id: id(`escudo-${e.nome}`),
+        name: e.nome,
+        type: "equipamento",
+        img: "icons/svg/shield.svg",
+        folder: id("pasta-escudos"),
+        system: {
+          ...equipamentoBase(),
+          description:
+            `<p>${e.texto}</p>` +
+            `<p>Fornece a Redução de Dano enquanto empunhado. Se você atacar com o escudo, ele deixa
+             de fornecer RD até o início do seu próximo turno. As penalidades de escudo e de uniforme
+             são cumulativas.</p>` +
+            `<p><i>Livro de Regras v2.5.2, p. 141.</i></p>`,
+          tipo: "Escudo",
+          dano: e.dano,
+          reducaoDano: e.rd,
+          penalidade: e.penalidade,
+          custo: e.custo,
+          // Escudos entram entre os itens mais pesados, de dois espaços (p. 129)
+          espacos: 2
+        }
+      })),
+
+      ...EQUIPAMENTOS.kits.map(k => ({
+        _id: id(`kit-${k.nome}`),
+        name: k.nome,
+        type: "equipamento",
+        img: "icons/svg/clockwork.svg",
+        folder: id("pasta-kits"),
+        system: {
+          ...equipamentoBase(),
+          description: k.descricao + `<p><i>Livro de Regras v2.5.2, p. 141-143.</i></p>`,
+          tipo: "Kit de Ferramentas",
+          custo: k.custo,
+          espacos: k.espacos
+        }
+      })),
+
+      ...EQUIPAMENTOS.itensEspeciais.map(i => ({
+        _id: id(`item-${i.nome}`),
+        name: i.nome,
+        type: "equipamento",
+        img: ICONE_ITEM[i.categoria],
+        folder: id(`pasta-itens-${i.custo}`),
+        system: {
+          ...equipamentoBase(),
+          description:
+            `<p><i>Item Especial de custo ${i.custo} — ${i.categoria}` +
+            `${i.acao ? `, ${i.acao}` : ""}.</i></p>` +
+            i.descricao,
+          tipo: "Item Especial",
+          categoria: i.categoria,
+          acao: i.acao,
+          consumivel: i.consumivel,
+          // Um consumível gasto sai do inventário: uma carga por unidade
+          usos: i.consumivel ? { value: 1, max: 1 } : { value: 0, max: 0 },
+          custo: i.custo,
+          espacos: i.espacos
+        }
+      })),
+
+      ...EQUIPAMENTOS.encantamentos.map(e => ({
+        _id: id(`encantamento-${e.alvo}-${e.nome}`),
+        name: e.nome,
+        type: "equipamento",
+        img: "icons/svg/upgrade.svg",
+        folder: id(`pasta-encantamentos-${e.alvo}`),
+        system: {
+          ...equipamentoBase(),
+          description:
+            `<p><i>Encantamento de Ferramenta Amaldiçoada, para ${e.alvo.toLowerCase()}s.</i></p>` +
+            (e.prerequisito ? `<p><b>Pré-Requisito:</b> ${e.prerequisito}</p>` : "") +
+            e.descricao +
+            `<p><i>Livro de Regras v2.5.2, p. 155-159.</i></p>`,
+          tipo: "Encantamento",
+          alvo: e.alvo,
+          prerequisito: e.prerequisito,
+          // Um Encantamento não é carregado: ele já está na ferramenta
+          custo: 0,
+          espacos: 0
+        }
+      }))
+    ]
   }
 };
 
 /* -------------------------------------------- */
 /*  Referência de regras (JournalEntry)         */
 /* -------------------------------------------- */
+
+/**
+ * Equipamentos: as regras do capítulo 5 que não cabem em um item — quanto se
+ * carrega, com o que se começa e o que cada propriedade de arma faz.
+ */
+function paginaEquipamentos() {
+  const propriedades = EQUIPAMENTOS.propriedadesArma
+    .map(p => `<li><b>${p.nome}.</b> ${p.descricao}</li>`)
+    .join("");
+  const uniformes = UNIFORMES.filter(u => u.defesa > 0)
+    .map(
+      u =>
+        `<tr><td>${u.nome.replace("Uniforme com ", "").replace("Uniforme ", "")}</td>` +
+        `<td>+${u.defesa}</td><td>${u.penalidade || "—"}</td><td>${u.custo}</td>` +
+        `<td>${u.espacos}</td></tr>`
+    )
+    .join("");
+  const escudos = ESCUDOS.map(
+    e =>
+      `<tr><td>${e.nome} (${e.dano})</td><td>${e.rd}</td>` +
+      `<td>${e.penalidade || "—"}</td><td>${e.custo}</td></tr>`
+  ).join("");
+
+  return (
+    `<h2>Inventário e Carregamento</h2>
+     <p>A carga é medida em <b>espaços de itens</b>. Por padrão um item ocupa um espaço, com
+     exceções: uniformes sem revestimento, com Revestimento Leve ou Sob Medida não ocupam espaço;
+     consumíveis como talismãs e misturas ocupam meio; armas de duas mãos, uniformes com
+     Revestimento Médio, escudos e outros itens pesados ocupam dois; armas massivas e uniformes com
+     Revestimento Robusto ocupam quatro.</p>
+     <p>O limite é de <b>8 espaços + o dobro do modificador de Força</b>. Acima dele o personagem
+     fica <b>sobrecarregado</b>: −5 na Defesa e −4,5 m de Deslocamento. É impossível carregar mais
+     do que o dobro do limite. Equipamentos continuam ocupando espaço mesmo quando vestidos ou
+     empunhados; a mochila e os recipientes que só servem para carregar não ocupam.</p>
+     <h2>Equipamento Inicial</h2>
+     <p>Todo personagem começa com dois equipamentos de custo 1 (arma, escudo ou item especial), um
+     uniforme comum e um kit de ferramentas à sua escolha.</p>
+     <h3>Ganho de equipamentos por grau</h3>
+     <ul>
+       <li><b>Quarto Grau.</b> Dois itens de custo 1.</li>
+       <li><b>Terceiro Grau.</b> Três itens de custo 1 e um de custo 2.</li>
+       <li><b>Segundo Grau.</b> Três de custo 1, dois de custo 2 e um de custo 3.</li>
+       <li><b>Primeiro Grau.</b> Três de custo 1, três de custo 2, dois de custo 3 e um de custo 4.</li>
+       <li><b>Grau Especial.</b> Itens de custo 1 ilimitados, quatro de custo 2, três de custo 3 e
+       dois de custo 4.</li>
+     </ul>
+     <p>Esse conjunto é recebido gratuitamente no começo de cada missão. Escolher uma arma,
+     uniforme, escudo ou acessório reduz o conjunto de forma permanente enquanto o personagem
+     estiver com ele.</p>
+     <h2>Propriedades de Armas</h2>
+     <ul>${propriedades}</ul>
+     <p>O traço <b>especial</b> de cada arma está na descrição da própria arma, no compêndio.</p>
+     <h2>Modificações de Uniforme</h2>
+     <p>Um uniforme só pode ter uma modificação, que é uma alteração completa da sua forma e base.
+     A penalidade incide sobre testes de perícia que usem Destreza.</p>
+     <table><thead><tr><th>Modificação</th><th>Defesa</th><th>Penalidade</th><th>Custo</th>
+     <th>Espaços</th></tr></thead><tbody>${uniformes}</tbody></table>
+     <h2>Escudos</h2>
+     <p>O escudo fornece Redução de Dano enquanto empunhado; atacar com ele suspende a RD até o
+     início do seu próximo turno. As penalidades de escudo e uniforme são cumulativas.</p>
+     <table><thead><tr><th>Escudo (dano)</th><th>RD</th><th>Penalidade</th><th>Custo</th>
+     </tr></thead><tbody>${escudos}</tbody></table>
+     <h2>Criação de Itens</h2>
+     <p>Kits de ferramenta são usados em descansos e interlúdios. Um personagem só usa o kit em que
+     tem treinamento — ser treinado em um Ofício também treina no kit correspondente. Os limites de
+     criação por nível são: 1 a 5, itens de custo 1; 6 a 10, até custo 2; 11 a 16, até custo 3;
+     17 a 20, até custo 4.</p>
+     <h2>Regras de Veneno</h2>
+     <p>Venenos são de <b>contato</b> (aplicados em uma arma como ação bônus, durando até acertar um
+     ataque ou até o fim do combate), <b>inalação</b> (frasco arremessado a 9 m, liberando o veneno
+     em 3 m de raio) ou <b>ingestão</b>. O exposto faz um TR de Fortitude cuja CD vem do custo:
+     custo 1 é CD 15, custo 2 é CD 25, custo 3 é CD 35 e custo 4 é CD 45. Maldições e Fetos
+     Amaldiçoados Híbridos recebem +2 nesse TR e Corpos Amaldiçoados são imunes.</p>
+     <p><i>Livro de Regras v2.5.2, p. 128-149.</i></p>`
+  );
+}
+
+/** Ferramentas Amaldiçoadas: o que cada grau concede (capítulo 6). */
+function paginaFerramentas() {
+  const linhas = Object.values(FNM.grausFerramenta)
+    .map(
+      g =>
+        `<tr><td>${g.nome}</td><td>+${g.bonusArma}</td><td>${g.rdEscudo}</td>` +
+        `<td>${g.encantamentos.arma}</td><td>${g.encantamentos.escudo}</td>` +
+        `<td>${g.encantamentos.uniforme}</td></tr>`
+    )
+    .join("");
+
+  return (
+    `<p>Ferramentas Amaldiçoadas são equipamentos infundidos com energia amaldiçoada. Qualquer
+     pessoa consegue manejá-las e assim ferir espíritos amaldiçoados, mesmo sem ter energia.</p>
+     <p>Não existem ferramentas pré-definidas, exceto as de grau especial: toda arma, uniforme ou
+     escudo comum pode virar uma. O que a define é o <b>grau</b>, que dá um bônus fixo, e os
+     <b>Encantamentos</b>, escolhidos na lista do tipo de equipamento — e esses estão no compêndio
+     de Equipamentos.</p>
+     <h2>Benefícios por grau</h2>
+     <p>O bônus de arma e a RD do escudo são os do grau atual e <b>não</b> se acumulam com os
+     anteriores. Os Encantamentos, sim: a coluna traz o total acumulado.</p>
+     <table><thead><tr><th>Grau</th><th>Bônus de arma</th><th>RD do escudo</th>
+     <th>Encant. (arma)</th><th>Encant. (escudo)</th><th>Encant. (uniforme)</th>
+     </tr></thead><tbody>${linhas}</tbody></table>
+     <p>Ao chegar ao grau especial, a ferramenta ganha também uma <b>habilidade única</b>, criada
+     pelo jogador junto do Narrador.</p>
+     <h2>Criando uma ferramenta</h2>
+     <p>É preciso o talento geral Artesão Amaldiçoado e treinamento em Ferramentas de Canalizador ou
+     de Ferreiro. Não são necessários materiais. O processo exige dois testes, um de Ofício
+     (Ferreiro) e outro de Ofício (Canalizador), ambos com sucesso. As falhas se acumulam contra o
+     equipamento — trocar o artesão não zera a contagem.</p>
+     <ul>
+       <li><b>Quarto Grau.</b> Bônus de Treinamento +2, CD 20.</li>
+       <li><b>Terceiro Grau.</b> Bônus de Treinamento +3, CD 25.</li>
+       <li><b>Segundo Grau.</b> Bônus de Treinamento +4, CD 30.</li>
+       <li><b>Primeiro Grau.</b> Bônus de Treinamento +5, CD 35.</li>
+       <li><b>Grau Especial.</b> Bônus de Treinamento +6, CD 45.</li>
+     </ul>
+     <h2>Identificando uma ferramenta</h2>
+     <p>Treinado em Feitiçaria, você pode analisar um item amaldiçoado com um teste de CD 20, +5
+     para cada grau acima do quarto, descobrindo o nome e os Encantamentos. Em combate isso é uma
+     Ação Bônus. Para a habilidade única de uma ferramenta de grau especial, a CD sobe 10 e é
+     preciso já tê-la visto em uso.</p>
+     <h2>Cargas de Encantamento</h2>
+     <p>Um item com cargas tem um número delas igual ao Bônus de Treinamento do portador,
+     compartilhado por todos os Encantamentos que usem cargas. Uma carga gasta só volta depois de um
+     descanso longo do portador e do item.</p>
+     <p><i>Livro de Regras v2.5.2, p. 151-161.</i></p>`
+  );
+}
 
 /** Monta a página de condições a partir da configuração do sistema. */
 function paginaCondicoes() {
@@ -747,6 +1157,16 @@ export const JOURNAL_PACKS = {
             _id: id("pagina-feiticos"),
             name: "Criação de Feitiços — Tabelas",
             content: paginaFeiticos()
+          },
+          {
+            _id: id("pagina-equipamentos"),
+            name: "Equipamentos e Carregamento",
+            content: paginaEquipamentos()
+          },
+          {
+            _id: id("pagina-ferramentas"),
+            name: "Ferramentas Amaldiçoadas",
+            content: paginaFerramentas()
           },
           {
             _id: id("pagina-alma"),

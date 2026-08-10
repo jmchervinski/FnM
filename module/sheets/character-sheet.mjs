@@ -98,19 +98,12 @@ export class FnmCharacterSheet extends FnmBaseActorSheet {
       }))
       .filter(g => g.itens.length);
 
-    // Somatório de espaços ocupados no inventário, contra o Limite de Espaços (p. 129)
-    const carga = [...(context.itens.arma ?? []), ...(context.itens.equipamento ?? [])];
-    context.espacosOcupados = carga.reduce(
-      (n, i) => n + (i.system.espacos ?? 0) * (i.system.quantidade ?? 1),
-      0
-    );
-    context.pesoTotal = carga.reduce(
+    // Carga vem do data model (p. 129); aqui só sobra o peso, que é informativo
+    context.carga = sys.carga;
+    context.pesoTotal = [...(context.itens.arma ?? []), ...(context.itens.equipamento ?? [])].reduce(
       (n, i) => n + (i.system.peso ?? 0) * (i.system.quantidade ?? 1),
       0
     );
-    context.limiteEspacos = sys.inventario?.limiteEspacos ?? 0;
-    context.sobrecarregado =
-      context.limiteEspacos > 0 && context.espacosOcupados > context.limiteEspacos;
 
     // Grade de Redução de Dano por tipo, como no quadro "RDs" da ficha
     context.rdView = FNM.tiposComRD.map(tipo => ({
