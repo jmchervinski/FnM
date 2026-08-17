@@ -174,7 +174,16 @@ const walk = d => {
 };
 walk(path.join(ROOT, "templates"));
 
+/**
+ * As cartas de chat e o diálogo de ataque não editam um documento: os campos
+ * deles são escolhas da rolagem, lidas do formulário e descartadas depois. Só
+ * as fichas precisam casar com um schema, então a verificação de `name=` pula
+ * templates/chat — as demais (ícones, emoji) continuam valendo para eles.
+ */
+const ehTemplateDeChat = arq => path.relative(ROOT, arq).replace(/\\/g, "/").startsWith("templates/chat/");
+
 for (const arq of arquivos) {
+  if (ehTemplateDeChat(arq)) continue;
   const base = path.basename(arq);
   const tipos = USO[base];
   if (!tipos) {

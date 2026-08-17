@@ -300,6 +300,40 @@ FNM.tiposAtaque = {
   amaldicoado: { nome: "Amaldiçoado", atributo: "inteligencia", sempreTreinado: true }
 };
 
+/**
+ * Cobertura (p. 293-294). O bônus vale na Defesa e nos TRs de Reflexos do alvo,
+ * e coberturas não se acumulam: vale só a maior. Cobertura Total impede o alvo
+ * de ser escolhido.
+ */
+FNM.cobertura = [
+  { id: "nenhuma", nome: "Nenhuma", defesa: 0 },
+  { id: "meia", nome: "Meia Cobertura (+2)", defesa: 2 },
+  { id: "tresQuartos", nome: "Cobertura 3/4 (+4)", defesa: 4 },
+  { id: "total", nome: "Cobertura Total", defesa: 0, bloqueia: true }
+];
+
+/**
+ * Camuflagem (p. 294). Rola-se 1d10 junto do d20: dentro da faixa de falha o
+ * ataque erra, não importa o resultado do d20. Nenhum efeito passa de 50%.
+ */
+FNM.camuflagem = [
+  { id: "nenhuma", nome: "Nenhuma", falha: 0 },
+  { id: "leve", nome: "Camuflagem Leve (20%)", falha: 2 },
+  { id: "total", nome: "Camuflagem Total (50%)", falha: 5 }
+];
+
+/**
+ * Alcance de armas a distância e de arremesso (p. 305). O primeiro valor da
+ * arma é o alcance normal e o segundo, o máximo; além do máximo o ataque é
+ * impossível. Atacar corpo a corpo com elas também dá desvantagem.
+ */
+FNM.alcanceAtaque = [
+  { id: "normal", nome: "Dentro do alcance normal" },
+  { id: "longo", nome: "Além do alcance normal", desvantagem: true },
+  { id: "adjacente", nome: "Alvo em alcance corpo a corpo", desvantagem: true },
+  { id: "impossivel", nome: "Além do alcance máximo", bloqueia: true }
+];
+
 /* -------------------------------------------- */
 /*  Treinamentos (p. 338)                       */
 /* -------------------------------------------- */

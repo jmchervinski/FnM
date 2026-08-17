@@ -1,0 +1,83 @@
+{{!-- Carta de chat de uma jogada de ataque (p. 279 e 307) --}}
+<div class="fnm-carta fnm-carta-ataque">
+
+  <header class="fnm-carta-cabecalho">
+    <img src="{{img}}" width="36" height="36" alt="" />
+    <div class="fnm-carta-titulo">
+      <h3>{{nome}}</h3>
+      <p class="fnm-sub">{{subtitulo}}</p>
+    </div>
+  </header>
+
+  {{#if propriedades}}
+  <p class="fnm-etiquetas">{{propriedades}}</p>
+  {{/if}}
+
+  {{{rolagem}}}
+
+  <div class="fnm-veredito fnm-tom-{{veredito.tom}}">
+    <span class="fnm-veredito-rotulo">{{veredito.rotulo}}</span>
+    {{#if defesa}}<span class="fnm-veredito-alvo">contra Defesa {{defesa}}</span>{{/if}}
+  </div>
+
+  <ul class="fnm-linhas">
+    <li><b>d20 natural:</b> {{natural}} · <b>crítico com</b> {{limiarCritico}}+
+      {{#if vantagem}}
+        · {{#if (gte vantagem 1)}}com vantagem{{else}}com desvantagem{{/if}}
+      {{/if}}
+    </li>
+    {{#if cobertura}}
+    <li><b>{{cobertura.nome}}:</b> a Defesa do alvo subiu para {{defesa}}.</li>
+    {{/if}}
+    {{#if camuflagem}}
+    <li><b>{{camuflagem.nome}}:</b> d10 = {{camuflagem.d10}}
+      (erra com {{camuflagem.falha}} ou menos).</li>
+    {{/if}}
+    {{#if desvantagemAlcance}}
+    <li><b>{{desvantagemAlcance}}:</b> fonte de desvantagem (p. 305).</li>
+    {{/if}}
+    {{#if alcance}}
+    <li><b>Alcance da arma:</b> {{alcance}}</li>
+    {{/if}}
+  </ul>
+
+  <details class="fnm-detalhes">
+    <summary>Como o bônus foi montado</summary>
+    <ul class="fnm-modificadores">
+      {{#each modificadores as |m|}}
+      <li>
+        <span class="fnm-rotulo">{{m.rotulo}}</span>
+        <span class="fnm-valor">{{sinal m.valor}}</span>
+        {{#if m.nota}}<span class="fnm-nota">{{m.nota}}</span>{{/if}}
+      </li>
+      {{/each}}
+      {{#if situacional}}
+      <li>
+        <span class="fnm-rotulo">Bônus situacional</span>
+        <span class="fnm-valor">{{sinal situacional}}</span>
+      </li>
+      {{/if}}
+    </ul>
+  </details>
+
+  {{#each notas as |n|}}
+  <p class="fnm-aviso">{{{n}}}</p>
+  {{/each}}
+
+  {{!-- O botão principal já vem com a empunhadura escolhida no diálogo e com o
+        estado de crítico da jogada; o segundo só troca a empunhadura. --}}
+  {{#if temDano}}
+  <div class="fnm-acoes">
+    <button type="button" data-fnm-acao="dano" data-fnm-versatil="{{versatil}}">
+      {{#if critico}}<i class="fas fa-fire"></i> Dano Crítico{{else}}<i class="fas fa-bolt"></i> Dano{{/if}}
+      ({{danoEscolhido}})
+    </button>
+    {{#if temVersatil}}
+    <button type="button" data-fnm-acao="dano" data-fnm-versatil="{{versatilAlternativo}}">
+      <i class="fas fa-hand-fist"></i> {{rotuloAlternativo}} ({{danoAlternativo}})
+    </button>
+    {{/if}}
+  </div>
+  {{/if}}
+
+</div>

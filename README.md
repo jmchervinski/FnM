@@ -66,12 +66,18 @@ Tudo abaixo é calculado ou executado pelo sistema, com a página do livro anota
 - **Dados de Vida** por tamanho, gastos no Descanso Curto
 - **Rolagens d20** com vantagem/desvantagem, bônus situacional e CD, com grau de sucesso na carta
 - **Sucesso crítico em TR** apenas para quem é Mestre no teste; 20 natural eleva o grau de sucesso
-- **Ataques**: escolha automática entre Força e Destreza (Fineza, armas a distância e de arremesso),
-  penalidade por falta de treinamento, crítico pelo limiar da arma com o **efeito de crítico do
-  grupo** e desastre no 1 natural
-- **Dano** com dados dobrados no crítico (modificadores somados depois) e opção versátil
+- **Jogadas de Ataque** com um diálogo próprio, que reúne o que a situação decide: atributo
+  (Fineza e armas de arremesso), empunhadura de arma versátil, Defesa do alvo — já preenchida a
+  partir do token alvejado — **cobertura**, **camuflagem** e faixa de **alcance**. Os modificadores
+  aparecem item a item antes de rolar, e o total se refaz ao trocar o atributo ou o situacional
+- **Veredito do ataque** na carta do chat: crítico pelo limiar da arma (com o acerto garantido só
+  no 20 natural), desastre no 1, o d10 da camuflagem e a Defesa já somada à cobertura. A carta abre
+  o mesmo detalhamento do diálogo e traz os botões de **dano**, que já sabem do crítico, do atributo
+  usado e da empunhadura escolhida
+- **Dano** com dados dobrados no crítico (modificadores somados depois, uma vez só) e com o bônus
+  do grau da Ferramenta Amaldiçoada
 - **Conjuração de Feitiços**: gasta PE, avisa quando o nível está fora do seu acesso, aplica o
-  acréscimo de custo do Estado da Alma, resolve por ataque ou por TR e rola o dano
+  acréscimo de custo do Estado da Alma e resolve por TR ou pelo mesmo fluxo de ataque das armas
 - **Custo de Feitiço** derivado do nível, com Marca Registrada e afins reduzindo até o mínimo de 1
 - **Integridade da Alma** e seus quatro **Estados** (penalidade em rolagens, custo extra e condições)
 - **Dano na Alma**: ignora RD e PV temporários, reduz a vida máxima junto da atual
@@ -220,9 +226,12 @@ module/
   fnm.mjs            entrada do sistema: registra documentos, models, sheets e condições
   config.mjs         toda a tabela de regras (atributos, perícias, feitiços, condições…)
   data-models.mjs    schemas e derivações de atores e itens
+  chat.mjs           cartas de ataque e de dano, e os botões delas
   documents/         Actor e Item: execução das rolagens
   sheets/            fichas ApplicationV2
-templates/           Handlebars das fichas
+templates/
+  actors/, items/    Handlebars das fichas
+  chat/              diálogo de ataque e cartas do chat
 styles/fnm.css       tema
 tools/
   build-packs.mjs    geração dos compêndios

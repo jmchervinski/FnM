@@ -1095,3 +1095,194 @@
 .fnm-sheet .treinamento-caixa.concluido .treinamento-completo {
   color: var(--fnm-tinta);
 }
+
+/* -------------------------------------------- */
+/*  Cartas de chat e diálogo de ataque          */
+/* -------------------------------------------- */
+
+/* As cartas vivem no log de chat, fora de .fnm-sheet, então trazem a paleta
+   consigo. Todo seletor de elemento fica ancorado em uma classe própria: um
+   `.fnm-carta button` teria especificidade maior que a do Font Awesome e
+   quebraria os ícones dos botões. */
+.fnm-carta {
+  font-family: inherit;
+  color: var(--fnm-tinta);
+}
+.fnm-carta .fnm-carta-cabecalho {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding-bottom: 0.35rem;
+  border-bottom: 2px solid var(--fnm-azul);
+}
+.fnm-carta .fnm-carta-cabecalho img {
+  border: 1px solid var(--fnm-cinza);
+  border-radius: 3px;
+  flex: 0 0 auto;
+  background: var(--fnm-osso);
+}
+.fnm-carta .fnm-carta-titulo h3 {
+  margin: 0;
+  font-size: 0.95rem;
+  font-weight: bold;
+  color: var(--fnm-azul);
+  border: none;
+}
+.fnm-carta .fnm-sub {
+  margin: 0;
+  font-size: 0.7rem;
+  color: var(--fnm-cinza);
+}
+.fnm-carta .fnm-etiquetas {
+  margin: 0.35rem 0 0;
+  font-size: 0.68rem;
+  color: var(--fnm-cinza);
+  font-style: italic;
+}
+
+/* Faixa do veredito: acerto, erro ou sem Defesa informada */
+.fnm-carta .fnm-veredito {
+  display: flex;
+  align-items: baseline;
+  justify-content: center;
+  gap: 0.4rem;
+  margin: 0.4rem 0;
+  padding: 0.25rem 0.4rem;
+  border-radius: 3px;
+  border-left: 4px solid var(--fnm-cinza);
+  background: rgba(95, 107, 122, 0.12);
+}
+.fnm-carta .fnm-veredito-rotulo {
+  font-weight: bold;
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+.fnm-carta .fnm-veredito-alvo {
+  font-size: 0.7rem;
+  color: var(--fnm-cinza);
+}
+.fnm-carta .fnm-tom-acerto {
+  border-left-color: var(--fnm-verde);
+  background: rgba(63, 143, 94, 0.15);
+}
+.fnm-carta .fnm-tom-erro {
+  border-left-color: var(--fnm-sangue);
+  background: rgba(163, 22, 43, 0.12);
+}
+
+.fnm-carta .fnm-linhas {
+  list-style: none;
+  margin: 0.3rem 0;
+  padding: 0;
+  font-size: 0.72rem;
+  line-height: 1.4;
+}
+.fnm-carta .fnm-aviso {
+  margin: 0.3rem 0 0;
+  padding: 0.25rem 0.4rem;
+  font-size: 0.7rem;
+  line-height: 1.4;
+  border-left: 3px solid var(--fnm-dourado);
+  background: rgba(201, 162, 39, 0.12);
+}
+
+/* Detalhamento dos modificadores, compartilhado com o diálogo */
+.fnm-carta .fnm-detalhes,
+.fnm-dialogo-ataque .fnm-modificadores {
+  font-size: 0.72rem;
+}
+.fnm-carta .fnm-detalhes > summary {
+  cursor: pointer;
+  color: var(--fnm-cinza);
+  font-size: 0.7rem;
+}
+.fnm-modificadores {
+  list-style: none;
+  margin: 0.25rem 0;
+  padding: 0;
+}
+.fnm-modificadores > li {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 0.4rem;
+  padding: 0.1rem 0.2rem;
+  border-bottom: 1px dotted var(--fnm-osso-escuro);
+}
+.fnm-modificadores .fnm-valor {
+  font-variant-numeric: tabular-nums;
+  font-weight: bold;
+}
+.fnm-modificadores .fnm-nota {
+  grid-column: 1 / -1;
+  font-size: 0.66rem;
+  font-style: italic;
+  color: var(--fnm-cinza);
+}
+
+.fnm-carta .fnm-acoes {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.3rem;
+  margin-top: 0.45rem;
+}
+.fnm-carta .fnm-acoes button {
+  flex: 1 1 auto;
+  font-size: 0.72rem;
+  line-height: 1.6;
+  padding: 0.1rem 0.4rem;
+  background: var(--fnm-tinta);
+  color: var(--fnm-osso);
+  border: 1px solid var(--fnm-azul);
+  border-radius: 3px;
+  cursor: pointer;
+}
+.fnm-carta .fnm-acoes button:hover {
+  background: var(--fnm-azul);
+  box-shadow: 0 0 6px var(--fnm-azul-claro);
+}
+
+/* Diálogo do ataque */
+.fnm-dialogo-ataque .fnm-cabecalho {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding-bottom: 0.35rem;
+  border-bottom: 2px solid var(--fnm-azul);
+}
+.fnm-dialogo-ataque .fnm-cabecalho h3 {
+  margin: 0;
+  font-size: 0.95rem;
+  border: none;
+}
+.fnm-dialogo-ataque .fnm-campos {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 0.35rem 0.5rem;
+  margin-top: 0.4rem;
+}
+.fnm-dialogo-ataque .fnm-campos label {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  font-size: 0.72rem;
+  font-weight: bold;
+}
+.fnm-dialogo-ataque .fnm-alvo {
+  font-weight: normal;
+  color: var(--fnm-cinza);
+}
+.fnm-dialogo-ataque .fnm-dica {
+  margin: 0.45rem 0 0;
+  font-size: 0.68rem;
+  color: var(--fnm-cinza);
+  line-height: 1.4;
+}
+.fnm-modificadores .fnm-total {
+  border-top: 1px solid var(--fnm-cinza);
+  border-bottom: none;
+  margin-top: 0.2rem;
+  padding-top: 0.25rem;
+  font-weight: bold;
+  color: var(--fnm-azul);
+}

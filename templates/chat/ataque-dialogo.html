@@ -1,0 +1,98 @@
+{{!-- Diálogo da jogada de ataque (p. 279, 293-294 e 305) --}}
+<div class="fnm-dialogo-ataque">
+
+  <header class="fnm-cabecalho">
+    <img src="{{perfil.img}}" width="36" height="36" alt="" />
+    <div>
+      <h3>{{perfil.nome}}</h3>
+      <p class="fnm-sub">{{perfil.subtitulo}}</p>
+    </div>
+  </header>
+
+  {{!-- O mesmo detalhamento que reaparece na carta do chat. A primeira linha é
+        sempre o atributo, e o total se refaz quando ele ou o situacional mudam. --}}
+  <ul class="fnm-modificadores">
+    {{#each modificadores as |m|}}
+    <li {{#if @first}}data-fnm-mod="atributo"{{/if}}>
+      <span class="fnm-rotulo">{{m.rotulo}}</span>
+      <span class="fnm-valor">{{sinal m.valor}}</span>
+      {{#if m.nota}}<span class="fnm-nota">{{m.nota}}</span>{{/if}}
+    </li>
+    {{/each}}
+    <li class="fnm-total" data-fnm-mod="total" data-fixos="{{somaFixa}}">
+      <span class="fnm-rotulo">Total do ataque</span>
+      <span class="fnm-valor">{{sinal total}}</span>
+    </li>
+  </ul>
+
+  <div class="fnm-campos">
+
+    {{#if escolheAtributo}}
+    <label title="Fineza e armas de arremesso deixam você escolher (p. 279 e 305)">Atributo
+      <select name="atributo">
+        {{#each atributos as |a|}}
+        <option value="{{a.id}}" data-mod="{{a.mod}}" data-nome="{{a.nome}}"
+                {{#if a.padrao}}selected{{/if}}>{{a.nome}} ({{sinal a.mod}})</option>
+        {{/each}}
+      </select>
+    </label>
+    {{/if}}
+
+    {{#if perfil.danoVersatil}}
+    <label title="Arma versátil: o segundo dado é o dano com as duas mãos (p. 135)">Empunhadura
+      <select name="empunhadura">
+        <option value="uma">Uma mão ({{perfil.dano}})</option>
+        <option value="duas">Duas mãos ({{perfil.danoVersatil}})</option>
+      </select>
+    </label>
+    {{/if}}
+
+    <label title="Deixe 0 para rolar sem veredito de acerto ou erro">
+      Defesa do alvo{{#if alvo}} <span class="fnm-alvo">({{alvo}})</span>{{/if}}
+      <input type="number" name="defesa" value="{{defesa}}" step="1" min="0" />
+    </label>
+
+    <label title="Coberturas não se acumulam: vale só a maior (p. 294)">Cobertura
+      <select name="cobertura">
+        {{#each cobertura as |c|}}
+        <option value="{{c.id}}">{{c.nome}}</option>
+        {{/each}}
+      </select>
+    </label>
+
+    <label title="Rola 1d10 junto do d20; na faixa de falha o ataque erra (p. 294)">Camuflagem
+      <select name="camuflagem">
+        {{#each camuflagem as |c|}}
+        <option value="{{c.id}}">{{c.nome}}</option>
+        {{/each}}
+      </select>
+    </label>
+
+    {{#if distancia}}
+    <label title="Alcance da arma: {{#if perfil.alcance}}{{perfil.alcance}}{{else}}não informado{{/if}} (p. 305)">Alcance
+      <select name="alcance">
+        {{#each alcances as |a|}}
+        <option value="{{a.id}}">{{a.nome}}</option>
+        {{/each}}
+      </select>
+    </label>
+    {{/if}}
+
+    <label title="Vantagem e desvantagem de fontes diferentes se anulam (p. 282)">Rolagem
+      <select name="vantagem">
+        <option value="0">Normal</option>
+        <option value="1">Vantagem</option>
+        <option value="-1">Desvantagem</option>
+      </select>
+    </label>
+
+    <label>Bônus situacional
+      <input type="number" name="situacional" value="0" step="1" autofocus />
+    </label>
+
+  </div>
+
+  <p class="fnm-dica">Crítico com {{perfil.critico}} ou mais no d20. O acerto garantido vale só no
+    20 natural (p. 307).</p>
+
+</div>

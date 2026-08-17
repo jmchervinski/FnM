@@ -7,6 +7,7 @@
  */
 import { FnmActor } from "./documents/actor.mjs";
 import { FnmItem } from "./documents/item.mjs";
+import { registrarChat } from "./chat.mjs";
 import { FnmCharacterSheet } from "./sheets/character-sheet.mjs";
 import { FnmNpcSheet } from "./sheets/npc-sheet.mjs";
 import { FnmInvocacaoSheet } from "./sheets/invocacao-sheet.mjs";
@@ -123,6 +124,7 @@ Hooks.once("init", async function () {
   });
 
   registrarHelpers();
+  registrarChat();
   await preloadHandlebarsTemplates();
 });
 
@@ -152,7 +154,10 @@ async function preloadHandlebarsTemplates() {
     "systems/fnm/templates/actors/parts/actor-recursos.html",
     "systems/fnm/templates/actors/parts/actor-atributos.html",
     "systems/fnm/templates/actors/parts/actor-footer.html",
-    "systems/fnm/templates/actors/parts/linha-uso.html"
+    "systems/fnm/templates/actors/parts/linha-uso.html",
+    "systems/fnm/templates/chat/ataque-dialogo.html",
+    "systems/fnm/templates/chat/ataque.html",
+    "systems/fnm/templates/chat/dano.html"
   ];
   return foundry.applications.handlebars.loadTemplates(paths);
 }

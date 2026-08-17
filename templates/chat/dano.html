@@ -1,0 +1,35 @@
+{{!-- Carta de chat de uma rolagem de dano (p. 306-307) --}}
+<div class="fnm-carta fnm-carta-dano">
+
+  <header class="fnm-carta-cabecalho">
+    <img src="{{img}}" width="36" height="36" alt="" />
+    <div class="fnm-carta-titulo">
+      <h3>Dano — {{nome}}</h3>
+      <p class="fnm-sub">
+        {{#if critico}}Acerto crítico{{else}}Acerto{{/if}}
+        {{#if versatil}} · empunhada com as duas mãos{{/if}}
+        {{#if tipoDano}} · {{tipoDano}}{{#if categoriaDano}} ({{categoriaDano}}){{/if}}{{/if}}
+      </p>
+    </div>
+  </header>
+
+  {{{rolagem}}}
+
+  <details class="fnm-detalhes">
+    <summary>Como o dano foi montado</summary>
+    <ul class="fnm-modificadores">
+      {{#each componentes as |c|}}
+      <li>
+        <span class="fnm-rotulo">{{c.rotulo}}</span>
+        {{#unless c.semValor}}<span class="fnm-valor">{{sinal c.valor}}</span>{{/unless}}
+      </li>
+      {{/each}}
+    </ul>
+  </details>
+
+  {{#if critico}}
+  <p class="fnm-aviso">Os dados foram jogados duas vezes; os modificadores entram uma vez só
+    (p. 307).</p>
+  {{/if}}
+
+</div>

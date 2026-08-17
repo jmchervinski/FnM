@@ -175,24 +175,19 @@ export class FnmBaseActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) 
     });
   }
 
-  /** Guarda o resultado do último ataque para que o botão de dano saiba do crítico. */
   static async onAtacarArma(event, target) {
     const item = this.#itemDe(target);
-    if (!item) return;
-    const resultado = await this.actor.rolarAtaqueArma(item);
-    if (resultado) this._ultimoAtaque = { itemId: item.id, ...resultado };
+    if (item) await this.actor.rolarAtaqueArma(item);
   }
 
+  /**
+   * Rolagem de dano avulsa, para quando não se quer passar pelo ataque. O
+   * caminho normal é o botão da carta do ataque, que já sabe do crítico e do
+   * atributo usado. Aqui, Shift força a empunhadura de duas mãos.
+   */
   static async onDanoArma(event, target) {
     const item = this.#itemDe(target);
-    if (!item) return;
-    const ultimo = this._ultimoAtaque?.itemId === item.id ? this._ultimoAtaque : null;
-    // Shift força a versão versátil (duas mãos) da arma
-    await this.actor.rolarDanoArma(item, {
-      critico: ultimo?.critico ?? false,
-      chaveAttr: ultimo?.chaveAttr ?? null,
-      versatil: event.shiftKey
-    });
+    if (item) await this.actor.rolarDano(item, { versatil: event.shiftKey });
   }
 
   static async onConjurarFeitico(event, target) {

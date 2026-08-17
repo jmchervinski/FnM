@@ -8,12 +8,68 @@
  * (p. 335).
  */
 import { FNM, custoSustento } from "../config.mjs";
+import { cartaAtaque, cartaDano } from "../chat.mjs";
 
 /** Constrói a fórmula do d20 conforme vantagem/desvantagem (p. 282). */
 function formulaD20(vantagem = 0) {
   if (vantagem > 0) return "2d20kh";
   if (vantagem < 0) return "2d20kl";
   return "1d20";
+}
+
+/**
+ * Veredito de uma jogada de ataque (p. 307).
+ *
+ * A ordem importa: desastre e camuflagem erram antes de qualquer comparação
+ * com a Defesa. Um 20 natural sempre acerta, mas um limiar de crítico abaixo
+ * de 20 só dobra os dados — ainda precisa vencer a Defesa. Sem Defesa
+ * informada a carta sai sem veredito, mas o crítico continua sendo crítico.
+ */
+export function vereditoAtaque({
+  natural,
+  total,
+  defesa = 0,
+  limiarCritico = 20,
+  falhouCamuflagem = false
+}) {
+  if (natural === 1) return "desastre";
+  if (falhouCamuflagem) return "camuflagem";
+  const critico = natural >= limiarCritico;
+  if (!defesa) return critico ? "critico" : "indefinido";
+  if (natural === 20 || total >= defesa) return critico ? "critico" : "acerto";
+  return "erro";
+}
+
+/** Bônus assinado, no formato em que a ficha e as cartas mostram. */
+const sinal = valor => (valor >= 0 ? `+${valor}` : `${valor}`);
+
+/**
+ * Mantém o total do diálogo de ataque em dia. O atributo e o bônus situacional
+ * são os dois campos que mexem na soma; o resto do bônus é fixo e vem pronto do
+ * template, em `data-fixos`.
+ */
+function ligarTotalDoAtaque(raiz) {
+  const caixaTotal = raiz?.querySelector?.("[data-fnm-mod=total]");
+  const linha = raiz?.querySelector?.("[data-fnm-mod=atributo]");
+  const total = caixaTotal?.querySelector(".fnm-valor");
+  if (!total || !linha) return;
+
+  const fixos = Number(caixaTotal.dataset.fixos) || 0;
+  const seletorAtributo = raiz.querySelector("select[name=atributo]");
+  const situacional = raiz.querySelector("input[name=situacional]");
+
+  const atualizar = () => {
+    const opcao = seletorAtributo?.selectedOptions[0];
+    if (opcao) {
+      linha.querySelector(".fnm-rotulo").textContent = opcao.dataset.nome;
+      linha.querySelector(".fnm-valor").textContent = sinal(Number(opcao.dataset.mod));
+    }
+    const mod = Number(opcao?.dataset.mod ?? linha.querySelector(".fnm-valor").textContent) || 0;
+    total.textContent = sinal(fixos + mod + (Number(situacional?.value) || 0));
+  };
+
+  seletorAtributo?.addEventListener("change", atualizar);
+  situacional?.addEventListener("input", atualizar);
 }
 
 /** Rótulo em texto do estado de vantagem, para a carta do chat. */
@@ -38,14 +94,7 @@ export class FnmActor extends Actor {
    * vantagem/desvantagem. Vantagem e desvantagem se anulam (p. 282), então o
    * diálogo oferece as três opções como um único seletor.
    */
-  async _dialogoTeste(titulo, { cd = 15, mostrarCD = true } = {}) {
-    const campoCD = mostrarCD
-      ? `<div class="form-group">
-           <label>Classe de Dificuldade</label>
-           <input type="number" name="cd" value="${cd}" step="1" />
-         </div>`
-      : "";
-
+  async _dialogoTeste(titulo, { cd = 15 } = {}) {
     return foundry.applications.api.DialogV2.prompt({
       window: { title: `${titulo} — ${this.name}` },
       content: `
@@ -61,7 +110,10 @@ export class FnmActor extends Actor {
             <option value="-1">Desvantagem</option>
           </select>
         </div>
-        ${campoCD}
+        <div class="form-group">
+          <label>Classe de Dificuldade</label>
+          <input type="number" name="cd" value="${cd}" step="1" />
+        </div>
         <p class="hint">Vantagem e desvantagem de fontes diferentes se anulam (p. 282).</p>`,
       rejectClose: false,
       ok: {
@@ -88,15 +140,14 @@ export class FnmActor extends Actor {
     cd = null,
     vantagem = 0,
     ehResistencia = false,
-    mestre = false,
-    linhasExtras = []
+    mestre = false
   } = {}) {
     const total = bonus + situacional;
     const roll = new Roll(`${formulaD20(vantagem)} + @bonus`, { bonus: total });
     await roll.evaluate();
 
     const natural = roll.dice[0]?.total ?? 0;
-    const linhas = [...linhasExtras];
+    const linhas = [];
     let veredito = "";
 
     if (cd !== null) {
@@ -234,163 +285,414 @@ export class FnmActor extends Actor {
   /* ------------------------------------------ */
 
   /**
-   * Jogada de ataque com uma arma (p. 279). Corpo a corpo usa Força — ou
-   * Destreza, se a arma tiver Fineza. Ataques a distância usam Destreza.
+   * Descreve um ataque com arma para o diálogo e para a carta do chat.
+   *
+   * O perfil existe para que arma, ataque desarmado e as três linhas de Jogada
+   * de Ataque da ficha passem pelo mesmo caminho: quem rola só precisa dizer o
+   * que está atacando, não como montar a rolagem.
    */
-  async rolarAtaqueArma(item) {
+  _perfilArma(item) {
     const sys = item.system;
-    const s = this.system;
-    const distancia = ["A Distância", "De Arremesso"].includes(sys.tipo);
+    const distancia = sys.tipo === "A Distância";
+    const arremesso = sys.tipo === "De Arremesso";
 
-    // Arremesso pode usar Força ou Destreza; escolhemos o melhor (p. 306)
-    let chaveAttr;
-    if (sys.tipo === "A Distância") chaveAttr = "destreza";
-    else if (sys.tipo === "De Arremesso") {
-      chaveAttr =
-        s.atributos.destreza.mod >= s.atributos.forca.mod ? "destreza" : "forca";
-    } else if (sys.fineza && s.atributos.destreza.mod > s.atributos.forca.mod) {
-      chaveAttr = "destreza";
-    } else chaveAttr = "forca";
+    // Armas a distância usam Destreza; as de arremesso podem escolher, e no
+    // corpo a corpo a escolha só existe com o traço Fineza (p. 279 e 305)
+    const atributos = distancia
+      ? ["destreza"]
+      : arremesso || sys.fineza
+        ? ["forca", "destreza"]
+        : ["forca"];
 
-    const modAttr = s.atributos[chaveAttr].mod;
-    // Sem treinamento na arma você não soma o Bônus de Treinamento (p. 131)
-    const treino = sys.treinado ? s.bonusTreinamento : 0;
-    // Soma também os "Outros" da linha de Jogada de Ataque correspondente na ficha
-    const linha = s.ataques?.[distancia ? "distancia" : "corpoACorpo"];
-    const bonus =
-      modAttr + s.metadeNivel + treino + (linha?.outros ?? 0) + sys.bonusAtaque + s.penalidadeGlobal;
-
-    const dados = await this._dialogoTeste(`Ataque: ${item.name}`, { cd: 15 });
-    if (!dados) return null;
-
-    const roll = new Roll(`${formulaD20(dados.vantagem)} + @bonus`, {
-      bonus: bonus + dados.situacional
-    });
-    await roll.evaluate();
-    const natural = roll.dice[0]?.total ?? 0;
-
-    const critico = natural >= sys.critico;
-    const desastre = natural === 1;
-    const linhas = [
-      `<b>Atributo:</b> ${s.atributos[chaveAttr].label} (${modAttr >= 0 ? "+" : ""}${modAttr})` +
-        ` · <b>Treinado:</b> ${sys.treinado ? "sim" : "não"}` +
-        (distancia && sys.alcance ? ` · <b>Alcance:</b> ${sys.alcance}` : "")
-    ];
-    if (critico) {
-      linhas.push(
-        `<b>Acerto Crítico!</b> Um crítico sempre acerta e dobra os dados de dano (p. 307).` +
-          (sys.grupo && FNM.gruposArma[sys.grupo]
-            ? `<br><i>Efeito de crítico (${FNM.gruposArma[sys.grupo].nome}):</i> ${FNM.gruposArma[sys.grupo].critico}`
-            : "")
-      );
-    }
-    if (desastre) {
-      linhas.push(
-        "<b>Desastre!</b> O ataque sempre erra e o alvo pode atacá-lo como reação (p. 307)."
-      );
-    }
-    if (cdAlvoInformada(dados.cd)) {
-      const acerta = critico || (!desastre && roll.total >= dados.cd);
-      linhas.push(`<b>Contra Defesa ${dados.cd}:</b> ${acerta ? "acerta" : "erra"}`);
-    }
-
-    await roll.toMessage({
-      speaker: ChatMessage.getSpeaker({ actor: this }),
-      flavor: `<b>${item.name}</b>${rotuloVantagem(dados.vantagem)}<br>${linhas.join("<br>")}`
-    });
-
-    return { roll, critico, desastre, chaveAttr };
+    const grupo = FNM.gruposArma[sys.grupo];
+    return {
+      item,
+      nome: item.name,
+      img: item.img,
+      subtitulo:
+        `Arma ${sys.categoria.toLowerCase()} ${sys.tipo.toLowerCase()}` +
+        (grupo ? ` · grupo ${grupo.nome}` : ""),
+      tipo: sys.tipo,
+      linhaAtaque: distancia || arremesso ? "distancia" : "corpoACorpo",
+      atributos,
+      treinado: sys.treinado,
+      bonusAtaque: sys.bonusAtaque,
+      critico: sys.critico,
+      dano: sys.dano,
+      danoVersatil: sys.danoVersatil,
+      tipoDano: sys.tipoDano,
+      bonusDano: sys.danoTotal ?? sys.bonusDano,
+      grau: sys.grau,
+      grupo: sys.grupo,
+      alcance: sys.alcance,
+      propriedades: sys.propriedades,
+      somaAtributoNoDano: true
+    };
   }
 
-  /** Rolagem de dano de uma arma (p. 306). Crítico dobra os dados, não os modificadores. */
-  async rolarDanoArma(item, { critico = false, versatil = false, chaveAttr = null } = {}) {
-    const sys = item.system;
+  /** Ataque desarmado (p. 305): todo personagem é treinado e usa o grupo Pugilato. */
+  _perfilDesarmado() {
     const s = this.system;
-
-    const chave =
-      chaveAttr ??
-      (sys.tipo === "A Distância"
-        ? "destreza"
-        : sys.fineza && s.atributos.destreza.mod > s.atributos.forca.mod
-          ? "destreza"
-          : "forca");
-    const modAttr = s.atributos[chave].mod;
-
-    const base = (versatil && sys.danoVersatil ? sys.danoVersatil : sys.dano) || "0";
-    // No crítico, jogam-se todos os dados de dano duas vezes (p. 307)
-    const dados = critico ? `(${base}) + (${base})` : base;
-    const formula = `${dados} + @mod + @extra`;
-
-    // O grau da Ferramenta Amaldiçoada entra no dano junto do bônus manual (p. 154)
-    const roll = new Roll(formula, { mod: modAttr, extra: sys.danoTotal ?? sys.bonusDano });
-    await roll.evaluate();
-
-    const tipo = FNM.tiposDano[sys.tipoDano]?.nome ?? "";
-    const grau = FNM.grausFerramenta[sys.grau];
-    await roll.toMessage({
-      speaker: ChatMessage.getSpeaker({ actor: this }),
-      flavor:
-        `<b>Dano — ${item.name}</b>${critico ? " (Crítico)" : ""}` +
-        (tipo ? ` · ${tipo}` : "") +
-        (grau ? ` · Ferramenta de ${grau.nome} (+${grau.bonusArma})` : "")
-    });
-    return roll;
+    return {
+      item: null,
+      nome: "Ataque Desarmado",
+      img: "icons/svg/combat.svg",
+      subtitulo: "Corpo a corpo · grupo Pugilato",
+      tipo: "Corpo a Corpo",
+      linhaAtaque: "corpoACorpo",
+      atributos: ["forca"],
+      treinado: true,
+      bonusAtaque: 0,
+      critico: 20,
+      dano: s.danoDesarmado,
+      danoVersatil: "",
+      tipoDano: "impacto",
+      bonusDano: 0,
+      grau: "",
+      grupo: "pugilato",
+      alcance: "",
+      propriedades: "",
+      somaAtributoNoDano: true
+    };
   }
 
   /**
-   * Rola diretamente uma das três linhas de Jogadas de Ataque da ficha
-   * (corpo a corpo, a distância ou amaldiçoado), sem uma arma específica.
+   * Atributo em vigor em uma das linhas de Jogada de Ataque. O Amaldiçoado
+   * segue o atributo da técnica do personagem, salvo escolha explícita na ficha.
    */
-  async rolarAtaqueBase(id) {
+  _atributoDaLinha(id) {
+    const cfg = FNM.tiposAtaque[id];
+    const padrao =
+      id === "amaldicoado" ? this.system.jujutsu?.atributoTecnica || cfg.atributo : cfg.atributo;
+    return this.system.ataques?.[id]?.atributo || padrao;
+  }
+
+  /** Uma das três linhas de Jogada de Ataque da ficha, sem arma no meio. */
+  _perfilLinha(id) {
     const linha = this.system.ataques?.[id];
-    if (!linha) return ui.notifications.error(`Tipo de ataque desconhecido: ${id}`);
+    const cfg = FNM.tiposAtaque[id];
+    if (!linha || !cfg) return null;
+    return {
+      item: null,
+      nome: `Jogada de Ataque — ${cfg.nome}`,
+      img: "icons/svg/target.svg",
+      subtitulo: "Linha da ficha, sem arma definida",
+      tipo: id === "distancia" ? "A Distância" : id === "amaldicoado" ? "Amaldiçoado" : "Corpo a Corpo",
+      linhaAtaque: id,
+      atributos: [this._atributoDaLinha(id)],
+      treinado: cfg.sempreTreinado === true || linha.treinado === true,
+      bonusAtaque: 0,
+      critico: 20,
+      // Sem arma não há dado de dano: a carta sai sem os botões de dano
+      dano: "",
+      danoVersatil: "",
+      tipoDano: "",
+      bonusDano: 0,
+      grau: "",
+      grupo: "",
+      alcance: "",
+      propriedades: "",
+      somaAtributoNoDano: false
+    };
+  }
 
-    const dados = await this._dialogoTeste(`Ataque ${linha.nome}`, { cd: 15 });
-    if (!dados) return null;
+  /**
+   * Feitiço resolvido por Ataque Amaldiçoado (p. 279 e 205). O atributo vem da
+   * técnica, o personagem é sempre treinado nele e não há grupo de arma, então
+   * a carta sai sem efeito de crítico de grupo.
+   */
+  _perfilFeitico(item) {
+    const sys = item.system;
+    return {
+      item,
+      nome: item.name,
+      img: item.img,
+      subtitulo: `Ataque Amaldiçoado · Feitiço de ${sys.nivelLabel}`,
+      tipo: "Amaldiçoado",
+      linhaAtaque: "amaldicoado",
+      atributos: [this._atributoDaLinha("amaldicoado")],
+      treinado: true,
+      bonusAtaque: 0,
+      critico: 20,
+      dano: sys.dano || sys.danoPadrao || "",
+      danoVersatil: "",
+      tipoDano: sys.tipoDano,
+      bonusDano: 0,
+      grau: "",
+      grupo: "",
+      alcance: sys.alcance || `${sys.alcancePadrao} metros`,
+      propriedades: "",
+      somaAtributoNoDano: false
+    };
+  }
 
-    return this.executarTeste({
-      label: `Jogada de Ataque — ${linha.nome}`,
-      bonus: linha.total,
-      ...dados,
-      linhasExtras: [
-        `<b>Atributo:</b> ${FNM.atributos[linha.atributo]?.nome ?? "—"} ` +
-        `(${linha.modAtributo >= 0 ? "+" : ""}${linha.modAtributo})` +
-        ` · <b>Treinado:</b> ${linha.treinado ? "sim" : "não"}`
-      ]
+  /**
+   * Modificadores da jogada de ataque, na ordem da fórmula do livro (p. 279).
+   *
+   * A mesma lista alimenta o diálogo e o detalhamento da carta: o jogador vê
+   * de onde sai cada ponto antes de rolar e depois de rolar.
+   */
+  _modificadoresAtaque(perfil, atributo) {
+    const s = this.system;
+    const linha = s.ataques?.[perfil.linhaAtaque];
+    const mods = [
+      { rotulo: FNM.atributos[atributo]?.nome ?? atributo, valor: s.atributos[atributo].mod },
+      { rotulo: "Metade do nível", valor: s.metadeNivel }
+    ];
+
+    if (perfil.treinado) {
+      mods.push({ rotulo: "Bônus de Treinamento", valor: s.bonusTreinamento });
+    } else {
+      mods.push({
+        rotulo: "Sem treinamento",
+        valor: 0,
+        nota: `não soma o Bônus de Treinamento de +${s.bonusTreinamento} (p. 279)`
+      });
+    }
+
+    if (linha?.outros) {
+      mods.push({
+        rotulo: `Outros (${FNM.tiposAtaque[perfil.linhaAtaque].nome})`,
+        valor: linha.outros
+      });
+    }
+    if (perfil.bonusAtaque) mods.push({ rotulo: "Bônus da arma", valor: perfil.bonusAtaque });
+    if (s.penalidadeExaustao) {
+      mods.push({ rotulo: `Exaustão ${s.exaustao}`, valor: s.penalidadeExaustao });
+    }
+    if (s.penalidadeAlma) {
+      mods.push({ rotulo: `Alma ${s.alma.estado}`, valor: s.penalidadeAlma });
+    }
+
+    return mods;
+  }
+
+  /** O atributo de maior modificador entre os permitidos pela arma. */
+  _melhorAtributo(chaves) {
+    return chaves.reduce((melhor, chave) =>
+      this.system.atributos[chave].mod > this.system.atributos[melhor].mod ? chave : melhor
+    );
+  }
+
+  /**
+   * Diálogo da jogada de ataque. Reúne o que o livro deixa o atacante decidir
+   * ou o que depende da situação: atributo (Fineza e arremesso), empunhadura
+   * de arma versátil, Defesa do alvo com cobertura (p. 293), camuflagem
+   * (p. 294) e faixa de alcance (p. 305).
+   */
+  async _dialogoAtaque(perfil) {
+    const s = this.system;
+    // A Defesa já vem preenchida quando há um token alvejado
+    const alvo = game.user.targets.first()?.actor;
+    const padrao = this._melhorAtributo(perfil.atributos);
+    // A primeira linha é sempre o atributo, e é a única que o diálogo refaz
+    const mods = this._modificadoresAtaque(perfil, padrao);
+
+    const conteudo = await foundry.applications.handlebars.renderTemplate(
+      "systems/fnm/templates/chat/ataque-dialogo.html",
+      {
+        perfil,
+        // A faixa de alcance é regra de arma (p. 305); Feitiço tem alcance próprio
+        distancia: perfil.tipo === "A Distância" || perfil.tipo === "De Arremesso",
+        escolheAtributo: perfil.atributos.length > 1,
+        alvo: alvo?.name ?? "",
+        defesa: alvo?.system?.combate?.defesa ?? 15,
+        atributos: perfil.atributos.map(id => ({
+          id,
+          nome: FNM.atributos[id].nome,
+          mod: s.atributos[id].mod,
+          padrao: id === padrao
+        })),
+        modificadores: mods,
+        // Tudo que não muda com o atributo escolhido, para o total ao vivo
+        somaFixa: mods.slice(1).reduce((n, m) => n + m.valor, 0),
+        total: mods.reduce((n, m) => n + m.valor, 0),
+        cobertura: FNM.cobertura,
+        camuflagem: FNM.camuflagem,
+        alcances: FNM.alcanceAtaque
+      }
+    );
+
+    return foundry.applications.api.DialogV2.prompt({
+      window: { title: `${perfil.nome} — ${this.name}` },
+      classes: ["fnm-dialogo"],
+      position: { width: 440 },
+      content: conteudo,
+      rejectClose: false,
+      // O total ao vivo é um extra: se o callback mudar de forma entre versões
+      // do Foundry, o diálogo continua funcionando com os valores estáticos
+      render: (event, alvo) => ligarTotalDoAtaque(alvo?.element ?? alvo),
+      ok: {
+        label: "Rolar Ataque",
+        icon: "fa-solid fa-dice-d20",
+        callback: (event, button) => {
+          const campos = button.form.elements;
+          const num = (nome, padraoValor = 0) =>
+            Number(campos[nome]?.value ?? padraoValor) || padraoValor;
+          return {
+            atributo: campos.atributo?.value || perfil.atributos[0],
+            versatil: campos.empunhadura?.value === "duas",
+            situacional: num("situacional"),
+            vantagem: num("vantagem"),
+            defesa: num("defesa", 0),
+            cobertura: campos.cobertura?.value ?? "nenhuma",
+            camuflagem: campos.camuflagem?.value ?? "nenhuma",
+            alcance: campos.alcance?.value ?? "normal"
+          };
+        }
+      }
     });
   }
 
-  /** Ataque desarmado (p. 305). Todo personagem é treinado nele. */
-  async rolarDesarmado() {
-    const s = this.system;
-    const linha = s.ataques?.corpoACorpo;
-    const bonus =
-      s.atributos.forca.mod +
-      s.metadeNivel +
-      s.bonusTreinamento +
-      (linha?.outros ?? 0) +
-      s.penalidadeGlobal;
-    const dados = await this._dialogoTeste("Ataque Desarmado", { cd: 15 });
-    if (!dados) return null;
+  /**
+   * Executa a jogada de ataque e publica a carta do chat.
+   *
+   * Um 20 natural sempre acerta; um limiar de crítico abaixo de 20 dobra os
+   * dados mas ainda precisa vencer a Defesa (p. 307). Um 1 natural é desastre
+   * e sempre erra. A camuflagem é resolvida por um d10 rolado junto do d20
+   * (p. 294) e erra o ataque antes de qualquer comparação com a Defesa.
+   */
+  async _executarAtaque(perfil, escolhas) {
+    const cobertura = FNM.cobertura.find(c => c.id === escolhas.cobertura) ?? FNM.cobertura[0];
+    const camuflagem = FNM.camuflagem.find(c => c.id === escolhas.camuflagem) ?? FNM.camuflagem[0];
+    const alcance = FNM.alcanceAtaque.find(a => a.id === escolhas.alcance) ?? FNM.alcanceAtaque[0];
 
-    const resultado = await this.executarTeste({
-      label: "Ataque Desarmado",
-      bonus,
-      ...dados,
-      linhasExtras: [`<b>Dano:</b> ${s.danoDesarmado} + Força (grupo Pugilato)`]
-    });
+    if (cobertura.bloqueia) {
+      ui.notifications.warn(
+        "Cobertura Total impede que o alvo seja escolhido para ataques ou efeitos (p. 293)."
+      );
+      return null;
+    }
+    if (alcance.bloqueia) {
+      ui.notifications.warn("Atacar além do alcance máximo da arma é impossível (p. 305).");
+      return null;
+    }
 
-    const critico = resultado.natural === 20;
-    const base = s.danoDesarmado;
-    const roll = new Roll(critico ? `(${base}) + (${base}) + @mod` : `${base} + @mod`, {
-      mod: s.atributos.forca.mod
-    });
+    const mods = this._modificadoresAtaque(perfil, escolhas.atributo);
+    const bonus = mods.reduce((n, m) => n + m.valor, 0) + escolhas.situacional;
+
+    // Vantagem e desvantagem de fontes diferentes se anulam (p. 282): as fontes
+    // são somadas e só o sinal do resultado importa
+    const vantagem = Math.sign(escolhas.vantagem + (alcance.desvantagem ? -1 : 0));
+
+    const roll = new Roll(`${formulaD20(vantagem)} + @bonus`, { bonus });
     await roll.evaluate();
-    await roll.toMessage({
-      speaker: ChatMessage.getSpeaker({ actor: this }),
-      flavor: `<b>Dano Desarmado</b>${critico ? " (Crítico)" : ""} · Impacto`
+    const natural = roll.dice[0]?.total ?? 0;
+
+    let d10 = null;
+    if (camuflagem.falha > 0) {
+      const rolagemCamuflagem = new Roll("1d10");
+      await rolagemCamuflagem.evaluate();
+      d10 = rolagemCamuflagem.total;
+    }
+
+    const defesaAlvo = escolhas.defesa ? escolhas.defesa + cobertura.defesa : 0;
+    const resultado = vereditoAtaque({
+      natural,
+      total: roll.total,
+      defesa: defesaAlvo,
+      limiarCritico: perfil.critico,
+      falhouCamuflagem: d10 !== null && d10 <= camuflagem.falha
     });
-    return resultado;
+
+    await cartaAtaque({
+      ator: this,
+      perfil,
+      roll,
+      natural,
+      resultado,
+      modificadores: mods,
+      situacional: escolhas.situacional,
+      vantagem,
+      desvantagemAlcance: alcance.desvantagem ? alcance.nome : "",
+      defesa: defesaAlvo,
+      cobertura,
+      camuflagem,
+      d10,
+      atributo: escolhas.atributo,
+      versatil: escolhas.versatil
+    });
+
+    return {
+      roll,
+      natural,
+      critico: resultado === "critico",
+      acertou: resultado === "acerto" || resultado === "critico",
+      ...escolhas
+    };
+  }
+
+  /** Jogada de ataque com uma arma (p. 279). */
+  async rolarAtaqueArma(item) {
+    const perfil = this._perfilArma(item);
+    const escolhas = await this._dialogoAtaque(perfil);
+    if (!escolhas) return null;
+    return this._executarAtaque(perfil, escolhas);
+  }
+
+  /** Uma das três linhas de Jogadas de Ataque da ficha, sem arma específica. */
+  async rolarAtaqueBase(id) {
+    const perfil = this._perfilLinha(id);
+    if (!perfil) return ui.notifications.error(`Tipo de ataque desconhecido: ${id}`);
+    const escolhas = await this._dialogoAtaque(perfil);
+    if (!escolhas) return null;
+    return this._executarAtaque(perfil, escolhas);
+  }
+
+  /** Ataque desarmado (p. 305). */
+  async rolarDesarmado() {
+    const perfil = this._perfilDesarmado();
+    const escolhas = await this._dialogoAtaque(perfil);
+    if (!escolhas) return null;
+    return this._executarAtaque(perfil, escolhas);
+  }
+
+  /** Rolagem de dano de uma arma, de um Feitiço, ou do ataque desarmado sem item. */
+  async rolarDano(item, opcoes = {}) {
+    const perfil = !item
+      ? this._perfilDesarmado()
+      : item.type === "feitico"
+        ? this._perfilFeitico(item)
+        : this._perfilArma(item);
+    return this._rolarDano(perfil, opcoes);
+  }
+
+  /**
+   * Rolagem de dano (p. 306-307). No crítico todos os dados do ataque são
+   * jogados duas vezes e os modificadores entram depois, uma vez só.
+   */
+  async _rolarDano(perfil, { critico = false, versatil = false, atributo = null } = {}) {
+    const s = this.system;
+    const chave = atributo ?? this._melhorAtributo(perfil.atributos);
+    // Só o dano de arma soma o modificador do atributo que a maneja (p. 306);
+    // o dano de um Feitiço é o da tabela do nível dele (p. 205)
+    const modAttr = perfil.somaAtributoNoDano ? s.atributos[chave].mod : 0;
+
+    const usaVersatil = versatil && !!perfil.danoVersatil;
+    const base = (usaVersatil ? perfil.danoVersatil : perfil.dano) || "";
+    // Faixas e Rede não causam dano próprio, e a linha da ficha não tem arma
+    if (!base || base === "—") {
+      return ui.notifications.warn(`${perfil.nome} não tem dado de dano para rolar.`);
+    }
+
+    const dados = critico ? `(${base}) + (${base})` : base;
+    const roll = new Roll(`${dados} + @mod + @extra`, { mod: modAttr, extra: perfil.bonusDano });
+    await roll.evaluate();
+
+    const grau = FNM.grausFerramenta[perfil.grau];
+    const componentes = [
+      {
+        rotulo: critico ? `Dados dobrados: ${base} duas vezes` : `Dados da arma: ${base}`,
+        semValor: true
+      },
+      { rotulo: FNM.atributos[chave].nome, valor: modAttr }
+    ];
+    if (grau) componentes.push({ rotulo: `Ferramenta de ${grau.nome}`, valor: grau.bonusArma });
+    const bonusManual = perfil.bonusDano - (grau?.bonusArma ?? 0);
+    if (bonusManual) componentes.push({ rotulo: "Bônus de dano do item", valor: bonusManual });
+
+    await cartaDano({ ator: this, perfil, roll, critico, versatil: usaVersatil, componentes });
+    return roll;
   }
 
   /* ------------------------------------------ */
@@ -473,26 +775,20 @@ export class FnmActor extends Actor {
         `</div>`
     });
 
+    // O Ataque Amaldiçoado é uma das três Jogadas de Ataque (p. 279), então usa
+    // o mesmo diálogo e a mesma carta das armas — com botão de dano no fim
     if (sys.resolucao === "ataque") {
-      const dados = await this._dialogoTeste(`Ataque Amaldiçoado: ${item.name}`, { cd: 15 });
-      if (dados) {
-        await this.executarTeste({
-          label: `Ataque Amaldiçoado — ${item.name}`,
-          bonus: s.ataqueAmaldicoado,
-          ...dados
-        });
-      }
+      const perfil = this._perfilFeitico(item);
+      const escolhas = await this._dialogoAtaque(perfil);
+      if (escolhas) await this._executarAtaque(perfil, escolhas);
+      return true;
     }
 
+    // Fora da resolução por ataque, o dano do Feitiço sai direto: quem resiste
+    // é o alvo, no TR já anunciado na carta acima
     const formulaDano = sys.dano || sys.danoPadrao;
     if (formulaDano) {
-      const roll = new Roll(formulaDano, this.getRollData());
-      await roll.evaluate();
-      const tipo = FNM.tiposDano[sys.tipoDano]?.nome ?? "";
-      await roll.toMessage({
-        speaker: ChatMessage.getSpeaker({ actor: this }),
-        flavor: `<b>Dano — ${item.name}</b>${tipo ? ` · ${tipo}` : ""}`
-      });
+      await this._rolarDano(this._perfilFeitico(item), { critico: false });
     }
 
     return true;
