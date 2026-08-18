@@ -1286,3 +1286,70 @@
   font-weight: bold;
   color: var(--fnm-azul);
 }
+
+/* -------------------------------------------- */
+/*  Ficha de Invocação                          */
+/* -------------------------------------------- */
+
+/* Orçamento da criação: pontos, perícias e ações contra o que o grau concede */
+.fnm-sheet .orcamento-grade {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 0.4rem;
+}
+.fnm-sheet .orcamento-caixa {
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+  padding: 0.35rem 0.5rem;
+  border: 1px solid var(--fnm-cinza);
+  border-radius: 4px;
+  background: rgba(255, 255, 255, 0.4);
+}
+.fnm-sheet .orcamento-caixa.excedido {
+  border-color: var(--fnm-sangue);
+  background: rgba(163, 22, 43, 0.12);
+}
+.fnm-sheet .orcamento-rotulo {
+  font-size: 0.68rem;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  color: var(--fnm-cinza);
+}
+.fnm-sheet .orcamento-valor {
+  font-size: 1.05rem;
+  font-weight: bold;
+  color: var(--fnm-azul);
+  font-variant-numeric: tabular-nums;
+}
+.fnm-sheet .orcamento-caixa.excedido .orcamento-valor {
+  color: var(--fnm-sangue);
+}
+.fnm-sheet .orcamento-nota {
+  font-size: 0.64rem;
+  color: var(--fnm-cinza);
+  line-height: 1.3;
+}
+
+/* Tabelas de referência do grau, na aba de Ações */
+.fnm-sheet .referencia-grade {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 0.6rem;
+}
+.fnm-sheet .referencia-grupo h4 {
+  margin: 0 0 0.2rem;
+  font-size: 0.76rem;
+  color: var(--fnm-azul);
+  border-bottom: 1px solid var(--fnm-osso-escuro);
+}
+.fnm-sheet .referencia-grupo ul {
+  list-style: none;
+  margin: 0 0 0.25rem;
+  padding: 0;
+  font-size: 0.7rem;
+  line-height: 1.45;
+}
+.fnm-sheet .referencia-grupo .dica {
+  font-size: 0.65rem;
+}

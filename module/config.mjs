@@ -501,10 +501,135 @@ FNM.carga = { base: 8, defesaSobrecarga: -5, deslocamentoSobrecarga: -4.5 };
 FNM.pesosVoto = ["Leve", "Médio", "Pesado", "Extremo", "Emergencial", "Contratual", "Restrição Congênita"];
 
 /* -------------------------------------------- */
-/*  Invocações (p. 256-263)                     */
+/*  Invocações (p. 255-272)                     */
 /* -------------------------------------------- */
 
-FNM.tiposInvocacao = ["Shikigami", "Corpo Amaldiçoado", "Marionete", "Outro"];
+FNM.tiposInvocacao = ["Shikigami", "Corpo Amaldiçoado", "Marionete", "Maldição Domada", "Outro"];
+
+/** Tamanhos, do menor para o maior, como a tabela de Características os usa (p. 272). */
+FNM.tamanhos = ["Minúsculo", "Pequeno", "Médio", "Grande", "Enorme", "Colossal"];
+
+/** Uma Invocação começa com todos os atributos em 8 e pode baixá-los até 6 (p. 260). */
+FNM.invocacao = { atributoInicial: 8, atributoMinimo: 6, deslocamentoPadrao: 9 };
+
+/**
+ * Tudo que o Grau de uma Invocação define (p. 258-272). O grau é o único botão
+ * da criação: ele dita o custo em PE, quantos pontos de atributo distribuir, as
+ * fórmulas de Vida e Defesa, quantas Ações e Características cabem na ficha e
+ * os valores que cada uma delas pode conceder.
+ *
+ * `pv` é `base + con x Valor de Constituição + nivel x nível do usuário` — e é o
+ * VALOR do atributo, não o modificador (p. 261). `defesa` é a base, somada ao
+ * modificador de Destreza da Invocação e ao Bônus de Treinamento do usuário.
+ */
+FNM.grausInvocacao = {
+  Quarto: {
+    nome: "Quarto Grau",
+    custo: 2,
+    pontosAtributo: 10,
+    maximoAtributo: 16,
+    pv: { base: 10, con: 0.5, nivel: 1 },
+    defesa: 10,
+    periciasExtras: 1,
+    acoes: 2,
+    acoesComCusto: 1,
+    alcance: 6,
+    area: 0,
+    dano: { ataque: "1d12", resistencia: "1d8", multiplos: "", area: "" },
+    cura: { unico: "1d4", multiplos: "" },
+    auxilio: { defesa: 1, acerto: 1, danoAdicional: "1d6", reducaoDano: 2 },
+    caracteristica: { vida: 5, bonusTeste: 2, reducaoDano: 2, tamanhoMin: "Médio", tamanhoMax: "Grande" }
+  },
+  Terceiro: {
+    nome: "Terceiro Grau",
+    custo: 4,
+    pontosAtributo: 15,
+    maximoAtributo: 20,
+    pv: { base: 25, con: 0.5, nivel: 1 },
+    defesa: 12,
+    periciasExtras: 1,
+    acoes: 2,
+    acoesComCusto: 1,
+    alcance: 9,
+    area: 3,
+    dano: { ataque: "1d12 + 1d6", resistencia: "1d12", multiplos: "1d10", area: "1d8" },
+    cura: { unico: "1d8", multiplos: "1d4" },
+    auxilio: { defesa: 2, acerto: 2, danoAdicional: "1d10", reducaoDano: 4 },
+    caracteristica: { vida: 10, bonusTeste: 4, reducaoDano: 4, tamanhoMin: "Médio", tamanhoMax: "Grande" }
+  },
+  Segundo: {
+    nome: "Segundo Grau",
+    custo: 6,
+    pontosAtributo: 20,
+    maximoAtributo: 24,
+    pv: { base: 40, con: 1, nivel: 1 },
+    defesa: 16,
+    periciasExtras: 2,
+    acoes: 3,
+    acoesComCusto: 2,
+    alcance: 15,
+    area: 4.5,
+    dano: { ataque: "2d12", resistencia: "1d12 + 1d6", multiplos: "1d12", area: "1d10" },
+    cura: { unico: "1d12", multiplos: "1d6" },
+    auxilio: { defesa: 3, acerto: 3, danoAdicional: "2d6", reducaoDano: 6 },
+    caracteristica: { vida: 15, bonusTeste: 6, reducaoDano: 6, tamanhoMin: "Pequeno", tamanhoMax: "Enorme" }
+  },
+  Primeiro: {
+    nome: "Primeiro Grau",
+    custo: 8,
+    pontosAtributo: 30,
+    maximoAtributo: 26,
+    pv: { base: 60, con: 1, nivel: 1.5 },
+    defesa: 20,
+    periciasExtras: 2,
+    acoes: 3,
+    acoesComCusto: 2,
+    alcance: 21,
+    area: 6,
+    dano: { ataque: "2d12 + 1d6", resistencia: "2d12", multiplos: "1d12 + 1d6", area: "1d12" },
+    cura: { unico: "1d12 + 1d8", multiplos: "1d8" },
+    auxilio: { defesa: 4, acerto: 4, danoAdicional: "2d8", reducaoDano: 8 },
+    caracteristica: { vida: 20, bonusTeste: 8, reducaoDano: 8, tamanhoMin: "Pequeno", tamanhoMax: "Enorme" }
+  },
+  Especial: {
+    nome: "Grau Especial",
+    custo: 12,
+    pontosAtributo: 40,
+    maximoAtributo: 30,
+    pv: { base: 80, con: 1, nivel: 2 },
+    defesa: 24,
+    periciasExtras: 3,
+    acoes: 4,
+    acoesComCusto: 3,
+    alcance: 30,
+    area: 7.5,
+    // No Grau Especial o bônus de dano e de cura é o dobro do modificador
+    dobraModificador: true,
+    dano: { ataque: "3d12", resistencia: "2d12 + 1d6", multiplos: "2d12", area: "1d12 + 1d8" },
+    cura: { unico: "2d12 + 1d6", multiplos: "1d12 + 1d4" },
+    auxilio: { defesa: 5, acerto: 5, danoAdicional: "2d12", reducaoDano: 10 },
+    caracteristica: { vida: 30, bonusTeste: 10, reducaoDano: 12, tamanhoMin: "Minúsculo", tamanhoMax: "Colossal" }
+  }
+};
+
+/** Nível de Controlador exigido para receber uma Invocação de cada grau (p. 259). */
+FNM.nivelParaGrauInvocacao = { Quarto: 1, Terceiro: 5, Segundo: 9, Primeiro: 13, Especial: 17 };
+
+/**
+ * O que uma Ação ou Característica pode ser (p. 262-263). Ações Simples são a
+ * ação bônus da Invocação e não podem causar dano nem curar; as de Ataque são
+ * obrigatoriamente Complexas.
+ */
+FNM.tiposAcaoInvocacao = ["Ação Simples", "Ação Complexa", "Reação", "Característica"];
+
+/** Custo em PE que cada Ação ou Característica acrescenta à Invocação (p. 262). */
+FNM.custoAcaoInvocacao = {
+  "Ação Simples": 1,
+  "Ação Complexa": 2,
+  Reação: 1,
+  Característica: 1
+};
+
 
 /* -------------------------------------------- */
 /*  Funções auxiliares de regra                 */

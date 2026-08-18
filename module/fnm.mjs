@@ -34,7 +34,8 @@ import {
   FeiticoDataModel,
   ArmaDataModel,
   EquipamentoDataModel,
-  VotoDataModel
+  VotoDataModel,
+  AcaoInvocacaoDataModel
 } from "./data-models.mjs";
 
 Hooks.once("init", async function () {
@@ -76,7 +77,8 @@ Hooks.once("init", async function () {
     feitico: FeiticoDataModel,
     arma: ArmaDataModel,
     equipamento: EquipamentoDataModel,
-    voto: VotoDataModel
+    voto: VotoDataModel,
+    acaoInvocacao: AcaoInvocacaoDataModel
   };
 
   // Barras de token e valores rastreáveis
@@ -141,6 +143,8 @@ function registrarHelpers() {
     const n = Number(v) || 0;
     return n >= 0 ? `+${n}` : `${n}`;
   });
+  // Decimal no formato do livro: 4.5 vira "4,5" e 6 continua "6"
+  Handlebars.registerHelper("numero", v => String(Number(v) || 0).replace(".", ","));
   Handlebars.registerHelper("porcento", (v, max) => {
     const m = Number(max) || 0;
     if (!m) return 0;

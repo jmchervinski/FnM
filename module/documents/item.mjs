@@ -154,6 +154,36 @@ export class FnmItem extends Item {
         linhas.push(...linhasFerramenta(sys));
         break;
       }
+      case "acaoInvocacao": {
+        const partes = [sys.tipo];
+        if (sys.categoria) partes.push(sys.categoria);
+        if (sys.custoPE) partes.push(`${sys.custoPE} PE`);
+        linhas.push(`<b>${partes.join(" · ")}</b>`);
+        if (sys.alvo) linhas.push(`<b>Alvo:</b> ${sys.alvo}`);
+        if (sys.resolucao === "resistencia") {
+          const tr = FNM.resistencias[sys.resistencia]?.nome ?? "a definir";
+          const cd = this.actor?.system?.cdAcao;
+          linhas.push(
+            `<b>Teste de Resistência:</b> ${tr}` +
+              (cd ? ` contra <b>CD ${cd} + modificador do atributo</b> (p. 263)` : "")
+          );
+        } else if (sys.resolucao === "ataque") {
+          linhas.push("<b>Resolução:</b> jogada de ataque da Invocação");
+        }
+        if (sys.dano) {
+          const tipo = FNM.tiposDano[sys.tipoDano]?.nome;
+          linhas.push(`<b>Dano:</b> ${sys.dano}${tipo ? ` (${tipo})` : ""}`);
+        }
+        if (sys.cura) linhas.push(`<b>Cura:</b> ${sys.cura}`);
+        const alcance = [];
+        if (sys.alcance) alcance.push(`${sys.alcance} m`);
+        if (sys.area) alcance.push(`área de ${sys.area} m${sys.formatoArea ? ` (${sys.formatoArea})` : ""}`);
+        if (alcance.length) linhas.push(`<b>Alcance:</b> ${alcance.join(" · ")}`);
+        if (sys.prejuizoAuxilio) {
+          linhas.push(`<b>Prejuízo por múltiplos auxílios:</b> ${sys.prejuizoAuxilio}`);
+        }
+        break;
+      }
       case "voto":
         linhas.push(`<b>Voto de Restrição — Peso ${sys.peso}</b>`);
         if (sys.restricao) linhas.push(`<b>Restrição:</b> ${sys.restricao}`);

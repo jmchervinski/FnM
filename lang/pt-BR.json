@@ -12,6 +12,7 @@
   "TYPES.Item.arma": "Arma",
   "TYPES.Item.equipamento": "Equipamento",
   "TYPES.Item.voto": "Voto de Restrição",
+  "TYPES.Item.acaoInvocacao": "Ação de Invocação",
 
   "FNM.SheetCharacter": "Ficha de Personagem (F&M)",
   "FNM.SheetNpc": "Ficha de NPC / Maldição (F&M)",

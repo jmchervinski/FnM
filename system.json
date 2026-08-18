@@ -47,7 +47,8 @@
       "feitico": { "htmlFields": ["description"] },
       "arma": { "htmlFields": ["description"] },
       "equipamento": { "htmlFields": ["description"] },
-      "voto": { "htmlFields": ["description", "restricao"] }
+      "voto": { "htmlFields": ["description", "restricao"] },
+      "acaoInvocacao": { "htmlFields": ["description"] }
     }
   },
   "packs": [

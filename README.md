@@ -43,12 +43,12 @@ https://github.com/jmchervinski/FnM/releases/latest/download/system.json
 | --- | --- |
 | **Personagem** | Feiticeiro jogável, com sete abas espelhando as páginas do Modelo de Ficha oficial v2.5 (Ficha Pessoal, Perícias, Perfil Amaldiçoado, Feitiços, Registro e Inventário, Progressão, Treinamentos) |
 | **NPC / Maldição** | Antagonistas, com PV e Defesa fixos por padrão, além de imunidades, resistências e vulnerabilidades |
-| **Invocação** | Shikigamis, corpos amaldiçoados e marionetes, vinculados a um invocador |
+| **Invocação** | Shikigamis, corpos amaldiçoados, marionetes e maldições domadas, com Vida, Defesa, testes e custo derivados do grau e do invocador |
 
 ### Tipos de item
 
 Origem · Especialização · Habilidade de Especialização · Talento · Aptidão Amaldiçoada ·
-Técnica Amaldiçoada · Feitiço · Arma · Equipamento · Voto de Restrição.
+Técnica Amaldiçoada · Feitiço · Arma · Equipamento · Voto de Restrição · Ação de Invocação.
 
 ### Regras automatizadas
 
@@ -89,6 +89,12 @@ Tudo abaixo é calculado ou executado pelo sistema, com a página do livro anota
   penalidade deles — cumulativa entre os dois — pesa só nas perícias de Destreza
 - **Ferramentas Amaldiçoadas**: o grau da ferramenta define o bônus de dano da arma, a RD do
   escudo e quantos Encantamentos ela acumula
+- **Invocações** montadas pelo grau: Vida, Defesa, custo em PE e o bônus de todo teste saem das
+  fórmulas do capítulo 10, usando o nível e o Bônus de Treinamento do **invocador**. A ficha mostra
+  o orçamento da criação — pontos de atributo, perícias treinadas, Ações/Características e Ações
+  com Custo — e destaca o que passou do limite
+- **Ações e Características de Invocação** como itens próprios, com as tabelas de dano, cura,
+  bônus e RD do grau à mão na ficha
 - **Descanso Curto e Longo**
 - As **28 condições** do livro registradas como efeitos de status do Foundry
 
@@ -122,7 +128,7 @@ A ficha do sistema segue o layout do arquivo oficial, campo a campo:
 | **Aptidões Amaldiçoadas** | As 64 aptidões do capítulo 8, em uma pasta por área (Aura, Controle e Leitura, Domínio, Barreira, Energia Reversa e Especiais) |
 | **Armas** | As 52 armas dos capítulos 5, em duas pastas: 20 Simples e 32 Complexas, com o efeito de crítico do grupo e o traço especial de cada uma na descrição |
 | **Equipamentos** | 117 itens: 5 uniformes, 4 escudos, 7 kits de ferramentas, os 48 itens especiais (em pastas por custo) e os 53 encantamentos de ferramenta amaldiçoada |
-| **Referência de Regras** | Diário com testes e CDs, ações em combate, condições, tipos de dano, tabelas de criação de Feitiços, equipamentos e carregamento, ferramentas amaldiçoadas, alma, morte, exaustão e descansos |
+| **Referência de Regras** | Diário com testes e CDs, ações em combate, condições, tipos de dano, tabelas de criação de Feitiços, equipamentos e carregamento, ferramentas amaldiçoadas, invocações, alma, morte, exaustão e descansos |
 | **Macros** | Teste rápido, iniciativa do grupo, aplicar dano em massa, descanso longo do grupo |
 
 ---
@@ -132,14 +138,17 @@ A ficha do sistema segue o layout do arquivo oficial, campo a campo:
 O livro tem 369 páginas. O **motor de regras está completo** para o uso de mesa, mas os
 compêndios são uma semente. Ainda não foram transcritos:
 
-- O guia de **Invocações** — shikigamis e corpos amaldiçoados (capítulo 10)
 - Os **exemplos de Voto de Restrição** (capítulo 14)
 - Os guias em prosa de **Criação de Técnica** (capítulo 9). As tabelas de custo, dano,
   alcance e área já estão no diário de referência
 - A **Clarificação de Regras** do apêndice
 
 As **técnicas prontas** de Jujutsu Kaisen não estão aqui porque não estão neste livro: o
-próprio texto remete a elas no livro **Enciclopédia Amaldiçoada**, que é outra obra.
+próprio texto remete a elas no livro **Enciclopédia Amaldiçoada**, que é outra obra. O mesmo vale
+para duas coisas que o capítulo 10 promete e não entrega: a **lista de Características** de
+Invocação ("no final deste capítulo") e a seção de **domar maldições** não existem no PDF v2.5.2,
+e o próprio texto aponta a Enciclopédia como a lista maior. Por isso o sistema entrega as tabelas
+de criação, e não um catálogo de invocações prontas.
 
 Também vale registrar o que **não é automatizado**: habilidades, talentos, origens e
 aptidões entram na ficha como texto. Se uma delas concede +2 na CD ou +1 na Defesa, o valor

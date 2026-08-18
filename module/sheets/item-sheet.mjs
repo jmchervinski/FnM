@@ -43,6 +43,11 @@ export class FnmItemSheet extends HandlebarsApplicationMixin(ItemSheetV2) {
     // Ferramentas Amaldiçoadas usam os cinco degraus da tabela de benefícios,
     // sem os semi-graus da escala de feiticeiros (p. 154)
     context.grausFerramenta = Object.entries(FNM.grausFerramenta).map(([id, g]) => ({ id, ...g }));
+    // Ações de Invocação: Integridade e os danos proibidos ficam fora das listas
+    context.resistenciasTreinaveis = context.resistencias.filter(r => r.id !== "integridade");
+    context.tiposDanoAcao = context.tiposDano.filter(
+      t => !["energiaReversa", "alma"].includes(t.id)
+    );
 
     context.enrichedDescription =
       await foundry.applications.ux.TextEditor.implementation.enrichHTML(sys.description ?? "", {

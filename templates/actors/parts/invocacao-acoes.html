@@ -1,0 +1,95 @@
+<div class="tab acoes {{tab.cssClass}}" data-group="primary" data-tab="acoes">
+
+  {{!-- Os valores que o grau permite: a criação é livre, mas os números não (p. 263-272) --}}
+  <fieldset class="bloco">
+    <legend>Referência do {{grauAtual.nome}}</legend>
+    <div class="referencia-grade">
+      <div class="referencia-grupo">
+        <h4>Ações de Ataque</h4>
+        <ul>
+          <li>Jogada de ataque, alvo único: <b>{{grauAtual.dano.ataque}}</b></li>
+          <li>Teste de Resistência, alvo único: <b>{{grauAtual.dano.resistencia}}</b></li>
+          <li>Alvos múltiplos: <b>{{#if grauAtual.dano.multiplos}}{{grauAtual.dano.multiplos}}{{else}}indisponível{{/if}}</b></li>
+          <li>Área: <b>{{#if grauAtual.dano.area}}{{grauAtual.dano.area}}{{else}}indisponível{{/if}}</b></li>
+          <li>Alcance padrão: <b>{{numero grauAtual.alcance}} m</b>{{#if grauAtual.area}} · área de <b>{{numero grauAtual.area}} m</b>{{/if}}</li>
+        </ul>
+        <p class="dica">Os valores são de ataque a distância. Em corpo a corpo, aumente o dano em
+          3 níveis. Uma área em linha é dobrada. O bônus de dano é o modificador de atributo{{#if grauAtual.dobraModificador}},
+          dobrado neste grau{{/if}}.</p>
+      </div>
+      <div class="referencia-grupo">
+        <h4>Ações de Auxílio</h4>
+        <ul>
+          <li>Cura, alvo único: <b>{{grauAtual.cura.unico}}</b></li>
+          <li>Cura, alvos múltiplos: <b>{{#if grauAtual.cura.multiplos}}{{grauAtual.cura.multiplos}}{{else}}indisponível{{/if}}</b></li>
+          <li>Bônus na Defesa: <b>+{{grauAtual.auxilio.defesa}}</b></li>
+          <li>Bônus em acerto: <b>+{{grauAtual.auxilio.acerto}}</b></li>
+          <li>Dano adicional: <b>{{grauAtual.auxilio.danoAdicional}}</b></li>
+          <li>Redução de Dano: <b>{{grauAtual.auxilio.reducaoDano}}</b></li>
+        </ul>
+        <p class="dica">Os valores são os de uma Ação Simples; como Ação Complexa, o bônus fixo
+          aumenta 1,5 vez e o dano adicional sobe 3 níveis. Cura que recupera PV custa 2 PE.</p>
+      </div>
+      <div class="referencia-grupo">
+        <h4>Características</h4>
+        <ul>
+          <li>Vida adicional: <b>{{grauAtual.caracteristica.vida}} PV</b></li>
+          <li>Bônus fixo em teste: <b>+{{grauAtual.caracteristica.bonusTeste}}</b></li>
+          <li>Redução de Dano: <b>{{grauAtual.caracteristica.reducaoDano}}</b></li>
+          <li>Tamanho: <b>{{grauAtual.caracteristica.tamanhoMin}} a {{grauAtual.caracteristica.tamanhoMax}}</b></li>
+        </ul>
+        <p class="dica">Em Jogadas de Ataque e TRs o bônus vale pela metade e exige um gatilho.
+          A RD vale para um tipo de dano só, e duas características não acumulam o mesmo efeito.</p>
+      </div>
+    </div>
+  </fieldset>
+
+  {{#each acoesPorTipo as |grupo|}}
+  <fieldset class="bloco">
+    <legend>{{grupo.tipo}}</legend>
+    <ol class="item-list">
+      {{#each grupo.itens as |item|}}
+      <li class="item" data-item-id="{{item.id}}">
+        <img class="item-img" src="{{item.img}}" width="24" height="24" />
+        <a class="item-nome" data-action="itemExpand">{{item.name}}</a>
+        <span class="item-tag">
+          {{#if item.system.categoria}}{{item.system.categoria}}{{/if}}
+          {{#if item.system.dano}} · {{item.system.dano}}{{/if}}
+          {{#if item.system.cura}} · cura {{item.system.cura}}{{/if}}
+          {{#if item.system.alcance}} · {{item.system.alcance}} m{{/if}}
+          {{#if item.system.area}} · área {{item.system.area}} m{{/if}}
+          {{#if item.system.custoPE}} · {{item.system.custoPE}} PE{{/if}}
+        </span>
+        <div class="item-controls">
+          <a data-action="itemChat" title="Enviar ao chat"><i class="fas fa-comment"></i></a>
+          <a data-action="itemEdit" title="Editar"><i class="fas fa-edit"></i></a>
+          <a data-action="itemDelete" title="Excluir"><i class="fas fa-trash"></i></a>
+        </div>
+        <div class="item-descricao">
+          {{#if item.system.prejuizoAuxilio}}
+          <p class="dica"><b>Prejuízo por múltiplos auxílios:</b> {{item.system.prejuizoAuxilio}}</p>
+          {{/if}}
+          {{{item.system.description}}}
+        </div>
+      </li>
+      {{/each}}
+    </ol>
+  </fieldset>
+  {{/each}}
+
+  <fieldset class="bloco">
+    <legend>Adicionar</legend>
+    <div class="combate-botoes">
+      {{#each tiposAcao as |t|}}
+      <button type="button" data-action="itemCreate" data-type="acaoInvocacao" data-tipo-acao="{{t}}">
+        <i class="fas fa-plus"></i> {{t}}
+      </button>
+      {{/each}}
+    </div>
+    {{#unless acoesPorTipo}}
+    <p class="vazio">Nenhuma Ação ou Característica ainda. Uma Invocação de {{grauAtual.nome}} comporta
+      {{system.orcamento.acoes.total}}, distribuídas entre ações e características (p. 262).</p>
+    {{/unless}}
+  </fieldset>
+
+</div>

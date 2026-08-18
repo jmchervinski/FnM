@@ -304,10 +304,17 @@ export class FnmBaseActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) 
       feitico: "Novo Feitiço",
       arma: "Nova Arma",
       equipamento: "Novo Equipamento",
-      voto: "Novo Voto de Restrição"
+      voto: "Novo Voto de Restrição",
+      acaoInvocacao: "Nova Ação"
     };
     const data = { name: nomes[type] ?? "Novo Item", type };
     if (target.dataset.nivel) data.system = { nivel: target.dataset.nivel };
+    // Os botões da ficha de Invocação já dizem se é Ação Simples, Complexa,
+    // Reação ou Característica — o item nasce com o tipo certo
+    if (target.dataset.tipoAcao) {
+      data.name = target.dataset.tipoAcao === "Característica" ? "Nova Característica" : "Nova Ação";
+      data.system = { ...(data.system ?? {}), tipo: target.dataset.tipoAcao };
+    }
     const [criado] = await this.actor.createEmbeddedDocuments("Item", [data]);
     criado?.sheet.render(true);
   }

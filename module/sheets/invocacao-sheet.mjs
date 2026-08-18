@@ -2,24 +2,33 @@ import { FnmBaseActorSheet } from "./base-actor-sheet.mjs";
 import { FNM } from "../config.mjs";
 
 /**
- * Ficha de Invocação — shikigamis, corpos amaldiçoados e marionetes
- * controlados por um Controlador ou por uma técnica (p. 256-263).
+ * Ficha de Invocação — shikigamis, corpos amaldiçoados, marionetes e maldições
+ * domadas (p. 255-272).
+ *
+ * Diferente das outras fichas, quase tudo aqui é derivado de duas escolhas: o
+ * grau da Invocação e quem é o invocador. A aba Principal mostra o orçamento da
+ * criação — pontos de atributo, perícias treinadas e ações — contra o que o
+ * grau concede, e a aba Ações traz as tabelas de referência do mesmo grau.
  */
 export class FnmInvocacaoSheet extends FnmBaseActorSheet {
   static DEFAULT_OPTIONS = {
     classes: ["fnm-sheet", "fnm-invocacao"],
-    position: { width: 720, height: 760 }
+    position: { width: 760, height: 800 }
   };
 
   static PARTS = {
     header: { template: "systems/fnm/templates/actors/parts/invocacao-header.html" },
     tabs: { template: "templates/generic/tab-navigation.hbs", classes: ["sheet-tabs"] },
     principal: {
-      template: "systems/fnm/templates/actors/parts/npc-principal.html",
+      template: "systems/fnm/templates/actors/parts/invocacao-principal.html",
       scrollable: [""]
     },
-    habilidades: {
-      template: "systems/fnm/templates/actors/parts/npc-habilidades.html",
+    pericias: {
+      template: "systems/fnm/templates/actors/parts/character-pericias.html",
+      scrollable: [""]
+    },
+    acoes: {
+      template: "systems/fnm/templates/actors/parts/invocacao-acoes.html",
       scrollable: [""]
     },
     biografia: {
@@ -33,7 +42,8 @@ export class FnmInvocacaoSheet extends FnmBaseActorSheet {
     primary: {
       tabs: [
         { id: "principal", label: "Principal" },
-        { id: "habilidades", label: "Habilidades" },
+        { id: "pericias", label: "Perícias" },
+        { id: "acoes", label: "Ações e Características" },
         { id: "biografia", label: "Biografia" }
       ],
       initial: "principal"
@@ -46,13 +56,45 @@ export class FnmInvocacaoSheet extends FnmBaseActorSheet {
     const sys = this.actor.system;
 
     context.tabs = this._prepareTabs("primary");
-    context.graus = FNM.graus;
     context.tiposInvocacao = FNM.tiposInvocacao;
+    context.tamanhos = FNM.tamanhos;
+    context.tiposAcao = FNM.tiposAcaoInvocacao;
+    context.grausInvocacao = Object.entries(FNM.grausInvocacao).map(([id, g]) => ({ id, ...g }));
 
-    // Lista de possíveis invocadores (personagens do mundo)
+    const grau = FNM.grausInvocacao[sys.detalhes.grau] ?? FNM.grausInvocacao.Quarto;
+    context.grauAtual = grau;
+    // A fórmula de PV usa frações da Constituição e do nível: mostradas por extenso
+    context.fatorCon = grau.pv.con === 0.5 ? "metade" : `${grau.pv.con}x`;
+    context.fatorNivel =
+      grau.pv.nivel === 1 ? "1x" : `${String(grau.pv.nivel).replace(".", ",")}x`;
+    // Uma Ação com Custo gasta no mínimo 1 PE e no máximo 2 por grau (p. 269)
+    context.maximoPeAcao = grau.custo;
+
+    // Integridade fica de fora dos TRs que uma Invocação pode treinar (p. 261)
+    context.resistenciasTreinaveis = Object.entries(FNM.resistencias)
+      .filter(([id]) => id !== "integridade")
+      .map(([id, r]) => ({ id, ...r }));
+
+    const invocador = this.actor.system.invocador;
+    context.invocadorAtual = invocador;
     context.invocadores = game.actors
       .filter(a => a.type === "character")
       .map(a => ({ id: a.id, name: a.name, selected: a.id === sys.detalhes.invocador }));
+
+    // Ações e Características agrupadas, na ordem em que o livro as apresenta
+    context.acoesPorTipo = FNM.tiposAcaoInvocacao
+      .map(tipo => ({
+        tipo,
+        itens: (context.itens.acaoInvocacao ?? []).filter(a => a.system.tipo === tipo)
+      }))
+      .filter(g => g.itens.length);
+
+    // Avisos de orçamento estourado, para a ficha destacar em vermelho
+    const o = sys.orcamento ?? {};
+    context.excedeuPontos = o.pontos?.gastos > o.pontos?.total;
+    context.excedeuPericias = o.pericias?.usadas > o.pericias?.total;
+    context.excedeuAcoes = o.acoes?.usadas > o.acoes?.total;
+    context.excedeuComCusto = o.acoesComCusto?.usadas > o.acoesComCusto?.total;
 
     return context;
   }

@@ -802,24 +802,234 @@ export class InvocacaoDataModel extends BaseActorModel {
   static defineSchema() {
     return {
       ...super.defineSchema(),
+      // Uma Invocação não começa em 10 como um personagem: todos os atributos
+      // partem de 8 e podem ser baixados até 6, devolvendo pontos (p. 260)
+      atributos: new SchemaField(
+        Object.fromEntries(
+          FNM.ordemAtributos.map(id => [
+            id,
+            new SchemaField({
+              value: new NumberField({
+                required: true,
+                integer: true,
+                min: FNM.invocacao.atributoMinimo,
+                max: 30,
+                initial: FNM.invocacao.atributoInicial
+              })
+            })
+          ])
+        )
+      ),
       detalhes: new SchemaField({
-        nivel: new NumberField({ required: true, integer: true, min: 1, max: 30, initial: 1 }),
-        // id do ator que controla esta invocação
+        // id do ator que controla esta invocação — é dele que saem o Bônus de
+        // Treinamento e o nível usados em todas as fórmulas do capítulo
         invocador: new StringField({ required: true, blank: true }),
         tipo: new StringField({
           required: true,
           initial: "Shikigami",
           choices: FNM.tiposInvocacao
         }),
-        grau: new StringField({ required: true, blank: true, initial: "Grau 4" }),
-        custoInvocacao: new NumberField({ required: true, integer: true, min: 0, initial: 1 }),
+        grau: new StringField({
+          required: true,
+          initial: "Quarto",
+          choices: Object.keys(FNM.grausInvocacao)
+        }),
+        tamanho: new StringField({ required: true, initial: "Médio", choices: FNM.tamanhos }),
+        // Talismã ou dispositivo que traz a Invocação ao campo (p. 258)
+        intermediario: new StringField({ required: true, blank: true }),
+        // Jogada de Ataque e TR em que a Invocação é treinada (p. 261)
+        ataqueTreinado: new StringField({
+          required: true,
+          blank: true,
+          initial: "corpoACorpo",
+          choices: ["", "corpoACorpo", "distancia"]
+        }),
+        resistenciaTreinada: new StringField({
+          required: true,
+          blank: true,
+          initial: "fortitude",
+          // Integridade é a única fora da escolha (p. 261)
+          choices: ["", ...Object.keys(FNM.resistencias).filter(r => r !== "integridade")]
+        }),
+        // Ajustes de mesa sobre o que o grau já concede
+        custoExtra: new NumberField({ required: true, integer: true, initial: 0 }),
+        acoesExtras: new NumberField({ required: true, integer: true, min: 0, initial: 0 }),
         ativa: new BooleanField({ required: true, initial: false })
+      }),
+      // Vida e Defesa saem das fórmulas do grau; este é o espaço da homebrew.
+      // O nome evita confusão com o `ajustes` que os ITENS trazem.
+      extras: new SchemaField({
+        pv: new NumberField({ required: true, integer: true, initial: 0 }),
+        defesa: new NumberField({ required: true, integer: true, initial: 0 })
       })
     };
   }
 
+  /** Uma Invocação não tem nível próprio: ela acompanha o do invocador. */
   get nivel() {
-    return this.detalhes.nivel;
+    return this.nivelUsuario ?? 1;
+  }
+
+  /** O ator que controla esta Invocação, quando ele existe no mundo. */
+  get invocador() {
+    const id = this.detalhes.invocador;
+    return id ? (game.actors?.get(id) ?? null) : null;
+  }
+
+  /** A linha da tabela de graus em vigor (p. 258-272). */
+  get grau() {
+    return FNM.grausInvocacao[this.detalhes.grau] ?? FNM.grausInvocacao.Quarto;
+  }
+
+  /**
+   * Antes da v0.2 o grau vinha da escala de feiticeiro, que tem semi-graus.
+   * Invocações usam os cinco graus do capítulo, então um semi-grau cai no grau
+   * cheio abaixo dele.
+   */
+  static migrateData(source) {
+    const antigos = {
+      "Grau 4": "Quarto",
+      "Grau 3": "Terceiro",
+      "Semi-Grau 2": "Terceiro",
+      "Grau 2": "Segundo",
+      "Semi-Grau 1": "Segundo",
+      "Grau 1": "Primeiro",
+      "Grau Especial": "Especial"
+    };
+    if (source.detalhes?.grau in antigos) {
+      source.detalhes.grau = antigos[source.detalhes.grau];
+    }
+    return super.migrateData(source);
+  }
+
+  /**
+   * Todos os testes de uma Invocação seguem uma fórmula só (p. 261):
+   * modificador do atributo-chave + Bônus de Treinamento do usuário + metade do
+   * nível do Controlador. Sem treinamento na perícia, o BT não entra.
+   */
+  _prepararTestes() {
+    const bt = this.bonusTreinamentoUsuario;
+    const metade = metadeNivel(this.nivel);
+
+    for (const [id, cfg] of Object.entries(FNM.pericias)) {
+      const p = this.pericias[id];
+      p.nome = cfg.nome;
+      p.atributo = cfg.atributo;
+      p.exigeTreino = cfg.exigeTreino === true;
+      p.complementar = cfg.complementar === true;
+      p.temSubcategoria = cfg.subcategoria === true;
+      p.total = this.atributos[cfg.atributo].mod + metade + (p.treinado ? bt : 0) + p.outros;
+      // Sem treino, a Invocação só usa a perícia dentro de uma ação comandada
+      p.bloqueada = !p.treinado && !p.mestre;
+    }
+
+    for (const [id, cfg] of Object.entries(FNM.resistencias)) {
+      const r = this.resistencias[id];
+      r.nome = cfg.nome;
+      r.atributo = cfg.atributo;
+      const treinado = this.detalhes.resistenciaTreinada === id;
+      r.total = this.atributos[cfg.atributo].mod + metade + (treinado ? bt : 0) + r.outros;
+    }
+  }
+
+  /**
+   * Orçamento da criação (p. 260-262): quantos pontos de atributo foram gastos,
+   * quantas perícias podem ser treinadas e quantas Ações/Características cabem.
+   * A ficha mostra os três lado a lado, com o que já foi usado.
+   */
+  _prepararOrcamento() {
+    const g = this.grau;
+    const inicial = FNM.invocacao.atributoInicial;
+
+    // Reduzir um atributo devolve pontos, até o mínimo de 6 (p. 260)
+    const gastos = Object.values(this.atributos).reduce((n, a) => n + (a.value - inicial), 0);
+
+    // 1 + metade do modificador de Inteligência ou Sabedoria, o que for melhor
+    const mental = Math.max(this.atributos.inteligencia.mod, this.atributos.sabedoria.mod);
+    const periciasPermitidas = 1 + Math.floor(mental / 2) + g.periciasExtras;
+    const periciasTreinadas = Object.values(this.pericias).filter(p => p.treinado).length;
+
+    const acoes = this.parent?.items?.filter(i => i.type === "acaoInvocacao") ?? [];
+    const comCusto = acoes.filter(a => a.system.custoPE > 0).length;
+
+    this.orcamento = {
+      pontos: { gastos, total: g.pontosAtributo, maximo: g.maximoAtributo },
+      pericias: { usadas: periciasTreinadas, total: periciasPermitidas },
+      // Cada grau acima do quarto permite uma Ação/Característica extra paga
+      acoes: { usadas: acoes.length, total: g.acoes + this.detalhes.acoesExtras },
+      acoesComCusto: { usadas: comCusto, total: g.acoesComCusto }
+    };
+
+    // Custo em PE: o do grau, mais o que cada Ação/Característica acrescenta
+    const custoAcoes = acoes.reduce((n, a) => n + (FNM.custoAcaoInvocacao[a.system.tipo] ?? 0), 0);
+    this.custoInvocacao = Math.max(0, g.custo + custoAcoes + this.detalhes.custoExtra);
+    this.custoDetalhado = { grau: g.custo, acoes: custoAcoes, extra: this.detalhes.custoExtra };
+  }
+
+  prepareBaseData() {
+    super.prepareBaseData();
+    // Precisam existir antes de qualquer fórmula que os consulte
+    this.nivelUsuario = 1;
+    this.bonusTreinamentoUsuario = 0;
+  }
+
+  prepareDerivedData() {
+    const usuario = this.invocador;
+    this.nivelUsuario = usuario?.system?.nivel ?? 1;
+    this.bonusTreinamentoUsuario = bonusTreinamento(this.nivelUsuario);
+
+    this.ajustesItens = this._ajustesDeItens();
+    this._prepararModificadores();
+    this._prepararCarga();
+
+    const g = this.grau;
+    const con = this.atributos.constituicao.value;
+
+    // PV = base do grau + fator da Constituição (o VALOR, não o modificador) +
+    // fator do nível do usuário (p. 261)
+    this.recursos.pv.max = Math.max(
+      1,
+      Math.floor(g.pv.base + con * g.pv.con + this.nivelUsuario * g.pv.nivel) +
+        this.extras.pv +
+        this.recursos.pv.ajuste -
+        this.recursos.pv.perdidos
+    );
+    // Invocações não têm energia própria: quem paga o custo é o invocador
+    this.recursos.pe.max = 0;
+
+    this._prepararAlma();
+    this._prepararPenalidades();
+    this._prepararTestes();
+    this._prepararCombate();
+
+    // A Defesa não usa a fórmula de personagem: é a base do grau + Destreza da
+    // Invocação + Bônus de Treinamento do usuário (p. 261)
+    this.combate.defesa =
+      g.defesa +
+      this.atributos.destreza.mod +
+      this.bonusTreinamentoUsuario +
+      this.combate.defesaOutros +
+      this.extras.defesa +
+      this.ajustesItens.defesa;
+
+    this._prepararAtaques();
+    this._prepararEstado();
+    this._prepararOrcamento();
+
+    this.bonusTreinamento = this.bonusTreinamentoUsuario;
+    this.metadeNivel = metadeNivel(this.nivel);
+    this.danoDesarmado = danoDesarmado(this.nivel);
+    // CD dos TRs impostos pelas Ações de Ataque da Invocação (p. 263)
+    this.cdAcao = 10 + Math.max(1, metadeNivel(this.nivelUsuario));
+  }
+
+  getRollData() {
+    return {
+      ...super.getRollData(),
+      grau: this.detalhes.grau,
+      custoInvocacao: this.custoInvocacao,
+      cdAcao: this.cdAcao
+    };
   }
 }
 
@@ -1168,6 +1378,78 @@ export class EquipamentoDataModel extends BaseItemModel {
     const chave = this.tipo === "Escudo" ? "escudo" : "uniforme";
     this.encantamentosPermitidos = grau?.encantamentos[chave] ?? 0;
     this.habilidadeUnica = grau?.unica === true;
+  }
+}
+
+/**
+ * Ação ou Característica de Invocação (p. 262-272).
+ *
+ * É o que dá identidade a uma Invocação: o grau define quantas cabem na ficha e
+ * quanto cada uma pode conceder, mas o conteúdo é criado pelo jogador. Os campos
+ * abaixo cobrem as duas famílias do guia — Ações de Ataque (jogada de ataque ou
+ * TR imposto) e Ações de Auxílio (defesa, acerto, dano adicional, RD e cura) —
+ * mais as Características, que são passivas.
+ */
+export class AcaoInvocacaoDataModel extends BaseItemModel {
+  static defineSchema() {
+    return {
+      ...super.defineSchema(),
+      tipo: new StringField({
+        required: true,
+        initial: "Ação Complexa",
+        choices: FNM.tiposAcaoInvocacao
+      }),
+      // Ações de Ataque são obrigatoriamente Complexas (p. 263)
+      categoria: new StringField({
+        required: true,
+        blank: true,
+        initial: "",
+        choices: ["", "Ataque", "Auxílio", "Passiva"]
+      }),
+      resolucao: new StringField({
+        required: true,
+        blank: true,
+        choices: ["", "ataque", "resistencia"]
+      }),
+      resistencia: new StringField({
+        required: true,
+        blank: true,
+        choices: ["", ...Object.keys(FNM.resistencias).filter(r => r !== "integridade")]
+      }),
+      alvo: new StringField({
+        required: true,
+        initial: "Alvo Único",
+        choices: ["Alvo Único", "Alvos Múltiplos", "Área", "A própria Invocação", "Aliados"]
+      }),
+      dano: new StringField({ required: true, blank: true }),
+      tipoDano: new StringField({
+        required: true,
+        blank: true,
+        // Energia Reversa e Dano na Alma ficam fora das ações de ataque (p. 263)
+        choices: ["", ...Object.keys(FNM.tiposDano).filter(t => !["energiaReversa", "alma"].includes(t))]
+      }),
+      cura: new StringField({ required: true, blank: true }),
+      alcance: new NumberField({ required: true, min: 0, initial: 0 }),
+      area: new NumberField({ required: true, min: 0, initial: 0 }),
+      formatoArea: new StringField({ required: true, blank: true }),
+      // Ação com Custo: 1 PE no mínimo, 2 por grau no máximo (p. 269)
+      custoPE: new NumberField({ required: true, integer: true, min: 0, initial: 0 }),
+      // Prejuízo por Múltiplos Auxílios, que a ficha precisa deixar explícito (p. 269)
+      prejuizoAuxilio: new StringField({ required: true, blank: true }),
+      usos: new SchemaField({
+        value: new NumberField({ required: true, integer: true, min: 0, initial: 0 }),
+        max: new NumberField({ required: true, integer: true, min: 0, initial: 0 })
+      })
+    };
+  }
+
+  prepareDerivedData() {
+    super.prepareDerivedData();
+    // Uma Ação de Ataque não pode ser Simples (p. 263)
+    this.exigeComplexa = this.categoria === "Ataque" && this.tipo !== "Ação Complexa";
+    // Ação Simples não causa dano nem cura (p. 262)
+    this.simplesComDano =
+      this.tipo === "Ação Simples" && (!!this.dano || !!this.cura);
   }
 }
 

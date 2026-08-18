@@ -56,27 +56,6 @@
     </fieldset>
     {{/if}}
 
-    {{!-- Bloco de vínculo aparece só na ficha de Invocação --}}
-    {{#if invocadores}}
-    <fieldset class="bloco">
-      <legend>Vínculo</legend>
-      <label>Invocador
-        <select name="system.detalhes.invocador">
-          <option value="">—</option>
-          {{#each invocadores as |i|}}
-          <option value="{{i.id}}" {{#if i.selected}}selected{{/if}}>{{i.name}}</option>
-          {{/each}}
-        </select>
-      </label>
-      <label>Custo para invocar (PE)
-        <input type="number" name="system.detalhes.custoInvocacao" value="{{system.detalhes.custoInvocacao}}" min="0" />
-      </label>
-      <label class="checkbox">
-        <input type="checkbox" name="system.detalhes.ativa" {{#if system.detalhes.ativa}}checked{{/if}} />
-        Ativa em campo
-      </label>
-    </fieldset>
-    {{/if}}
   </div>
 
   <fieldset class="bloco armas-bloco">

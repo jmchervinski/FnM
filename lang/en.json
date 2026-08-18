@@ -12,6 +12,7 @@
   "TYPES.Item.arma": "Weapon",
   "TYPES.Item.equipamento": "Equipment",
   "TYPES.Item.voto": "Binding Vow",
+  "TYPES.Item.acaoInvocacao": "Summon Action",
 
   "FNM.SheetCharacter": "Character Sheet (F&M)",
   "FNM.SheetNpc": "NPC / Curse Sheet (F&M)",

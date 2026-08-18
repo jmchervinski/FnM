@@ -961,6 +961,169 @@ function paginaFerramentas() {
   );
 }
 
+/**
+ * Invocações: o capítulo é quase todo tabela, e todas elas são indexadas pelo
+ * grau. A página monta as linhas a partir de FNM.grausInvocacao, então o que a
+ * ficha calcula e o que o diário mostra não podem divergir.
+ */
+function paginaInvocacoes() {
+  const graus = Object.values(FNM.grausInvocacao);
+  const linha = celulas => `<tr>${celulas.map(c => `<td>${c}</td>`).join("")}</tr>`;
+  const tabela = (cabecalhos, linhas) =>
+    `<table><thead><tr>${cabecalhos.map(c => `<th>${c}</th>`).join("")}</tr></thead>` +
+    `<tbody>${linhas.join("")}</tbody></table>`;
+  const ou = v => v || "—";
+  // O livro usa vírgula decimal: 4.5 vira "4,5"
+  const num = v => String(v).replace(".", ",");
+
+  const criacao = tabela(
+    ["Grau", "Custo", "Pontos de atributo", "Máximo por atributo", "Perícias extras", "Ações/Caract.", "Ações com custo"],
+    graus.map(g =>
+      linha([g.nome, `${g.custo} PE`, g.pontosAtributo, g.maximoAtributo, g.periciasExtras, g.acoes, g.acoesComCusto])
+    )
+  );
+
+  const vidaDefesa = tabela(
+    ["Grau", "Pontos de Vida", "Defesa"],
+    graus.map(g =>
+      linha([
+        g.nome,
+        `${g.pv.base} + ${g.pv.con === 0.5 ? "metade da" : "a"} Constituição + ` +
+          `${num(g.pv.nivel)}x o nível do usuário`,
+        `${g.defesa} + mod. de Destreza + Bônus de Treinamento do usuário`
+      ])
+    )
+  );
+
+  const dano = tabela(
+    ["Grau", "Ataque, alvo único", "TR, alvo único", "Alvos múltiplos", "Área", "Alcance", "Área padrão"],
+    graus.map(g =>
+      linha([
+        g.nome,
+        g.dano.ataque,
+        g.dano.resistencia,
+        ou(g.dano.multiplos),
+        ou(g.dano.area),
+        `${num(g.alcance)} m`,
+        g.area ? `${num(g.area)} m` : "—"
+      ])
+    )
+  );
+
+  const auxilio = tabela(
+    ["Grau", "Cura, alvo único", "Cura, múltiplos", "Bônus na Defesa", "Bônus em acerto", "Dano adicional", "Redução de Dano"],
+    graus.map(g =>
+      linha([
+        g.nome,
+        g.cura.unico,
+        ou(g.cura.multiplos),
+        `+${g.auxilio.defesa}`,
+        `+${g.auxilio.acerto}`,
+        g.auxilio.danoAdicional,
+        g.auxilio.reducaoDano
+      ])
+    )
+  );
+
+  const caracteristicas = tabela(
+    ["Grau", "Vida adicional", "Bônus em teste", "Redução de Dano", "Tamanho"],
+    graus.map(g =>
+      linha([
+        g.nome,
+        `${g.caracteristica.vida} PV`,
+        `+${g.caracteristica.bonusTeste}`,
+        g.caracteristica.reducaoDano,
+        `${g.caracteristica.tamanhoMin} a ${g.caracteristica.tamanhoMax}`
+      ])
+    )
+  );
+
+  const acesso = tabela(
+    ["Nível de Controlador", "Graus disponíveis"],
+    Object.entries(FNM.nivelParaGrauInvocacao).map(([id, nivel]) => {
+      const ate = Object.entries(FNM.nivelParaGrauInvocacao)
+        .filter(([, n]) => n <= nivel)
+        .map(([chave]) => FNM.grausInvocacao[chave].nome)
+        .join(", ");
+      return linha([`Nível ${nivel}${id === "Especial" ? " ou superior" : ""}`, ate]);
+    })
+  );
+
+  return (
+    `<p>Invocações são criaturas ou construtos controlados por um personagem: Corpos Amaldiçoados,
+     Maldições Domadas, Marionetes e Shikigamis. São o recurso central do Controlador e um auxílio
+     opcional para as demais especializações.</p>
+     <h2>Obtendo e controlando</h2>
+     <ul>
+       <li>Um Controlador começa com duas Invocações no 1º nível e recebe mais uma a cada 3 níveis.
+       Fora dele, elas são criadas em Interlúdios ou obtidas domando maldições.</li>
+       <li>Trazer ao campo usa a ação <b>Invocar</b>, que traz duas por padrão. Dissipar é uma Ação
+       Livre, e não pode ser feito na mesma rodada em que foram invocadas.</li>
+       <li>O limite padrão é <b>1 Invocação em campo</b>, ampliado pela habilidade Treinamento em
+       Controle.</li>
+       <li>Uma Ação Comum do dono comanda uma <b>Ação Complexa</b>; uma Ação Bônus comanda uma
+       <b>Ação Simples</b>. Mover é Ação Livre, uma vez por rodada. Cada Invocação tem a própria
+       Reação, recuperada no turno do dono.</li>
+       <li>Invocações não têm valor de Atenção: só procuram algo quando comandadas, com Percepção.</li>
+     </ul>
+     <p>A 0 PV, um shikigami é <b>dissipado</b> e uma marionete, <b>desativada</b> — voltam no próximo
+     turno, pagando o custo de novo e com metade dos PV máximos até um descanso. Com dano excedente
+     acima do máximo de vida, são <b>exorcizados</b> ou <b>destruídos</b>, e a perda é permanente.</p>
+     <h2>Intermediários</h2>
+     <p>Toda Invocação é ligada a um Intermediário, que ocupa meio espaço no inventário: shikigamis
+     usam <b>talismãs</b> e Corpos Amaldiçoados são <b>o próprio dispositivo</b>. Certas técnicas
+     inatas dispensam o talismã, como a Dez Sombras.</p>
+     <h2>Acesso por nível de Controlador</h2>
+     ${acesso}
+     <h2>Criação</h2>
+     <p>Toda Invocação começa com os seis atributos em 8 e distribui os pontos do grau. Reduzir um
+     atributo, até o mínimo de 6, devolve a diferença em pontos.</p>
+     ${criacao}
+     <h2>Vida e Defesa</h2>
+     <p>A Constituição entra pelo <b>valor</b> do atributo, não pelo modificador. O Deslocamento
+     padrão é de 9 metros.</p>
+     ${vidaDefesa}
+     <h2>Treinamentos e perícias</h2>
+     <p>Escolha uma Jogada de Ataque (corpo a corpo ou a distância) e um Teste de Resistência para a
+     Invocação ser treinada — Integridade fica de fora. Depois, treine
+     <b>1 + metade do modificador de Inteligência ou Sabedoria</b> perícias comuns, mais as extras do
+     grau. Ofício está fora do alcance de uma Invocação.</p>
+     <p>Todo teste dela usa a mesma fórmula: <b>modificador do atributo-chave + Bônus de Treinamento
+     do usuário + metade do nível do Controlador</b>. Sem treinamento na perícia, o Bônus de
+     Treinamento não entra.</p>
+     <h2>Ações de Ataque</h2>
+     <p>Uma Ação de Ataque é obrigatoriamente Complexa e se resolve por jogada de ataque ou por TR
+     imposto, com CD igual a <b>10 + metade do nível do usuário (mínimo 1) + modificador do atributo
+     relevante</b>. Os valores abaixo são de ataque a distância: em corpo a corpo, aumente o dano em
+     3 níveis. Uma área em linha é dobrada. No Grau Especial o bônus é o dobro do modificador.</p>
+     ${dano}
+     <h2>Ações de Auxílio</h2>
+     <p>Os valores são os de uma Ação Simples. Como Ação Complexa, os bônus fixos aumentam 1,5 vez e
+     o dano adicional sobe 3 níveis. Curar PV custa 2 PE, e sem Energia Reversa a cura vira PV
+     temporários. Cada Ação de Auxílio repetida na mesma rodada sofre o <b>Prejuízo por Múltiplos
+     Auxílios</b> descrito na tabela de origem do benefício.</p>
+     ${auxilio}
+     <h2>Características</h2>
+     <p>São os aspectos passivos. Duas Características não podem conceder o mesmo efeito, e elas não
+     dão ações, dados extras, imunidades, técnicas, habilidades de especialização nem teleporte —
+     salvo maldições domadas e shikigamis de técnica, nos casos que o livro abre. Em Jogadas de
+     Ataque e TRs, o bônus em teste vale pela metade e exige um gatilho.</p>
+     ${caracteristicas}
+     <h2>Ações com Custo</h2>
+     <p>Uma Ação com Custo é sempre Complexa, gasta de 1 PE até 2 por grau e só pode ser usada uma
+     vez por rodada. Cada PE investido compra: +6 m de alcance, +3 m de área, +1 na jogada de ataque
+     ou na CD, ou 2 níveis de dano ou cura por 1 PE. Aplicar uma Condição por 1 rodada custa 2 (Fraca),
+     4 (Média) ou 6 (Forte).</p>
+     <h2>Hordas</h2>
+     <p>Um Controlador pode transformar Invocações em Horda, com um líder de primeiro grau ou inferior
+     e membros de grau inferior ao dele. Cada membro soma metade dos próprios PV ao líder, aumenta os
+     efeitos das ações e, a cada dois membros, sobe uma categoria de tamanho. A Horda conta como uma
+     Invocação só, tanto para o limite em campo quanto como alvo. A metade dos PV máximos ela perde
+     metade dos membros, começando pelos de menor grau.</p>
+     <p><i>Livro de Regras v2.5.2, p. 255-272.</i></p>`
+  );
+}
+
 /** Monta a página de condições a partir da configuração do sistema. */
 function paginaCondicoes() {
   const grupos = {};
@@ -1167,6 +1330,11 @@ export const JOURNAL_PACKS = {
             _id: id("pagina-ferramentas"),
             name: "Ferramentas Amaldiçoadas",
             content: paginaFerramentas()
+          },
+          {
+            _id: id("pagina-invocacoes"),
+            name: "Invocações",
+            content: paginaInvocacoes()
           },
           {
             _id: id("pagina-alma"),

@@ -15,24 +15,47 @@
           {{/each}}
         </select>
       </label>
-      <label>Grau
+      <label title="O grau define custo, atributos, Vida, Defesa e quantas ações cabem (p. 258)">Grau
         <select name="system.detalhes.grau">
-          <option value="">—</option>
-          {{#each graus as |g|}}
-          <option value="{{g}}" {{#if (eq g ../system.detalhes.grau)}}selected{{/if}}>{{g}}</option>
+          {{#each grausInvocacao as |g|}}
+          <option value="{{g.id}}" {{#if (eq g.id ../system.detalhes.grau)}}selected{{/if}}>{{g.nome}}</option>
           {{/each}}
         </select>
       </label>
-      <label>Nível <input type="number" name="system.detalhes.nivel" value="{{system.detalhes.nivel}}" min="1" max="30" /></label>
+      <label>Tamanho
+        <select name="system.detalhes.tamanho">
+          {{#each tamanhos as |t|}}
+          <option value="{{t}}" {{#if (eq t ../system.detalhes.tamanho)}}selected{{/if}}>{{t}}</option>
+          {{/each}}
+        </select>
+      </label>
+      <label title="É dele que saem o Bônus de Treinamento e o nível de todas as fórmulas">Invocador
+        <select name="system.detalhes.invocador">
+          <option value="">—</option>
+          {{#each invocadores as |i|}}
+          <option value="{{i.id}}" {{#if i.selected}}selected{{/if}}>{{i.name}}</option>
+          {{/each}}
+        </select>
+      </label>
     </div>
 
     <div class="linha-derivados">
       <span class="derivado">DEF <b>{{system.combate.defesa}}</b></span>
       <span class="derivado botao-inline" data-action="rolarIniciativa">INI <b>{{sinal system.combate.iniciativa}}</b> <i class="fas fa-dice-d20"></i></span>
       <span class="derivado">DESL <b>{{system.combate.deslocamentoAtual}}m</b></span>
+      <span class="derivado" title="Custo do grau + o que cada ação acrescenta">
+        CUSTO <b>{{system.custoInvocacao}} PE</b>
+      </span>
+      <span class="derivado" title="CD dos TRs impostos pelas ações de ataque (p. 263)">
+        CD <b>{{system.cdAcao}}</b> + mod.
+      </span>
       <span class="derivado {{#if system.detalhes.ativa}}ativo{{/if}}">
         {{#if system.detalhes.ativa}}Em campo{{else}}Fora de campo{{/if}}
       </span>
     </div>
+
+    {{#unless invocadorAtual}}
+    <p class="aviso">Sem invocador escolhido, as fórmulas usam nível 1 e Bônus de Treinamento +2.</p>
+    {{/unless}}
   </div>
 </header>

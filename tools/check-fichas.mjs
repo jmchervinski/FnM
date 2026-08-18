@@ -73,7 +73,8 @@ const MODELOS = {
   feitico: M.FeiticoDataModel,
   arma: M.ArmaDataModel,
   equipamento: M.EquipamentoDataModel,
-  voto: M.VotoDataModel
+  voto: M.VotoDataModel,
+  acaoInvocacao: M.AcaoInvocacaoDataModel
 };
 
 const esquemas = Object.fromEntries(
@@ -84,7 +85,7 @@ const esquemas = Object.fromEntries(
 const USO = {
   "character-header.html": ["character"],
   "character-principal.html": ["character"],
-  "character-pericias.html": ["character", "npc"],
+  "character-pericias.html": ["character", "npc", "invocacao"],
   "character-jujutsu.html": ["character"],
   "character-feiticos.html": ["character"],
   "character-registro.html": ["character"],
@@ -96,10 +97,12 @@ const USO = {
   "actor-itens.html": ["character", "npc", "invocacao"],
   "actor-footer.html": ["character", "npc", "invocacao"],
   "npc-header.html": ["npc"],
-  "npc-principal.html": ["npc", "invocacao"],
+  "npc-principal.html": ["npc"],
   "npc-habilidades.html": ["npc", "invocacao"],
   "npc-biografia.html": ["npc", "invocacao"],
   "invocacao-header.html": ["invocacao"],
+  "invocacao-principal.html": ["invocacao"],
+  "invocacao-acoes.html": ["invocacao"],
   "item-sheet.html": Object.keys(MODELOS).filter(
     k => !["character", "npc", "invocacao"].includes(k)
   )
@@ -117,13 +120,15 @@ const FICHAS = {
     "npc-biografia", "actor-footer"
   ],
   "Invocação": [
-    "invocacao-header", "npc-principal", "npc-habilidades", "npc-biografia", "actor-footer"
+    "invocacao-header", "invocacao-principal", "character-pericias", "invocacao-acoes",
+    "npc-biografia", "actor-footer"
   ]
 };
 const PARCIAIS = {
   "character-principal": ["actor-atributos", "actor-recursos", "linha-uso"],
   "character-jujutsu": ["linha-uso"],
   "character-progressao": ["actor-itens"],
+  "invocacao-principal": ["actor-atributos", "actor-recursos"],
   "npc-principal": ["actor-atributos", "actor-recursos"],
   "npc-habilidades": ["actor-itens"]
 };

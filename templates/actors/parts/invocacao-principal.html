@@ -1,0 +1,112 @@
+<div class="tab principal {{tab.cssClass}}" data-group="primary" data-tab="principal">
+
+  {{!-- Orçamento da criação: o que o grau concede contra o que já foi gasto (p. 260-262) --}}
+  <fieldset class="bloco orcamento-bloco">
+    <legend>Criação — {{grauAtual.nome}}</legend>
+    <div class="orcamento-grade">
+      <div class="orcamento-caixa {{#if excedeuPontos}}excedido{{/if}}">
+        <span class="orcamento-rotulo">Pontos de atributo</span>
+        <span class="orcamento-valor">{{system.orcamento.pontos.gastos}} / {{system.orcamento.pontos.total}}</span>
+        <span class="orcamento-nota">máximo {{system.orcamento.pontos.maximo}} por atributo</span>
+      </div>
+      <div class="orcamento-caixa {{#if excedeuPericias}}excedido{{/if}}">
+        <span class="orcamento-rotulo">Perícias treinadas</span>
+        <span class="orcamento-valor">{{system.orcamento.pericias.usadas}} / {{system.orcamento.pericias.total}}</span>
+        <span class="orcamento-nota">1 + metade de INT ou SAB + {{grauAtual.periciasExtras}} do grau</span>
+      </div>
+      <div class="orcamento-caixa {{#if excedeuAcoes}}excedido{{/if}}">
+        <span class="orcamento-rotulo">Ações e Características</span>
+        <span class="orcamento-valor">{{system.orcamento.acoes.usadas}} / {{system.orcamento.acoes.total}}</span>
+        <span class="orcamento-nota">{{grauAtual.acoes}} do grau + extras pagos</span>
+      </div>
+      <div class="orcamento-caixa {{#if excedeuComCusto}}excedido{{/if}}">
+        <span class="orcamento-rotulo">Ações com custo</span>
+        <span class="orcamento-valor">{{system.orcamento.acoesComCusto.usadas}} / {{system.orcamento.acoesComCusto.total}}</span>
+        <span class="orcamento-nota">máximo {{maximoPeAcao}} PE cada</span>
+      </div>
+    </div>
+    <p class="dica">Custo para invocar: <b>{{system.custoDetalhado.grau}} PE</b> do grau
+      + <b>{{system.custoDetalhado.acoes}} PE</b> das ações
+      {{#if system.custoDetalhado.extra}}+ <b>{{system.custoDetalhado.extra}} PE</b> de ajuste{{/if}}
+      = <b>{{system.custoInvocacao}} PE</b>. Toda Invocação começa com os atributos em 8 e pode
+      baixá-los até 6, recebendo os pontos de volta (p. 260).</p>
+  </fieldset>
+
+  <div class="colunas">
+    {{> "systems/fnm/templates/actors/parts/actor-atributos.html"}}
+    {{> "systems/fnm/templates/actors/parts/actor-recursos.html"}}
+  </div>
+
+  <div class="colunas">
+    <fieldset class="bloco combate-bloco">
+      <legend>Combate</legend>
+      <p class="dica">PV e Defesa saem das fórmulas do grau (p. 261):
+        <b>{{grauAtual.pv.base}} + {{fatorCon}} da Constituição + {{fatorNivel}} do nível do usuário</b>
+        e <b>{{grauAtual.defesa}} + Destreza + Bônus de Treinamento do usuário</b>.</p>
+      <div class="combate-grid">
+        <label title="Somado ao PV máximo calculado pelo grau">Vida (extras)
+          <input type="number" name="system.extras.pv" value="{{system.extras.pv}}" step="1" />
+        </label>
+        <label title="Somado à Defesa calculada pelo grau">Defesa (extras)
+          <input type="number" name="system.extras.defesa" value="{{system.extras.defesa}}" step="1" />
+        </label>
+        <label>Defesa (outros bônus)
+          <input type="number" name="system.combate.defesaOutros" value="{{system.combate.defesaOutros}}" step="1" />
+        </label>
+        <label>Iniciativa (extras)
+          <input type="number" name="system.combate.iniciativaOutros" value="{{system.combate.iniciativaOutros}}" step="1" />
+        </label>
+        <label title="O padrão de uma Invocação é 9 metros (p. 261)">Deslocamento (m)
+          <input type="number" name="system.combate.deslocamento" value="{{system.combate.deslocamento}}" min="0" step="1.5" />
+        </label>
+        <label class="largo">Outros deslocamentos
+          <input type="text" name="system.combate.deslocamentoExtra" value="{{system.combate.deslocamentoExtra}}" />
+        </label>
+      </div>
+      <div class="combate-botoes">
+        <button type="button" data-action="rolarIniciativa"><i class="fas fa-dice-d20"></i> Iniciativa</button>
+      </div>
+      <p class="dica">Invocações em campo não têm valor de Atenção: só procuram algo quando
+        comandadas, usando Percepção (p. 257).</p>
+    </fieldset>
+
+    <fieldset class="bloco">
+      <legend>Vínculo e Treinamento</legend>
+      <label title="Talismã do shikigami ou dispositivo do corpo amaldiçoado; ocupa meio espaço (p. 258)">
+        Intermediário
+        <input type="text" name="system.detalhes.intermediario" value="{{system.detalhes.intermediario}}"
+               placeholder="Talismã do Cão Divino, dispositivo compacto…" />
+      </label>
+      <label title="A Invocação é treinada em uma jogada de ataque (p. 261)">Jogada de Ataque treinada
+        <select name="system.detalhes.ataqueTreinado">
+          <option value="">Nenhuma</option>
+          <option value="corpoACorpo" {{#if (eq system.detalhes.ataqueTreinado "corpoACorpo")}}selected{{/if}}>Corpo a Corpo</option>
+          <option value="distancia" {{#if (eq system.detalhes.ataqueTreinado "distancia")}}selected{{/if}}>A Distância</option>
+        </select>
+      </label>
+      <label title="Um TR treinado, com exceção de Integridade (p. 261)">Teste de Resistência treinado
+        <select name="system.detalhes.resistenciaTreinada">
+          <option value="">Nenhum</option>
+          {{#each resistenciasTreinaveis as |r|}}
+          <option value="{{r.id}}" {{#if (eq r.id ../system.detalhes.resistenciaTreinada)}}selected{{/if}}>{{r.nome}}</option>
+          {{/each}}
+        </select>
+      </label>
+      <div class="campos-grid">
+        <label title="Ações e Características além do que o grau concede, pagas em PE">Ações extras
+          <input type="number" name="system.detalhes.acoesExtras" value="{{system.detalhes.acoesExtras}}" min="0" />
+        </label>
+        <label title="Ajuste livre no custo em PE">Custo (ajuste)
+          <input type="number" name="system.detalhes.custoExtra" value="{{system.detalhes.custoExtra}}" step="1" />
+        </label>
+      </div>
+      <label class="checkbox">
+        <input type="checkbox" name="system.detalhes.ativa" {{#if system.detalhes.ativa}}checked{{/if}} />
+        Em campo
+      </label>
+      <p class="dica">Trazer ao campo usa a ação Invocar; dissipar é uma Ação Livre, e não pode ser
+        feito na mesma rodada em que foi invocada (p. 256).</p>
+    </fieldset>
+  </div>
+
+</div>

@@ -400,6 +400,79 @@
     {{/if}}
     {{/if}}
 
+    {{#if (eq item.type "acaoInvocacao")}}
+    <div class="campos-grid">
+      <label title="Ações Simples são a ação bônus da Invocação e não causam dano nem curam (p. 262)">Tipo
+        <select name="system.tipo">
+          {{#each config.tiposAcaoInvocacao as |t|}}
+          <option value="{{t}}" {{#if (eq t ../system.tipo)}}selected{{/if}}>{{t}}</option>
+          {{/each}}
+        </select>
+      </label>
+      <label title="Ações de Ataque são obrigatoriamente Complexas (p. 263)">Categoria
+        <select name="system.categoria">
+          <option value="">—</option>
+          {{#each (array "Ataque" "Auxílio" "Passiva") as |c|}}
+          <option value="{{c}}" {{#if (eq c ../system.categoria)}}selected{{/if}}>{{c}}</option>
+          {{/each}}
+        </select>
+      </label>
+      <label>Alvo
+        <select name="system.alvo">
+          {{#each (array "Alvo Único" "Alvos Múltiplos" "Área" "A própria Invocação" "Aliados") as |a|}}
+          <option value="{{a}}" {{#if (eq a ../system.alvo)}}selected{{/if}}>{{a}}</option>
+          {{/each}}
+        </select>
+      </label>
+      <label>Resolução
+        <select name="system.resolucao">
+          <option value="">—</option>
+          <option value="ataque" {{#if (eq system.resolucao "ataque")}}selected{{/if}}>Jogada de Ataque</option>
+          <option value="resistencia" {{#if (eq system.resolucao "resistencia")}}selected{{/if}}>Teste de Resistência</option>
+        </select>
+      </label>
+      <label title="Integridade fica de fora (p. 263)">Resistência exigida
+        <select name="system.resistencia">
+          <option value="">—</option>
+          {{#each resistenciasTreinaveis as |r|}}
+          <option value="{{r.id}}" {{#if (eq r.id ../system.resistencia)}}selected{{/if}}>{{r.nome}}</option>
+          {{/each}}
+        </select>
+      </label>
+      <label>Dano <input type="text" name="system.dano" value="{{system.dano}}" placeholder="1d12" /></label>
+      <label title="Energia Reversa e Dano na Alma ficam fora (p. 263)">Tipo de dano
+        <select name="system.tipoDano">
+          <option value="">—</option>
+          {{#each tiposDanoAcao as |t|}}
+          <option value="{{t.id}}" {{#if (eq t.id ../system.tipoDano)}}selected{{/if}}>{{t.nome}}</option>
+          {{/each}}
+        </select>
+      </label>
+      <label>Cura <input type="text" name="system.cura" value="{{system.cura}}" placeholder="1d8" /></label>
+      <label>Alcance (m) <input type="number" name="system.alcance" value="{{system.alcance}}" min="0" step="1.5" /></label>
+      <label>Área (m) <input type="number" name="system.area" value="{{system.area}}" min="0" step="1.5" /></label>
+      <label>Formato da área
+        <input type="text" name="system.formatoArea" value="{{system.formatoArea}}" placeholder="Cone, linha, quadrado…" />
+      </label>
+      <label title="Ação com Custo: no mínimo 1 PE, no máximo 2 por grau (p. 269)">Custo em PE
+        <input type="number" name="system.custoPE" value="{{system.custoPE}}" min="0" />
+      </label>
+      <label title="Usos restantes">Usos — Atual <input type="number" name="system.usos.value" value="{{system.usos.value}}" min="0" /></label>
+      <label title="0 = uso ilimitado">Usos — Máx. <input type="number" name="system.usos.max" value="{{system.usos.max}}" min="0" /></label>
+      <label class="largo" title="A ficha deve sempre deixar o prejuízo explícito (p. 269)">
+        Prejuízo por múltiplos auxílios
+        <input type="text" name="system.prejuizoAuxilio" value="{{system.prejuizoAuxilio}}"
+               placeholder="-1 para cada uso repetido na rodada, até 0" />
+      </label>
+    </div>
+    {{#if system.exigeComplexa}}
+    <p class="dica aviso">Uma Ação de Ataque tem de ser uma Ação Complexa (p. 263).</p>
+    {{/if}}
+    {{#if system.simplesComDano}}
+    <p class="dica aviso">Uma Ação Simples não pode causar dano nem realizar cura (p. 262).</p>
+    {{/if}}
+    {{/if}}
+
     {{#if (eq item.type "voto")}}
     <div class="campos-grid">
       <label>Peso
