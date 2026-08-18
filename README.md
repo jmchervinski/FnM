@@ -45,7 +45,7 @@ https://github.com/jmchervinski/FnM/releases/latest/download/system.json
 | Tipo | Uso |
 | --- | --- |
 | **Personagem** | Feiticeiro jogável, com sete abas espelhando as páginas do Modelo de Ficha oficial v2.5 (Ficha Pessoal, Perícias, Perfil Amaldiçoado, Feitiços, Registro e Inventário, Progressão, Treinamentos) |
-| **NPC / Maldição** | Antagonistas, com PV e Defesa fixos por padrão, imunidades, resistências e vulnerabilidades — e o **orçamento de criação do Grimório**: Patamar, ND, Tamanho e os tetos de atributo, perícia, imunidade e característica que o Patamar concede |
+| **NPC / Maldição** | Antagonistas, com PV e Defesa fixos por padrão, imunidades, resistências e vulnerabilidades, uma aba de **Ações** separando ataques de efeitos por Teste de Resistência — e o **orçamento de criação do Grimório**: Patamar, ND, Tamanho e os tetos de atributo, perícia, imunidade e característica que o Patamar concede |
 | **Invocação** | Shikigamis, corpos amaldiçoados, marionetes e maldições domadas, com Vida, Defesa, testes e custo derivados do grau e do invocador |
 
 ### Tipos de item
@@ -185,11 +185,17 @@ editável à mão antes e depois, e o Narrador vê um resumo do que será escrit
 - Os poderes viram itens: `features`, `caracteristicas` e `artimanhas` viram **Características**;
   `dotes`, `aptidoesEspeciais` e `treinamentos` viram **Dotes** do tipo correspondente (a
   categoria de um Dote Amaldiçoado sai do rótulo da Galeria: "Aptidões de Anatomia" → Anatomia)
-- As **Ações** se dividem pelo tipo de resolução: as de **acerto** viram **Armas**, que a ficha já
-  sabe rolar (o bônus próprio da ação vira o `bonusAtaque` da arma, e a margem de crítico vem do
-  arquivo); as por **Teste de Resistência** viram Características, porque não existe item de ação
-  com TR neste sistema. Nos dois casos a descrição carrega o bloco inteiro — acerto, CD, TR,
-  alcance, área, dano, dano médio, custo e condição aplicada
+- As **Ações** se dividem pelo tipo de resolução, e as duas metades caem na aba **Ações** da
+  ficha, roláveis: as de **acerto** viram **Armas** (o bônus próprio da ação vira o `bonusAtaque`,
+  e a margem de crítico vem do arquivo); as por **Teste de Resistência** viram **Feitiços**, que é
+  o item que já resolve por TR — com resistência, área, dano e custo em PE. Nos dois casos a
+  descrição carrega o bloco inteiro: acerto, CD, TR, alcance, área, dano, dano médio, custo e
+  condição aplicada
+- A **Integridade da Alma** entra sempre cheia. O construtor exporta a integridade numa escala de
+  0 a 100, que não é a daqui — e deixar o padrão contra um PV alto colocaria a criatura em estado
+  de alma **Crítico** já na importação, com −8 em tudo e os totais aparecendo errados
+- O **nome** vai para o ator e para o token protótipo (que não acompanha o ator sozinho depois que
+  ele já existe)
 - Por padrão os poderes do arquivo se **somam** aos que já estão na ficha; há uma caixa para
   apagar os Dotes e Características antigos antes. O resto da ficha nunca é apagado: o que o
   arquivo não trouxer fica como estava

@@ -1,0 +1,75 @@
+<div class="tab acoes {{tab.cssClass}}" data-group="primary" data-tab="acoes">
+
+  {{!-- O que a criatura tem por turno, à mão na hora de jogar (Grimório, p. 53) --}}
+  <fieldset class="bloco">
+    <legend>Ações por turno</legend>
+    <div class="acoes-resumo">
+      <span class="acao-contador"><b>{{system.inimigo.acoes.comum}}</b> Comum</span>
+      <span class="acao-contador"><b>{{system.inimigo.acoes.rapida}}</b> Rápida</span>
+      <span class="acao-contador"><b>{{system.inimigo.acoes.bonus}}</b> Bônus</span>
+      <span class="acao-contador"><b>{{system.inimigo.acoes.movimento}}</b> Movimento</span>
+      <span class="acao-contador"><b>{{system.inimigo.acoes.reacao}}</b> Reação</span>
+    </div>
+    <p class="dica">O Patamar {{system.orcamento.nome}} recomenda: {{system.orcamento.acoesDoTurno}}</p>
+  </fieldset>
+
+  {{!-- Ações resolvidas por jogada de acerto --}}
+  <fieldset class="bloco armas-bloco">
+    <legend>Ataques</legend>
+    <header class="itens-header">
+      <span></span>
+      <button type="button" data-action="itemCreate" data-type="arma"><i class="fas fa-plus"></i> Ataque</button>
+    </header>
+    <ol class="item-list">
+      {{#each itens.arma as |item|}}
+      <li class="item" data-item-id="{{item.id}}">
+        <a class="item-nome" data-action="itemExpand">{{item.name}}</a>
+        <span class="item-tag">
+          {{item.system.dano}}{{#if item.system.tipoDano}} {{item.system.tipoDano}}{{/if}}
+          {{#if item.system.alcance}} · {{item.system.alcance}}{{/if}}
+          · crít {{item.system.critico}}
+        </span>
+        <div class="item-controls">
+          <a data-action="atacarArma" title="Rolar ataque"><i class="fas fa-crosshairs"></i></a>
+          <a data-action="danoArma" title="Rolar dano"><i class="fas fa-bolt"></i></a>
+          <a data-action="itemChat"><i class="fas fa-comment"></i></a>
+          <a data-action="itemEdit"><i class="fas fa-edit"></i></a>
+          <a data-action="itemDelete"><i class="fas fa-trash"></i></a>
+        </div>
+        <div class="item-descricao">{{{item.system.description}}}</div>
+      </li>
+      {{/each}}
+    </ol>
+    {{#unless itens.arma.length}}<p class="vazio">Nada aqui ainda.</p>{{/unless}}
+  </fieldset>
+
+  {{!-- Ações resolvidas por Teste de Resistência do alvo --}}
+  <fieldset class="bloco">
+    <legend>Feitiços &amp; Ações de Resistência</legend>
+    <header class="itens-header">
+      <span></span>
+      <button type="button" data-action="itemCreate" data-type="feitico"><i class="fas fa-plus"></i> Feitiço</button>
+    </header>
+    <ol class="item-list">
+      {{#each itens.feitico as |item|}}
+      <li class="item" data-item-id="{{item.id}}">
+        <a class="item-nome" data-action="itemExpand">{{item.name}}</a>
+        <span class="item-tag">
+          {{#if item.system.resistencia}}TR {{item.system.resistencia}} (CD {{../system.cdAmaldicoada}}){{else}}{{item.system.nivelLabel}}{{/if}}
+          · {{item.system.custoEfetivo}} PE · {{item.system.conjuracao}}
+          {{#if item.system.dano}} · {{item.system.dano}}{{/if}}
+          {{#if item.system.area.tamanho}} · área {{item.system.area.tamanho}} m{{/if}}
+        </span>
+        <div class="item-controls">
+          <a data-action="conjurarFeitico" title="Usar"><i class="fas fa-fire"></i></a>
+          <a data-action="itemChat"><i class="fas fa-comment"></i></a>
+          <a data-action="itemEdit"><i class="fas fa-edit"></i></a>
+          <a data-action="itemDelete"><i class="fas fa-trash"></i></a>
+        </div>
+        <div class="item-descricao">{{{item.system.description}}}</div>
+      </li>
+      {{/each}}
+    </ol>
+    {{#unless itens.feitico.length}}<p class="vazio">Nada aqui ainda.</p>{{/unless}}
+  </fieldset>
+</div>

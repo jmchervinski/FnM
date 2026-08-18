@@ -237,8 +237,22 @@ FNM.tiposFeitico = ["Dano", "Auxiliar", "Curativo", "Especial", "Passivo"];
 /** Durações de Feitiço (p. 203). */
 FNM.duracoes = ["Imediato", "Duradouro", "Sustentado", "Concentrado", "Variável"];
 
-/** Tempo de conjuração — as ações que um Feitiço pode consumir (p. 300-304). */
-FNM.conjuracoes = ["Ação Comum", "Ação Bônus", "Reação", "Ação Completa", "Ação Livre", "Ação de Movimento"];
+/**
+ * Tempo de conjuração — as ações que um Feitiço pode consumir (p. 300-304).
+ *
+ * A "Ação Rápida" não está na hierarquia de ações do livro básico: ela vem da
+ * tabela de ações por Patamar do Grimório (p. 53), onde só inimigos a recebem.
+ * Fica na mesma lista porque inimigo e personagem usam o mesmo item de Feitiço.
+ */
+FNM.conjuracoes = [
+  "Ação Comum",
+  "Ação Rápida",
+  "Ação Bônus",
+  "Reação",
+  "Ação Completa",
+  "Ação Livre",
+  "Ação de Movimento"
+];
 
 /** Tipos de alvo (p. 298). */
 FNM.tiposAlvo = ["Pessoal", "Toque", "Aliado", "Criatura", "Objeto", "Estrutura", "Área"];

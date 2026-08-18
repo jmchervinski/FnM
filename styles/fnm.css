@@ -1426,3 +1426,21 @@
 .fnm-sheet .campos-compactos label {
   font-size: 0.64rem;
 }
+
+/* Contadores de ação por turno, no topo da aba Ações do NPC */
+.fnm-sheet .acoes-resumo {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+.fnm-sheet .acao-contador {
+  padding: 0.2rem 0.5rem;
+  border: 1px solid var(--fnm-cinza);
+  border-radius: 4px;
+  background: rgba(255, 255, 255, 0.4);
+  font-size: 0.68rem;
+}
+.fnm-sheet .acao-contador b {
+  color: var(--fnm-azul);
+  font-variant-numeric: tabular-nums;
+}

@@ -138,7 +138,9 @@ const SEM_EQUIVALENTE = {
   "combatState.activeConditions": "as condições ativas do combate em andamento",
   "combatState.activeModifiers": "os modificadores ativos do combate em andamento",
   "combatState.combatLog": "o log de combate",
-  "combatState.integridadeCurrent": "a Integridade atual (o construtor usa 0-100; aqui ela acompanha o PV)",
+  "combatState.integridadeCurrent":
+    "a Integridade atual do construtor (a escala dele é 0-100; aqui ela acompanha o PV e " +
+    "entra cheia, para a criatura não nascer com a alma em estado crítico)",
   overrides: "os overrides internos do construtor"
 };
 
@@ -311,6 +313,13 @@ export function mapearInimigo(criatura) {
   if (pvMax !== null) {
     anota("recursos.pv.max", Math.max(0, pvMax));
     anota("recursos.pv.value", Math.max(0, inteiro(estado.hpCurrent) ?? pvMax));
+
+    // A Integridade da Alma acompanha o máximo de PV e entra sempre cheia. O
+    // construtor exporta `integridadeCurrent` numa escala de 0 a 100, que não
+    // é a daqui — e deixar o padrão (10) contra um PV alto colocaria a criatura
+    // em estado de alma Crítico já na importação, com -8 em tudo.
+    anota("recursos.integridade.perdidos", 0);
+    anota("recursos.integridade.value", Math.max(0, pvMax));
   }
   if (peMax !== null) {
     anota("recursos.pe.max", Math.max(0, peMax));
@@ -402,10 +411,8 @@ export function mapearInimigo(criatura) {
   }
   if (acoes.length) {
     avisos.push(
-      `Ações: ${comoArma} de ataque viraram Armas (roláveis na aba Principal) e ` +
-        `${acoes.length - comoArma} por Teste de Resistência viraram Características, ` +
-        "porque a ficha não tem um item de ação com TR próprio. O dano e os números de " +
-        "cada uma ficam na descrição."
+      `Ações: ${comoArma} de acerto viraram Armas e ${acoes.length - comoArma} por Teste de ` +
+        "Resistência viraram Feitiços. As duas ficam na aba Ações e são roláveis."
     );
   }
   if ((criatura?.artimanhas ?? []).length) {
@@ -518,16 +525,37 @@ function montarAcao(acao, acertoBase, margemAtaque) {
     paragrafos(acao?.description ?? acao?.descricao ?? "");
 
   if (!porAcerto) {
+    // Ação por Teste de Resistência é um Feitiço: é o item que já resolve por
+    // TR, com resistência, área, dano e custo em PE, e que a ficha sabe
+    // conjurar. O nível fica em 0 porque uma ação de criatura não tem nível de
+    // Feitiço — e é o único nível que um NPC sempre pode conjurar, então o
+    // custo em PE declarado aqui é o que vale.
+    const emArea = Boolean(acao?.area && acao.area !== "-");
+    const tamanhoArea = numero(String(acao?.area ?? "").replace(",", ".").match(/[\d.]+/)?.[0]);
+
     return {
       name: nome,
-      type: "caracteristica",
+      type: "feitico",
       img: "icons/svg/explosion.svg",
       system: {
         description: descricao,
-        categoria: "Especial",
-        prerequisito: "",
+        nivel: "0",
+        tipo: rolagem ? "Dano" : "Especial",
         custoPE: Math.max(0, inteiro(acao?.cost) ?? 0),
-        acao: TIPOS_DE_ACAO[chave(acao?.type)] ?? "",
+        conjuracao: TIPOS_DE_ACAO[chave(acao?.type)] ?? "Ação Comum",
+        alcance: String(acao?.range ?? ""),
+        alvo: emArea ? "Área" : "Criatura",
+        area: { formato: emArea ? "Esfera" : "", tamanho: emArea ? (tamanhoArea ?? 0) : 0 },
+        duracao: "Imediato",
+        resolucao: "resistencia",
+        resistencia:
+          Object.keys(FNM.resistencias).find(r => chave(r) === chave(acao?.trType)) ?? "",
+        dano: rolagem,
+        tipoDano,
+        reducaoCusto: 0,
+        variacaoDe: "",
+        requisito: "",
+        preparado: true,
         ajustes: { pv: 0, pe: 0, defesa: 0, deslocamento: 0, reducaoDano: 0 }
       }
     };
@@ -633,9 +661,20 @@ export async function aplicarNoAtor(ator, mapeado, { substituirItens = false } =
   // Os caminhos de `system` vêm achatados ("detalhes.nivel"); expandObject os
   // aninha, e o prefixo "system." entra por fora.
   const update = { system: foundry.utils.expandObject(mapeado.system) };
-  if (mapeado.nome) update.name = mapeado.nome;
-  if (mapeado.img) update.img = mapeado.img;
+  if (mapeado.nome) {
+    update.name = mapeado.nome;
+    // O nome do token protótipo não acompanha o do ator sozinho depois que o
+    // ator já existe: sem isto, o token continua com o nome antigo no mapa.
+    update["prototypeToken.name"] = mapeado.nome;
+  }
+  if (mapeado.img) {
+    update.img = mapeado.img;
+    update["prototypeToken.texture.src"] = mapeado.img;
+  }
 
+  // O Foundry valida o update inteiro de uma vez: um único campo inválido faz
+  // ele recusar tudo — inclusive o nome. Falhar alto é melhor do que gravar os
+  // itens e deixar a ficha com os números velhos sem ninguém perceber.
   await ator.update(update);
 
   if (substituirItens) {
@@ -730,7 +769,13 @@ export async function importarDeArquivo(ator) {
   const confirmado = await confirmarResumo(ator, mapeado, escolha.substituir);
   if (!confirmado) return null;
 
-  await aplicarNoAtor(ator, mapeado, { substituirItens: escolha.substituir });
+  try {
+    await aplicarNoAtor(ator, mapeado, { substituirItens: escolha.substituir });
+  } catch (erro) {
+    ui.notifications.error(`A importação falhou e a ficha não foi alterada: ${erro.message}`);
+    console.error("F&M | Erro ao importar ficha de inimigo:", erro, mapeado);
+    return null;
+  }
 
   ui.notifications.info(
     `Ficha importada: ${Object.keys(mapeado.system).length} campos e ${mapeado.itens.length} ` +

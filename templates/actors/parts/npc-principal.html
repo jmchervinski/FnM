@@ -240,28 +240,4 @@
       vida negativa; toda cura dela cai pela metade.</p>
   </fieldset>
   {{/if}}
-
-  <fieldset class="bloco armas-bloco">
-    <legend>Armas &amp; Ataques</legend>
-    <header class="itens-header">
-      <span></span>
-      <button type="button" data-action="itemCreate" data-type="arma"><i class="fas fa-plus"></i> Arma</button>
-    </header>
-    <ol class="item-list">
-      {{#each itens.arma as |item|}}
-      <li class="item" data-item-id="{{item.id}}">
-        <a class="item-nome" data-action="itemExpand">{{item.name}}</a>
-        <span class="item-tag">{{item.system.dano}} · crít {{item.system.critico}}</span>
-        <div class="item-controls">
-          <a data-action="atacarArma"><i class="fas fa-crosshairs"></i></a>
-          <a data-action="danoArma"><i class="fas fa-bolt"></i></a>
-          <a data-action="itemChat"><i class="fas fa-comment"></i></a>
-          <a data-action="itemEdit"><i class="fas fa-edit"></i></a>
-          <a data-action="itemDelete"><i class="fas fa-trash"></i></a>
-        </div>
-        <div class="item-descricao">{{{item.system.description}}}</div>
-      </li>
-      {{/each}}
-    </ol>
-  </fieldset>
 </div>

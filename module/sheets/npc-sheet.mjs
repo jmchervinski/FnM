@@ -23,6 +23,10 @@ export class FnmNpcSheet extends FnmBaseActorSheet {
       template: "systems/fnm/templates/actors/parts/character-pericias.html",
       scrollable: [""]
     },
+    acoes: {
+      template: "systems/fnm/templates/actors/parts/npc-acoes.html",
+      scrollable: [""]
+    },
     habilidades: {
       template: "systems/fnm/templates/actors/parts/npc-habilidades.html",
       scrollable: [""]
@@ -39,6 +43,7 @@ export class FnmNpcSheet extends FnmBaseActorSheet {
       tabs: [
         { id: "principal", label: "Principal" },
         { id: "pericias", label: "Perícias" },
+        { id: "acoes", label: "Ações" },
         { id: "habilidades", label: "Habilidades" },
         { id: "biografia", label: "Biografia" }
       ],

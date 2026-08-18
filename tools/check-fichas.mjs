@@ -100,6 +100,7 @@ const USO = {
   "actor-footer.html": ["character", "npc", "invocacao"],
   "npc-header.html": ["npc"],
   "npc-principal.html": ["npc"],
+  "npc-acoes.html": ["npc"],
   "npc-habilidades.html": ["npc", "invocacao"],
   "npc-biografia.html": ["npc", "invocacao"],
   "invocacao-header.html": ["invocacao"],
@@ -118,8 +119,8 @@ const FICHAS = {
     "character-treinamentos", "actor-footer"
   ],
   NPC: [
-    "npc-header", "npc-principal", "character-pericias", "npc-habilidades",
-    "npc-biografia", "actor-footer"
+    "npc-header", "npc-principal", "character-pericias", "npc-acoes",
+    "npc-habilidades", "npc-biografia", "actor-footer"
   ],
   "Invocação": [
     "invocacao-header", "invocacao-principal", "character-pericias", "invocacao-acoes",
