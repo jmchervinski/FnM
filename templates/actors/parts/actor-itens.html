@@ -10,8 +10,10 @@
       <img class="item-img" src="{{item.img}}" width="24" height="24" />
       <a class="item-nome" data-action="itemExpand" title="Mostrar/ocultar descrição">{{item.name}}</a>
       <span class="item-tag">
-        {{#if item.system.categoria}}{{item.system.categoria}}{{/if}}
+        {{#if item.system.tipoDote}}{{item.system.tipoDote}}{{/if}}
+        {{#if item.system.categoria}}{{#if item.system.tipoDote}} · {{/if}}{{item.system.categoria}}{{/if}}
         {{#if item.system.tipo}}{{item.system.tipo}}{{/if}}
+        {{#if item.system.ndMinimo}} · ND {{item.system.ndMinimo}}+{{/if}}
         {{#if item.system.nivelRequerido}} · nível {{item.system.nivelRequerido}}{{/if}}
         {{#if item.system.quantidade}} · x{{item.system.quantidade}}{{/if}}
       </span>

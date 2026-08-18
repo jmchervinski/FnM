@@ -109,6 +109,72 @@
     </div>
     {{/if}}
 
+    {{#if (eq item.type "dote")}}
+    <div class="campos-grid">
+      <label>Tipo
+        <select name="system.tipoDote">
+          {{#each (array "Geral" "Amaldiçoado" "Treinamento") as |t|}}
+          <option value="{{t}}" {{#if (eq t ../system.tipoDote)}}selected{{/if}}>{{t}}</option>
+          {{/each}}
+        </select>
+      </label>
+      <label title="Só os Dotes Amaldiçoados têm categoria">Categoria
+        <select name="system.categoria">
+          <option value="">—</option>
+          {{#each config.categoriasDoteAmaldicoado as |c|}}
+          <option value="{{c}}" {{#if (eq c ../system.categoria)}}selected{{/if}}>{{c}}</option>
+          {{/each}}
+        </select>
+      </label>
+      <label>Área do Nível de Aptidão
+        <select name="system.areaAptidao">
+          <option value="">—</option>
+          {{#each areasAptidao as |a|}}
+          <option value="{{a.id}}" {{#if (eq a.id ../system.areaAptidao)}}selected{{/if}}>{{a.sigla}} — {{a.nome}}</option>
+          {{/each}}
+        </select>
+      </label>
+      <label>Nível de Aptidão exigido
+        <input type="number" name="system.nivelAptidao" value="{{system.nivelAptidao}}" min="0" max="5" />
+      </label>
+      <label title="0 = sem ND mínimo">ND mínimo
+        <input type="number" name="system.ndMinimo" value="{{system.ndMinimo}}" min="0" max="30" />
+      </label>
+      <label>Custo em PE <input type="number" name="system.custoPE" value="{{system.custoPE}}" min="0" /></label>
+      <label>Ação <input type="text" name="system.acao" value="{{system.acao}}" placeholder="Ação Comum, Reação…" /></label>
+      <label title="Usos restantes">Usos — Atual <input type="number" name="system.usos.value" value="{{system.usos.value}}" min="0" /></label>
+      <label title="0 = uso ilimitado">Usos — Máx. <input type="number" name="system.usos.max" value="{{system.usos.max}}" min="0" /></label>
+      <label class="largo">Pré-requisito
+        <input type="text" name="system.prerequisito" value="{{system.prerequisito}}" placeholder="Ex.: ND 10 Desafio ou Calamidade" />
+      </label>
+    </div>
+    <p class="dica">Dotes são as habilidades prontas de um inimigo (Grimório, p. 20). Os
+      <b>Gerais</b> equivalem às Habilidades de Especialização; os <b>Amaldiçoados</b>, às
+      Aptidões Amaldiçoadas — só estes usam categoria e Nível de Aptidão.</p>
+    {{/if}}
+
+    {{#if (eq item.type "caracteristica")}}
+    <div class="campos-grid">
+      <label>Categoria
+        <select name="system.categoria">
+          {{#each config.categoriasCaracteristica as |c|}}
+          <option value="{{c}}" {{#if (eq c ../system.categoria)}}selected{{/if}}>{{c}}</option>
+          {{/each}}
+        </select>
+      </label>
+      <label>Custo em PE <input type="number" name="system.custoPE" value="{{system.custoPE}}" min="0" /></label>
+      <label>Ação <input type="text" name="system.acao" value="{{system.acao}}" placeholder="Reação, Ação Bônus…" /></label>
+      <label title="Usos restantes">Usos — Atual <input type="number" name="system.usos.value" value="{{system.usos.value}}" min="0" /></label>
+      <label title="0 = uso ilimitado">Usos — Máx. <input type="number" name="system.usos.max" value="{{system.usos.max}}" min="0" /></label>
+      <label class="largo">Pré-requisito
+        <input type="text" name="system.prerequisito" value="{{system.prerequisito}}" />
+      </label>
+    </div>
+    <p class="dica">Características são montadas pelo Narrador (Grimório, p. 72-76). As
+      <b>Gerais</b> servem de base mecânica e comparação entre criaturas; as <b>Especiais</b>
+      quebram ou alteram uma regra normal e dão identidade à criatura.</p>
+    {{/if}}
+
     {{#if (eq item.type "tecnica")}}
     <div class="campos-grid">
       <label>Tipo

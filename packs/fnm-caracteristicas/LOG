@@ -1,0 +1,15 @@
+2026/08/18-11:15:42.881 51c4 Recovering log #18
+2026/08/18-11:15:42.890 51c4 Delete type=0 #18
+2026/08/18-11:15:42.891 51c4 Delete type=3 #16
+2026/08/18-11:15:42.967 1cec Level-0 table #24: started
+2026/08/18-11:15:42.972 1cec Level-0 table #24: 15810 bytes OK
+2026/08/18-11:15:42.974 1cec Delete type=0 #22
+2026/08/18-11:15:42.975 1cec Manual compaction at level-0 from '!folders!TaqC9MFjowmmJB6l' @ 72057594037927935 : 1 .. '!items!xTgrn2ZA3bMVLR1M' @ 0 : 0; will stop at (end)
+2026/08/18-11:15:42.975 1cec Manual compaction at level-1 from '!folders!TaqC9MFjowmmJB6l' @ 72057594037927935 : 1 .. '!items!xTgrn2ZA3bMVLR1M' @ 0 : 0; will stop at '!items!xTgrn2ZA3bMVLR1M' @ 245 : 1
+2026/08/18-11:15:42.975 1cec Compacting 1@1 + 1@2 files
+2026/08/18-11:15:42.980 1cec Generated table #25@1: 49 keys, 15810 bytes
+2026/08/18-11:15:42.980 1cec Compacted 1@1 + 1@2 files => 15810 bytes
+2026/08/18-11:15:42.982 1cec compacted to: files[ 0 0 1 0 0 0 0 ]
+2026/08/18-11:15:42.982 1cec Delete type=2 #20
+2026/08/18-11:15:42.984 1cec Delete type=2 #24
+2026/08/18-11:15:42.984 1cec Manual compaction at level-1 from '!items!xTgrn2ZA3bMVLR1M' @ 245 : 1 .. '!items!xTgrn2ZA3bMVLR1M' @ 0 : 0; will stop at (end)

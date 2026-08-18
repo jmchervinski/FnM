@@ -7,6 +7,8 @@
   "TYPES.Item.habilidade": "Specialization Feature",
   "TYPES.Item.talento": "Talent",
   "TYPES.Item.aptidao": "Cursed Aptitude",
+  "TYPES.Item.dote": "Enemy Feat",
+  "TYPES.Item.caracteristica": "Enemy Trait",
   "TYPES.Item.tecnica": "Cursed Technique",
   "TYPES.Item.feitico": "Spell",
   "TYPES.Item.arma": "Weapon",

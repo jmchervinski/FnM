@@ -495,6 +495,171 @@ FNM.grausFerramenta = {
 FNM.carga = { base: 8, defesaSobrecarga: -5, deslocamentoSobrecarga: -4.5 };
 
 /* -------------------------------------------- */
+/*  Grimório das Maldições (Versão 1)           */
+/* -------------------------------------------- */
+
+/**
+ * As tabelas do Guia de Criação de Inimigos. As páginas citadas daqui até o fim
+ * desta seção são as do **Grimório das Maldições (Versão 1, F&M 2.5)**, não as
+ * do Livro de Regras — é outro PDF, com outra paginação.
+ *
+ * O Grimório não traz fichas prontas: ele traz o guia para montá-las. O que o
+ * sistema faz com estas tabelas é mostrar, na ficha de NPC, o orçamento de
+ * criação do Patamar escolhido — do mesmo jeito que a ficha de Invocação já
+ * mostra o orçamento do Grau.
+ */
+
+/** Categorias das Aptidões para Inimigos, os "Dotes Amaldiçoados" (p. 20, 64-71). */
+FNM.categoriasDoteAmaldicoado = [
+  "Aura",
+  "Controle e Leitura",
+  "Domínio",
+  "Barreira",
+  "Especial",
+  "Anatomia"
+];
+
+/** Características para Inimigos, divididas em Gerais e Especiais (p. 72-76). */
+FNM.categoriasCaracteristica = ["Geral", "Especial"];
+
+/** Como um inimigo existe no mundo; cada origem concede traços próprios (p. 9-15). */
+FNM.origensInimigo = [
+  "Espírito Amaldiçoado",
+  "Feiticeiro",
+  "Caçador",
+  "Não-Feiticeiro",
+  "Restrito Celeste",
+  "Corpo Amaldiçoado",
+  "Outro"
+];
+
+/** Tipos de Espírito Amaldiçoado (p. 9-10). */
+FNM.tiposEspirito = [
+  "Comum",
+  "De Medo",
+  "Vingativo",
+  "Vingativo Imaginário",
+  "Enfermo"
+];
+
+/**
+ * Patamares (p. 8, 16 e 22).
+ *
+ * `jogadores` é a quantidade recomendada para enfrentar o inimigo: menos
+ * jogadores que isso sobem a dificuldade em um passo, mais jogadores a descem.
+ *
+ * `atributos` é o total de pontos a distribuir, e `limiteAtributo` o teto de
+ * cada atributo individualmente (p. 16). `nd` é o Nível de Desafio e `bt` o
+ * Bônus de Treinamento.
+ *
+ * `imunidades`, `resistencias` e `vulnerabilidades` são os tetos da tabela da
+ * p. 22 — e o livro pede uma vulnerabilidade condizente para cada imunidade
+ * recebida. `imunidadesCondicao` é o teto da tabela seguinte, distribuído pela
+ * métrica Extrema = 1, Forte = 2, Média e Fraca = quantas quiser.
+ */
+FNM.patamares = [
+  {
+    id: "lacaio",
+    acoes: "1 Ação Comum, 1 Ação Bônus, 1 Ação de Movimento e 1 Reação",
+    caracteristicas: 1,
+    nome: "Lacaio",
+    dificuldade: "Muito Fácil",
+    jogadores: 1,
+    limiteAtributo: 20,
+    atributos: (nd) => 20 + nd,
+    formulaAtributos: "20 + ND",
+    imunidades: 0,
+    resistencias: 0,
+    vulnerabilidades: 0,
+    imunidadesCondicao: 0
+  },
+  {
+    id: "capanga",
+    acoes: "1 Ação Comum, 1 Ação Bônus, 1 Ação de Movimento e 1 Reação",
+    caracteristicas: 2,
+    nome: "Capanga",
+    dificuldade: "Fácil",
+    jogadores: 1,
+    limiteAtributo: 24,
+    atributos: (nd) => 20 + nd,
+    formulaAtributos: "20 + ND",
+    imunidades: 0,
+    resistencias: 0,
+    vulnerabilidades: 0,
+    imunidadesCondicao: 0
+  },
+  {
+    id: "comum",
+    acoes: "1 Ação Comum + 1 a cada 5 níveis, 1 Ação Rápida + 1 a cada 10 níveis, 1 Ação Bônus, 1 Ação de Movimento e 1 Reação",
+    caracteristicas: 3,
+    nome: "Comum",
+    dificuldade: "Média",
+    jogadores: 2,
+    limiteAtributo: 26,
+    atributos: (nd, bt) => 20 + nd + bt,
+    formulaAtributos: "20 + ND + Treinamento",
+    imunidades: 1,
+    resistencias: 2,
+    vulnerabilidades: 1,
+    imunidadesCondicao: 5
+  },
+  {
+    id: "desafio",
+    acoes: "2 Ações Comuns + 1 a cada 8 níveis, 1 Ação Rápida + 1 a cada 8 níveis, 1 Ação Bônus, 1 Ação de Movimento e 1 Reação",
+    caracteristicas: 4,
+    nome: "Desafio",
+    dificuldade: "Difícil",
+    jogadores: 4,
+    limiteAtributo: 30,
+    atributos: (nd, bt) => 25 + 2 * nd + 2 * bt,
+    formulaAtributos: "25 + (2 × ND) + (Treinamento × 2)",
+    imunidades: 3,
+    resistencias: 3,
+    vulnerabilidades: 3,
+    imunidadesCondicao: 6
+  },
+  {
+    id: "calamidade",
+    acoes: "3 Ações Comuns + 1 a cada 10 níveis, 1 Ação Rápida + 1 a cada 10 níveis, 1 Ação Bônus, 1 Ação de Movimento e 1 Reação",
+    caracteristicas: 5,
+    nome: "Calamidade",
+    dificuldade: "Experiente",
+    jogadores: 6,
+    limiteAtributo: 32,
+    atributos: (nd, bt) => 25 + 2 * nd + 2 * bt,
+    formulaAtributos: "25 + (2 × ND) + (Treinamento × 2)",
+    imunidades: 6,
+    resistencias: 4,
+    vulnerabilidades: 6,
+    imunidadesCondicao: 7
+  }
+];
+
+/**
+ * Tamanho de criatura (p. 17-18). `espaco` é o espaço ocupado e o alcance
+ * corpo a corpo, em metros; `manobra` e `furtividade` são os bônus e ônus que
+ * o tamanho aplica; `deslocamento` é o valor padrão da tabela da p. 18.
+ */
+FNM.tamanhosCriatura = {
+  "Minúsculo": { espaco: 1.5, manobra: -5, furtividade: 5, deslocamento: 9, exemplo: "Mosca" },
+  "Pequeno": { espaco: 1.5, manobra: -2, furtividade: 2, deslocamento: 9, exemplo: "Cachorro" },
+  "Médio": { espaco: 1.5, manobra: 0, furtividade: 0, deslocamento: 9, exemplo: "Humano" },
+  "Grande": { espaco: 3, manobra: 2, furtividade: -2, deslocamento: 12, exemplo: "Mahoraga" },
+  "Enorme": { espaco: 4.5, manobra: 5, furtividade: -5, deslocamento: 13.5, exemplo: "Ganesha" },
+  "Colossal": { espaco: 9, manobra: 10, furtividade: -10, deslocamento: 18, exemplo: "Dragão Arco-Íris" }
+};
+
+/**
+ * As três colunas de dificuldade das tabelas de criação (p. 16). Elas mudam a
+ * força dos valores usados na ficha, não as regras.
+ */
+FNM.tabelasCriacao = [
+  { id: "iniciante", nome: "Iniciante" },
+  { id: "intermediaria", nome: "Intermediária" },
+  { id: "experiente", nome: "Experiente" }
+];
+
+/* -------------------------------------------- */
 /*  Votos de Restrição (p. 351-357)             */
 /* -------------------------------------------- */
 
@@ -643,6 +808,22 @@ export function modificador(valor) {
 /** Bônus de Treinamento: +2, subindo +1 nos níveis 5, 9, 13 e 17 (p. 282). */
 export function bonusTreinamento(nivel) {
   return 2 + Math.floor((Math.max(1, Number(nivel)) - 1) / 4);
+}
+
+/**
+ * Bônus de Treinamento de um inimigo, pelo Nível de Desafio (Grimório, p. 8).
+ *
+ * A progressão é a mesma do personagem, mas a tabela do Grimório para em
+ * "17 ou superior — +6": ela não tem o degrau que `bonusTreinamento` daria a
+ * partir do 21, então aqui o valor satura em +6.
+ */
+export function bonusTreinamentoND(nd) {
+  return Math.min(6, bonusTreinamento(nd));
+}
+
+/** O Patamar de inimigo pelo id, com o Lacaio como padrão (Grimório, p. 8). */
+export function patamarInimigo(id) {
+  return FNM.patamares.find(p => p.id === id) ?? FNM.patamares[0];
 }
 
 /** Metade do nível de personagem, somada em quase todos os testes (p. 278). */

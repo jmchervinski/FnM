@@ -1,0 +1,205 @@
+{
+  "version": "2.0",
+  "exportedAt": "2026-08-10T17:09:35.637Z",
+  "system": "Feiticeiros & Maldições 2.5",
+  "count": 1,
+  "creatures": [
+    {
+      "name": "",
+      "portraitUrl": "",
+      "portraitFocus": {
+        "x": 50,
+        "y": 50
+      },
+      "combatSettings": {
+        "guardaAbsorbsFirst": true,
+        "rdReducao": true
+      },
+      "core": {
+        "grau": "especial",
+        "nd": 17,
+        "patamar": "calamidade",
+        "difficulty": "intermediario",
+        "origin": {
+          "type": "maldicao",
+          "subtype": "comum",
+          "hasAumentoEnergia": false,
+          "hasEstoqueAdicional": false,
+          "frutosExperiencia": null
+        },
+        "size": "medio",
+        "semLimites": false,
+        "bonusTreinamento": 6
+      },
+      "attributes": {
+        "forca": 10,
+        "destreza": 10,
+        "constituicao": 10,
+        "inteligencia": 10,
+        "sabedoria": 10,
+        "presenca": 10
+      },
+      "aptidoes": {
+        "au": 0,
+        "cl": 0,
+        "bar": 0,
+        "dom": 0,
+        "er": 0
+      },
+      "attackAttr": "forca",
+      "cdAttr": "inteligencia",
+      "overrides": {
+        "stats": {},
+        "saves": {}
+      },
+      "skills": [],
+      "defenses": {
+        "resistencias": [],
+        "imunidades": [
+          {
+            "tipo": "venenos mundanos",
+            "source": "origin",
+            "originKey": "imunidades_espirituais"
+          }
+        ],
+        "vulnerabilidades": [
+          {
+            "tipo": "energia reversa",
+            "source": "origin",
+            "originKey": "pontos_fracos"
+          }
+        ],
+        "condicoesImunes": [],
+        "originCondicoesImunes": [],
+        "doteCondicoesImunes": []
+      },
+      "actions": {
+        "total": {
+          "comum": 4,
+          "rapida": 2,
+          "bonus": 1,
+          "movimento": 1,
+          "reacao": 1
+        },
+        "list": []
+      },
+      "features": [
+        {
+          "id": "origin-imaterialidade",
+          "name": "Imaterialidade",
+          "description": "Como um ser imaterial, uma maldição pode atravessar estruturas sem energia, não precisa respirar e não pode ser vista ou percebida por humanos que não sejam feiticeiros, a menos que esteja com as emoções à flor da pele.",
+          "category": "geral",
+          "trigger": "passiva",
+          "source": "origin",
+          "originKey": "imaterialidade",
+          "automated": false,
+          "locked": true
+        },
+        {
+          "id": "origin-imunidades_espirituais",
+          "name": "Imunidades Espirituais",
+          "description": "Sendo um espírito, uma maldição é imune a doenças e venenos mundanos (não sendo considerados os danos biológicos nem o veneno criado a partir de Ofício ou Condições, por exemplo), assim como não pode ser finalizada por objetos, equipamentos sem energia ou dano de queda.",
+          "category": "geral",
+          "trigger": "passiva",
+          "source": "origin",
+          "originKey": "imunidades_espirituais",
+          "automated": true,
+          "locked": true
+        },
+        {
+          "id": "origin-regeneracao",
+          "name": "Regeneração",
+          "description": "Uma maldição é capaz de regenerar e restaurar o próprio corpo a partir da sua energia amaldiçoada. É necessária uma Ação Comum ou Ação Rápida para se curar, pagando 4 PE; para curar uma Ferida Interna pague 8 PE; para regenerar um membro pague 10 PE.\n\nCura: Mod Con × 12 = 0 × 12 = 0 PV (Patamar calamidade, BT +6).",
+          "category": "geral",
+          "trigger": "passiva",
+          "source": "origin",
+          "originKey": "regeneracao",
+          "automated": true,
+          "locked": true
+        },
+        {
+          "id": "origin-pontos_fracos",
+          "name": "Pontos Fracos",
+          "description": "Maldições não podem ser curadas por energia reversa nem por itens criados a partir de ofícios, são vulneráveis ao dano de energia reversa, não recebem bônus de comida e não podem ter/usar equipamentos, exceto armas, armaduras e escudos.",
+          "category": "geral",
+          "trigger": "passiva",
+          "source": "origin",
+          "originKey": "pontos_fracos",
+          "automated": true,
+          "locked": true
+        }
+      ],
+      "treinamentos": [],
+      "aptidoesEspeciais": [],
+      "caracteristicas": [],
+      "dotes": [],
+      "artimanhas": [],
+      "narratorNotes": "",
+      "stats": {
+        "hpMax": 3090,
+        "peMax": 51,
+        "defesa": 30,
+        "atencao": 35,
+        "iniciativa": 17,
+        "deslocamento": 27,
+        "espaco": 1.5,
+        "guardaInabavalMax": 45,
+        "rdGeral": 20,
+        "rdIrredutivel": 11,
+        "ignorarRd": 15,
+        "vidaTempPorAtaque": 8,
+        "resistenciaParcialMax": 5,
+        "resistenciaTotalMax": 3,
+        "cdBase": 28,
+        "acerto": 30
+      },
+      "saves": {
+        "astucia": 23,
+        "fortitude": 23,
+        "reflexos": 23,
+        "vontade": 23,
+        "integridade": 23
+      },
+      "critMargins": {
+        "astucia": 20,
+        "fortitude": 20,
+        "reflexos": 20,
+        "vontade": 20,
+        "integridade": 20,
+        "ataque": 20
+      },
+      "confrontoDominio": {
+        "modBase": 8,
+        "meiaND": 8,
+        "dom": 0,
+        "treinoBonus": 0,
+        "formula": "1d10 + 8"
+      },
+      "combatState": {
+        "isActive": false,
+        "hpCurrent": 3090,
+        "peCurrent": 51,
+        "guardaInabavalCurrent": 45,
+        "resistenciaParcialUsed": 0,
+        "resistenciaTotalUsed": 0,
+        "integridadeCurrent": 100,
+        "activeConditions": [],
+        "activeModifiers": [],
+        "isInDesafiandoMorte": false,
+        "missCounter": 0,
+        "customCounters": [],
+        "combatLog": []
+      },
+      "updatedAt": "2026-08-10T17:09:25.551Z",
+      "editLog": [
+        "2026-08-10T17:09:25.551Z"
+      ],
+      "id": "msnhkvxr-rtsba0t",
+      "folderId": null,
+      "rulesVersion": "2.5.2",
+      "isBuiltIn": false,
+      "createdAt": "2026-08-10T17:09:25.551Z"
+    }
+  ],
+  "folders": []
+}

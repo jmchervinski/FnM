@@ -52,6 +52,18 @@ const EQUIPAMENTOS = JSON.parse(
 );
 
 /**
+ * A Galeria do **Grimório das Maldições (Versão 1)**, transcrita por
+ * tools/extrai-grimorio.py. É outro PDF, com outra paginação: as páginas
+ * citadas nos itens do Grimório são as dele, não as do Livro de Regras.
+ *
+ * São três listas: os Dotes Amaldiçoados (as "Aptidões para Inimigos" da
+ * p. 64-71), as Características de p. 72-76 e os Dotes Gerais de p. 77-80.
+ */
+const GRIMORIO = JSON.parse(
+  fs.readFileSync(path.join(import.meta.dirname, "dados/grimorio.json"), "utf8")
+);
+
+/**
  * IDs determinísticos derivados do nome: o mesmo item mantém o mesmo _id entre
  * builds, o que preserva os links de compêndio já usados nos mundos.
  */
@@ -598,6 +610,117 @@ export const PACKS = {
         nivelAptidao: a.nivelAptidao,
         prerequisito: a.prerequisito,
         custoPE: a.custoPE,
+        acao: "",
+        ajustes: { ...semAjustes }
+      }
+    }))
+  },
+
+  /**
+   * Dotes de inimigo (Grimório, p. 64-71 e 77-80). Os Gerais ficam em uma pasta
+   * só; os Amaldiçoados, em uma pasta por categoria, como no livro.
+   */
+  "fnm-dotes": {
+    folders: [
+      { _id: id("pasta-dote-geral"), name: "Dotes Gerais", sort: 100 },
+      ...FNM.categoriasDoteAmaldicoado.map((cat, i) => ({
+        _id: id(`pasta-dote-am-${cat}`),
+        name: cat === "Especial" ? "Amaldiçoados: Especiais" : `Amaldiçoados: ${cat}`,
+        sort: (i + 2) * 100
+      })),
+      { _id: id("pasta-dote-treino"), name: "Treinamentos", sort: 900 }
+    ],
+    items: [
+      ...GRIMORIO.dotesGerais.map(d => ({
+        _id: id(`dote-geral-${d.nome}`),
+        name: d.nome,
+        type: "dote",
+        img: "icons/svg/upgrade.svg",
+        folder: id("pasta-dote-geral"),
+        system: {
+          description:
+            (d.prerequisito ? `<p><b>Pré-Requisito:</b> ${d.prerequisito}</p>` : "") +
+            d.descricao +
+            `<p><i>Grimório das Maldições v1, p. 77-80.</i></p>`,
+          tipoDote: "Geral",
+          categoria: "",
+          areaAptidao: "",
+          nivelAptidao: 0,
+          ndMinimo: d.ndMinimo,
+          prerequisito: d.prerequisito,
+          custoPE: d.custoPE,
+          acao: "",
+          ajustes: { ...semAjustes }
+        }
+      })),
+      ...GRIMORIO.dotesAmaldicoados.map(d => ({
+        _id: id(`dote-amaldicoado-${d.nome}`),
+        name: d.nome,
+        type: "dote",
+        img: "icons/svg/explosion.svg",
+        folder: id(`pasta-dote-am-${d.categoria}`),
+        system: {
+          description:
+            (d.prerequisito ? `<p><b>Pré-Requisito:</b> ${d.prerequisito}</p>` : "") +
+            d.descricao +
+            `<p><i>Grimório das Maldições v1, p. 64-71.</i></p>`,
+          tipoDote: "Amaldiçoado",
+          categoria: d.categoria,
+          areaAptidao: d.areaAptidao,
+          nivelAptidao: d.nivelAptidao,
+          ndMinimo: d.ndMinimo,
+          prerequisito: d.prerequisito,
+          custoPE: d.custoPE,
+          acao: "",
+          ajustes: { ...semAjustes }
+        }
+      })),
+      ...GRIMORIO.treinamentos.map(t => ({
+        _id: id(`dote-treino-${t.nome}`),
+        name: t.nome,
+        type: "dote",
+        img: "icons/svg/target.svg",
+        folder: id("pasta-dote-treino"),
+        system: {
+          description:
+            (t.prerequisito ? `<p><b>Pré-Requisito:</b> ${t.prerequisito}</p>` : "") +
+            t.descricao +
+            `<p><i>Grimório das Maldições v1, p. 61-62. Uma criatura recebe 1 ponto de treinamento + 1 para cada grau.</i></p>`,
+          tipoDote: "Treinamento",
+          categoria: "",
+          areaAptidao: "",
+          nivelAptidao: 0,
+          ndMinimo: t.ndMinimo,
+          prerequisito: t.prerequisito,
+          custoPE: t.custoPE,
+          acao: "",
+          ajustes: { ...semAjustes }
+        }
+      }))
+    ]
+  },
+
+  /** Características de inimigo (Grimório, p. 72-76), em Gerais e Especiais. */
+  "fnm-caracteristicas": {
+    folders: FNM.categoriasCaracteristica.map((cat, i) => ({
+      _id: id(`pasta-caract-${cat}`),
+      name: cat === "Geral" ? "Características Gerais" : "Características Especiais",
+      sort: (i + 1) * 100
+    })),
+    items: GRIMORIO.caracteristicas.map(c => ({
+      _id: id(`caracteristica-${c.nome}`),
+      name: c.nome,
+      type: "caracteristica",
+      img: c.categoria === "Geral" ? "icons/svg/shield.svg" : "icons/svg/eye.svg",
+      folder: id(`pasta-caract-${c.categoria}`),
+      system: {
+        description:
+          (c.prerequisito ? `<p><b>Pré-Requisito:</b> ${c.prerequisito}</p>` : "") +
+          c.descricao +
+          `<p><i>Grimório das Maldições v1, p. 72-76.</i></p>`,
+        categoria: c.categoria,
+        prerequisito: c.prerequisito,
+        custoPE: c.custoPE,
         acao: "",
         ajustes: { ...semAjustes }
       }
@@ -1377,6 +1500,280 @@ export const JOURNAL_PACKS = {
               <p><b>Longo (cerca de 8 horas).</b> Recupera todos os PV, todos os Dados de Vida e toda a
               energia amaldiçoada.</p>
               <p><i>Livro de Regras v2.5.2, p. 311-313, 324 e 335.</i></p>`
+          }
+        ]
+      }
+    ]
+  },
+
+  /**
+   * O Guia de Criação de Inimigos do Grimório das Maldições (Versão 1).
+   *
+   * Todas as páginas citadas nestas entradas são do Grimório, não do Livro de
+   * Regras. O compêndio é só do Narrador: a ownership do pack em system.json
+   * deixa os jogadores de fora.
+   */
+  "fnm-grimorio": {
+    entries: [
+      {
+        _id: id("journal-grimorio"),
+        name: "Guia de Criação de Inimigos",
+        pages: [
+          {
+            _id: id("pagina-grimorio-passos"),
+            name: "Os Quatro Passos",
+            content: `<p><i>Grimório das Maldições, Versão 1 (F&amp;M 2.5). Desenvolvimento:
+              Setsugiri, Parker, Jou, Justoneblock, Camelo, Kamisori, Bianco, A1rtur Butler e Afty.</i></p>
+              <h2>Passo 1 — O conceito</h2>
+              <p>Antes da ficha, três perguntas (p. 6):</p>
+              <ul>
+                <li><b>O que define a criatura como uma ameaça?</b> Quais são as "armas" e os riscos
+                que ela oferece — destruir os outros, ou fortalecer outros inimigos e ser uma ameaça
+                indireta.</li>
+                <li><b>Quão poderoso o inimigo é?</b> Descartável, vindo em quantidade para encher o
+                campo, ou individualmente poderoso e capaz de segurar vários oponentes? A resposta
+                encaixa o inimigo em um Patamar e em uma ND.</li>
+                <li><b>Qual sua estratégia em combate?</b> A abordagem define quais ações e
+                características a ficha precisa ter para executá-la.</li>
+              </ul>
+              <h2>Passo 2 — Montando a ficha</h2>
+              <p>Define-se o Grau, a ND e o Patamar, e a partir deles preenchem-se os valores pelas
+              tabelas do capítulo. A ficha de inimigo do livro tem: tipo e grau (ND), Bônus de
+              Treinamento, PV, Defesa, PE, Tamanho, Deslocamento, os seis atributos, os Níveis de
+              Aptidão, os cinco Testes de Resistência, Iniciativa, Atenção, Perícias, Resistências,
+              Imunidades, as Ações e as Características (p. 7).</p>
+              <h2>Passo 3 — Ações e Características</h2>
+              <p>As ações ofensivas e defensivas saem do conceito e da origem. O conceito não
+              concede bônus: ele é narrativo (p. 53).</p>
+              <h2>Passo 4 — Detalhes finais</h2>
+              <p>Os <b>Treinamentos</b> são o toque final. Uma criatura recebe <b>1 ponto de
+              treinamento + 1 ponto para cada grau</b> (p. 61). Os 14 treinamentos estão no
+              compêndio de Dotes de Inimigo, na pasta Treinamentos.</p>
+              <p><i>Grimório das Maldições v1, p. 6-7, 53 e 61.</i></p>`
+          },
+          {
+            _id: id("pagina-grimorio-grau"),
+            name: "Grau, ND e Patamar",
+            content: `<h2>Os graus</h2>
+              <p>A hierarquia de graus define o nível de ameaça, o tipo de resposta necessária e a
+              probabilidade de sobrevivência de quem os enfrenta — não só força bruta, mas também
+              inteligência, habilidade amaldiçoada, resistência e potencial de massacre.</p>
+              <ul>
+                <li><b>4º Grau.</b> Fraca, facilmente exorcizada por estudantes iniciantes. Maldições
+                menores que parasitam pessoas comuns; humanos com pouco conhecimento jujutsu.</li>
+                <li><b>3º Grau.</b> Podem matar civis, mas feiticeiros experientes lidam com
+                facilidade. Maldições de lugares assombrados; membros de organizações jujutsu.</li>
+                <li><b>2º Grau.</b> Exigem técnica jujutsu sólida e oferecem risco moderado.
+                Espíritos em locais densamente povoados; líderes de organizações pequenas e médias.</li>
+                <li><b>1º Grau.</b> Altamente perigosas; só feiticeiros de 1º grau as enfrentam.
+                Espíritos com inteligência e técnica amaldiçoada; feiticeiros experientes.</li>
+                <li><b>Grau Especial.</b> Extremamente raras e devastadoras, rivalizam com feiticeiros
+                lendários. Sukuna, Mahito, Suguru Geto, Satoru Gojo, Yuki Tsukumo.</li>
+              </ul>
+              <h2>Nível de Desafio</h2>
+              <p>A ND é a representação numérica da criatura em relação ao nível do jogador:
+              <b>ND 2 é a mesma coisa que um personagem de nível 2</b>.</p>
+              <table><thead><tr><th>Nível de Desafio</th><th>Bônus de Treinamento</th></tr></thead>
+                <tbody>
+                  <tr><td>1 ao 4</td><td>+2</td></tr>
+                  <tr><td>5 ao 8</td><td>+3</td></tr>
+                  <tr><td>9 ao 12</td><td>+4</td></tr>
+                  <tr><td>13 ao 16</td><td>+5</td></tr>
+                  <tr><td>17 ou superior</td><td>+6</td></tr>
+                </tbody></table>
+              <h2>Patamar</h2>
+              <p>O Patamar define a dificuldade e a quantidade recomendada de jogadores. Menos
+              jogadores que o especificado sobem a dificuldade em um passo; mais jogadores a descem
+              em um passo.</p>
+              <table><thead><tr><th>Patamar</th><th>Dificuldade</th><th>Jogadores</th>
+                <th>Pontos de atributo</th><th>Teto por atributo</th><th>Características</th></tr></thead>
+                <tbody>
+                  ${FNM.patamares
+                    .map(
+                      p =>
+                        `<tr><td>${p.nome}</td><td>${p.dificuldade}</td><td>${p.jogadores}</td>` +
+                        `<td>${p.formulaAtributos}</td><td>${p.limiteAtributo}</td>` +
+                        `<td>${p.caracteristicas}</td></tr>`
+                    )
+                    .join("")}
+                </tbody></table>
+              <h2>Ações por turno</h2>
+              <table><thead><tr><th>Patamar</th><th>Total de ações</th></tr></thead><tbody>
+                ${FNM.patamares.map(p => `<tr><td>${p.nome}</td><td>${p.acoes}</td></tr>`).join("")}
+              </tbody></table>
+              <h2>As três colunas das tabelas</h2>
+              <ul>
+                <li><b>Iniciantes.</b> Gama menor de força, para criaturas mais fracas e para uma
+                primeira experiência mais divertida no sistema.</li>
+                <li><b>Intermediárias.</b> Para jogadores casuais, que conhecem o sistema mas não
+                otimizam a ficha por completo.</li>
+                <li><b>Experientes.</b> Para quem otimiza muito e quer combates difíceis — a forma
+                mais poderosa de criação de criaturas do Grimório.</li>
+              </ul>
+              <p><i>Grimório das Maldições v1, p. 8, 16 e 60. As tabelas numéricas por ND (vida,
+              defesa, acerto, dano médio e CD de cada Patamar) estão nas p. 23-52 do PDF e não foram
+              transcritas: veja a nota de escopo no README.</i></p>`
+          },
+          {
+            _id: id("pagina-grimorio-origens"),
+            name: "Origens de Inimigo",
+            content: `<p>A Origem representa que tipo de existência o inimigo é, e concede
+              características e limitações próprias (p. 9-15).</p>
+              <h2>Espíritos Amaldiçoados</h2>
+              <p>Seres que surgem puramente da negatividade, formando-se onde o medo se acumula, o
+              ódio se perpetua e a dor ecoa por gerações. São manifestações do inconsciente, de
+              emoções, lendas, traumas e pecados.</p>
+              <ul>
+                <li><b>Comuns.</b> Não têm ninho nem local de fortalecimento; vagam atrás de pessoas
+                emocionalmente instáveis para se alimentar e parasitar seus corpos.</li>
+                <li><b>De Medo.</b> Originam-se de medos e fobias humanas, já nascem poderosos e
+                crescem conforme cresce o medo que os formou.</li>
+                <li><b>Vingativos.</b> Formados quando um humano morre e se torna espírito
+                amaldiçoado; têm força impressionante e aumentam com as emoções que sentem.</li>
+                <li><b>Vingativos Imaginários.</b> Nascidos de mitos e lendas que assustam a
+                humanidade. Funcionam como uma quimera dos vingativos e dos de medo.</li>
+                <li><b>Enfermos.</b> Formados da energia amaldiçoada de humanos enfermos; já nascem
+                com o feitiço inato, uma propagação amaldiçoada da própria doença.</li>
+              </ul>
+              <p><b>Imaterialidade.</b> Como ser imaterial, uma maldição atravessa estruturas sem
+              energia, não precisa respirar e não pode ser vista nem percebida por humanos que não
+              enxergam o mundo amaldiçoado.</p>
+              <h2>Feiticeiros e Caçadores</h2>
+              <p>Humanos capazes de manipular e controlar energia amaldiçoada, os únicos capazes de
+              exorcizar e de enxergar maldições.</p>
+              <h2>Não-Feiticeiros</h2>
+              <p><b>Artimanhas.</b> Sem o poder do jujutsu, compensa-se com truques: recebe uma
+              quantidade de Artimanhas igual ao seu Bônus de Treinamento.</p>
+              <p><b>Necessidade de Agir.</b> Diante de um gatilho ou vislumbre do mundo amaldiçoado,
+              agir se torna uma necessidade.</p>
+              <h2>Restritos Celestes</h2>
+              <p>Humanos que passaram por um voto congênito com o jujutsu ao nascer: pouca ou nenhuma
+              energia amaldiçoada em troca de um físico capaz de rivalizar com feiticeiros. A
+              Restrição de <b>corpo por energia</b> é a mais trágica e ao mesmo tempo a mais poderosa
+              da obra.</p>
+              <h2>Corpos Amaldiçoados</h2>
+              <p>Objetos inanimados envolvidos em energia amaldiçoada ou em um feitiço para que
+              ganhem vida. Por base não possuem consciência.</p>
+              <p><i>Grimório das Maldições v1, p. 9-15.</i></p>`
+          },
+          {
+            _id: id("pagina-grimorio-ficha"),
+            name: "Preenchendo a Ficha",
+            content: `<h2>Tamanho</h2>
+              <table><thead><tr><th>Tamanho</th><th>Espaço e alcance CaC</th>
+                <th>Manobra / Furtividade</th><th>Deslocamento padrão</th><th>Exemplo</th></tr></thead>
+                <tbody>
+                  ${Object.entries(FNM.tamanhosCriatura)
+                    .map(
+                      ([nome, t]) =>
+                        `<tr><td>${nome}</td><td>${t.espaco} m</td>` +
+                        `<td>${t.manobra >= 0 ? "+" : ""}${t.manobra} / ${t.furtividade >= 0 ? "+" : ""}${t.furtividade}</td>` +
+                        `<td>${t.deslocamento} m</td><td>${t.exemplo}</td></tr>`
+                    )
+                    .join("")}
+                </tbody></table>
+              <h2>Pontos de Vida e de Energia</h2>
+              <p>O cálculo de vida foi feito para a criatura aguentar <b>3 rodadas inteiras</b> contra
+              os jogadores. Para mais rodadas, dobre a vida ou some
+              <code>Valor de Constituição × (Treinamento × 2) × Quantidade de jogadores</code>.</p>
+              <p>Os Pontos de Energia seguem a mesma lógica de 3 rodadas; para esticar, multiplique o
+              total por 1,5. Nem todo inimigo tem PE especificados.</p>
+              <h2>Perícias</h2>
+              <p>Uma criatura pode ter uma quantidade de perícias igual ao seu <b>maior modificador de
+              atributo mental</b>. Usar uma perícia é uma Ação Comum.</p>
+              <h2>Recursos de defesa e sobrevivência</h2>
+              <ul>
+                <li><b>Redução de Dano Geral.</b> Pode ser remanejada entre tipos — tirar de físico
+                para pôr em elemental, por exemplo.</li>
+                <li><b>RD Irredutível.</b> O limite que não pode ser diminuído da RD geral. <b>Não
+                acumula</b> com ela: com RD 50 e irredutível 30, um jogador que reduza 25 leva a RD a
+                30, e não abaixo disso.</li>
+                <li><b>Ignorar RD.</b> Ignora as reduções de dano do alvo, seja qual for o tipo.</li>
+                <li><b>Vida Temporária por Ataque.</b> Ganha a cada ataque sofrido no mesmo turno.
+                Não acumula nem soma com a anterior.</li>
+                <li><b>Guarda Inabalável.</b> Vida temporária recebida todo início de rodada.</li>
+                <li><b>Resistência Parcial.</b> Sobe o resultado de um teste de resistência em um
+                passo: falha crítica vira falha, falha vira sucesso, sucesso vira sucesso crítico.</li>
+                <li><b>Resistência Total.</b> Recebe automaticamente sucesso crítico no lugar do
+                sucesso.</li>
+                <li><b>Desafiando a Morte.</b> Último recurso: a criatura perde metade de suas ações
+                (arredondando para cima) e, todo turno, faz um teste de Fortitude com CD
+                <b>25 + 1 para cada 50 de vida negativa</b>. Em uma falha fica suscetível à
+                finalização, que custa uma ação completa. Toda cura dela cai pela metade.</li>
+              </ul>
+              <h2>Imunidades, resistências e vulnerabilidades</h2>
+              <p>Para cada imunidade recebida, a criatura deve receber uma vulnerabilidade condizente.
+              Aplicar resistência não interfere nas imunidades nem nas vulnerabilidades.</p>
+              <table><thead><tr><th>Patamar</th><th>Imunidade</th><th>Resistência</th>
+                <th>Vulnerabilidade</th><th>Imunidades a condição</th></tr></thead><tbody>
+                  ${FNM.patamares
+                    .map(p => {
+                      const v = n => (n ? `Até ${n}` : "Não recebe nada");
+                      return (
+                        `<tr><td>${p.nome}</td><td>${v(p.imunidades)}</td>` +
+                        `<td>${v(p.resistencias)}</td><td>${v(p.vulnerabilidades)}</td>` +
+                        `<td>${p.imunidadesCondicao || "Não recebe nada"}</td></tr>`
+                      );
+                    })
+                    .join("")}
+                </tbody></table>
+              <p>Não é possível ser imune a <b>manobras</b>, a <b>desmembramentos</b> e ao <b>acerto
+              garantido</b> de expansão de domínio. As imunidades a condição se distribuem pela
+              métrica: Extrema = 1, Forte = 2, Média e Fraca = quantas quiser.</p>
+              <p><i>Grimório das Maldições v1, p. 17-22.</i></p>`
+          },
+          {
+            _id: id("pagina-grimorio-acoes"),
+            name: "Criando Ações e Condições",
+            content: `<h2>Parâmetros de alcance e área</h2>
+              <table><thead><tr><th>Treinamento</th><th>Alcance máximo</th><th>Área máxima</th>
+                <th>Redução para corpo a corpo</th></tr></thead><tbody>
+                  <tr><td>+2</td><td>12 m</td><td>4,5 m</td><td>1 dado</td></tr>
+                  <tr><td>+3</td><td>18 m</td><td>6 m</td><td>1 dado</td></tr>
+                  <tr><td>+4</td><td>24 m</td><td>9 m</td><td>2 dados</td></tr>
+                  <tr><td>+5</td><td>30 m</td><td>12 m</td><td>2 dados</td></tr>
+                  <tr><td>+6</td><td>48 m</td><td>18 m</td><td>3 dados</td></tr>
+                </tbody></table>
+              <p>Para reduzir o alcance e ganhar mais dano, acerto ou CD, reduza-o diretamente para
+              corpo a corpo e converta: <b>1 dado de dano = +2 de acerto = +1 de CD</b>.</p>
+              <h2>Tipo de ataque</h2>
+              <ul>
+                <li><b>Teste de Acerto.</b> Leva o valor cheio da tabela de dano.</li>
+                <li><b>Teste de Resistência individual.</b> Tem o valor reduzido em 1 nível de desafio;
+                em uma Calamidade 5, reduza o dano em 4 de dano fixo.</li>
+                <li><b>Teste de Resistência em área.</b> Tem o valor reduzido pela metade.</li>
+              </ul>
+              <p>Ataque com arma mantém o dano normal; ataque de narrativa física (soco, chute,
+              mordida) reduz em 2 dados de dano.</p>
+              <h2>Aplicando condições</h2>
+              <p>Para adicionar uma condição à técnica é preciso reduzir o dano conforme o nível da
+              condição, <b>ou</b> pagar o valor em pontos de energia — nunca misturando os dois.</p>
+              <table><thead><tr><th>Bônus de Treinamento</th><th>Nível de condição</th>
+                <th>Pontos de Energia</th><th>Níveis de ND</th></tr></thead><tbody>
+                  <tr><td>+2</td><td>Fraca</td><td>2 PE</td><td>1 nível de ND</td></tr>
+                  <tr><td>+3</td><td>Média</td><td>5 PE</td><td>2 níveis de ND</td></tr>
+                  <tr><td>+4</td><td>Forte</td><td>8 PE</td><td>3 níveis de ND</td></tr>
+                  <tr><td>+5</td><td>Extrema</td><td>10 PE</td><td>4 níveis de ND</td></tr>
+                </tbody></table>
+              <h3>Níveis das condições</h3>
+              <p><b>Fracas.</b> Abalado, Caído, Desarmar, Desorientado, Desprevenido, Empurrar,
+              Sangramento, Sofrendo.</p>
+              <p><b>Médias.</b> Agarrado, Amedrontado, Condenado, Confuso, Enfeitiçado, Engasgando,
+              Enjoado, Enredado, Envenenado, Lento, Surdo.</p>
+              <p><b>Fortes.</b> Aterrorizado, Cego, Exposto, Imóvel, Invisível, Surpreso.</p>
+              <p><b>Extremas.</b> Atordoado, Desmembramento, Fragilizado, Fragmentado, Inconsciente,
+              Paralisado.</p>
+              <p>O texto de cada condição está no compêndio de Referência de Regras e nos efeitos de
+              status do Foundry.</p>
+              <h2>Versatilidade</h2>
+              <p>Abrindo mão de 1 ação comum para uma mesma habilidade, a criatura recebe um benefício
+              de ritual: Ajuste de Alvos, Aumento de Alcance, Aumento de Dano, Aumento de Precisão,
+              Conversão de Sustento, Expansão de Área ou Potencialização de Dificuldade.</p>
+              <h2>Alma</h2>
+              <p>Mexer com alma e sanidade pode matar jogadores sem que eles tenham chance de se
+              defender — use em situações específicas e com criaturas escolhidas a dedo. Para dano na
+              alma, role o dano normal das tabelas e <b>divida o total por 3</b>.</p>
+              <p><i>Grimório das Maldições v1, p. 53-59.</i></p>`
           }
         ]
       }

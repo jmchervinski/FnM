@@ -1353,3 +1353,76 @@
 .fnm-sheet .referencia-grupo .dica {
   font-size: 0.65rem;
 }
+
+/* -------------------------------------------- */
+/*  Ficha de NPC — Criação do Inimigo           */
+/* -------------------------------------------- */
+
+/* Orçamento do Patamar (Grimório, p. 8-22): o gasto de cada linha contra o
+   teto recomendado. A linha fica vermelha quando o gasto passa do teto. */
+.fnm-sheet .orcamento-lista {
+  list-style: none;
+  margin: 0.5rem 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+.fnm-sheet .orcamento-lista li {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: baseline;
+  column-gap: 0.5rem;
+  padding: 0.25rem 0.45rem;
+  border: 1px solid var(--fnm-cinza);
+  border-radius: 4px;
+  background: rgba(255, 255, 255, 0.4);
+  font-size: 0.72rem;
+}
+.fnm-sheet .orcamento-lista li.estourado {
+  border-color: var(--fnm-sangue);
+  background: rgba(163, 22, 43, 0.12);
+}
+.fnm-sheet .orcamento-lista b {
+  color: var(--fnm-azul);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+.fnm-sheet .orcamento-lista li.estourado b {
+  color: var(--fnm-sangue);
+}
+.fnm-sheet .orcamento-lista em {
+  grid-column: 1 / -1;
+  font-size: 0.63rem;
+  font-style: normal;
+  color: var(--fnm-cinza);
+  line-height: 1.35;
+}
+
+/* Botão de importar ficha, no cabeçalho do NPC */
+.fnm-sheet .window-content .importar-btn {
+  flex: 0 0 auto;
+  align-self: end;
+  font-size: 0.7rem;
+  padding: 0.2rem 0.5rem;
+  white-space: nowrap;
+}
+
+/* Totais fechados: o campo vazio significa "usa a fórmula", e o placeholder
+   precisa dizer isso sem competir com um valor de verdade. */
+.fnm-sheet .manuais-bloco input::placeholder {
+  font-style: italic;
+  opacity: 0.55;
+}
+.fnm-sheet .manuais-bloco legend {
+  font-size: 0.72rem;
+}
+
+/* Grade densa para as 20 perícias do bloco de totais fechados */
+.fnm-sheet .campos-compactos {
+  grid-template-columns: repeat(auto-fit, minmax(112px, 1fr));
+  gap: 0.25rem;
+}
+.fnm-sheet .campos-compactos label {
+  font-size: 0.64rem;
+}

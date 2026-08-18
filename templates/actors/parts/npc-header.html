@@ -23,11 +23,31 @@
           {{/each}}
         </select>
       </label>
-      <label>Nível <input type="number" name="system.detalhes.nivel" value="{{system.detalhes.nivel}}" min="1" max="30" /></label>
-      <label class="checkbox" title="Usa a Defesa digitada em vez da fórmula">
+      <label title="Nível de Desafio: ND 2 equivale a um personagem de nível 2 (Grimório, p. 8)">ND
+        <input type="number" name="system.detalhes.nivel" value="{{system.detalhes.nivel}}" min="1" max="30" />
+      </label>
+      <label title="Define a dificuldade e todo o orçamento de criação (Grimório, p. 8)">Patamar
+        <select name="system.detalhes.patamar">
+          {{#each patamares as |p|}}
+          <option value="{{p.id}}" {{#if (eq p.id ../system.detalhes.patamar)}}selected{{/if}}>{{p.nome}}</option>
+          {{/each}}
+        </select>
+      </label>
+      <label>Tamanho
+        <select name="system.detalhes.tamanho">
+          {{#each tamanhos as |t|}}
+          <option value="{{t}}" {{#if (eq t ../system.detalhes.tamanho)}}selected{{/if}}>{{t}}</option>
+          {{/each}}
+        </select>
+      </label>
+      <label class="checkbox" title="Usa os totais digitados em vez das fórmulas do livro">
         <input type="checkbox" name="system.detalhes.valoresManuais" {{#if system.detalhes.valoresManuais}}checked{{/if}} />
         Valores manuais
       </label>
+      <button type="button" class="importar-btn" data-action="importarInimigo"
+              title="Preencher esta ficha a partir de um JSON de construtor de criaturas">
+        <i class="fas fa-file-import"></i> Importar JSON
+      </button>
     </div>
 
     <div class="linha-derivados">
@@ -37,6 +57,9 @@
       <span class="derivado botao-inline" data-action="rolarIniciativa">INI <b>{{sinal system.combate.iniciativa}}</b> <i class="fas fa-dice-d20"></i></span>
       <span class="derivado">DESL <b>{{system.combate.deslocamentoAtual}}m</b></span>
       <span class="derivado">CD <b>{{system.cdAmaldicoada}}</b></span>
+      <span class="derivado" title="Dificuldade do Patamar e jogadores recomendados (Grimório, p. 8)">
+        {{system.orcamento.dificuldade}} · <b>{{system.orcamento.jogadores}}</b> jog.
+      </span>
     </div>
   </div>
 </header>

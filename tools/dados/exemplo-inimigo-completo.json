@@ -1,0 +1,442 @@
+{
+  "version": "2.0",
+  "exportedAt": "2026-08-18T14:09:59.605Z",
+  "system": "Feiticeiros & Maldições 2.5",
+  "count": 1,
+  "creatures": [
+    {
+      "name": "Criatura teste",
+      "portraitUrl": "",
+      "portraitFocus": {
+        "x": 50,
+        "y": 50
+      },
+      "combatSettings": {
+        "guardaAbsorbsFirst": true,
+        "rdReducao": true
+      },
+      "core": {
+        "grau": "2",
+        "nd": 5,
+        "patamar": "desafio",
+        "difficulty": "experiente",
+        "origin": {
+          "type": "maldicao",
+          "subtype": "comum",
+          "hasAumentoEnergia": false,
+          "hasEstoqueAdicional": false,
+          "frutosExperiencia": null
+        },
+        "size": "grande",
+        "semLimites": false,
+        "bonusTreinamento": 3
+      },
+      "attributes": {
+        "forca": 20,
+        "destreza": 14,
+        "constituicao": 16,
+        "inteligencia": 17,
+        "sabedoria": 14,
+        "presenca": 20
+      },
+      "aptidoes": {
+        "au": 1,
+        "cl": 0,
+        "bar": 0,
+        "dom": 0,
+        "er": 1
+      },
+      "attackAttr": "forca",
+      "cdAttr": "inteligencia",
+      "overrides": {
+        "stats": {},
+        "saves": {}
+      },
+      "skills": [
+        {
+          "id": "skill-msyqh3wu-thv7",
+          "name": "Atletismo",
+          "attribute": "forca",
+          "mastered": true,
+          "overrideMod": null,
+          "mod": 16
+        },
+        {
+          "id": "skill-msyqh4vy-c1u7",
+          "name": "Acrobacia",
+          "attribute": "destreza",
+          "mastered": false,
+          "overrideMod": null,
+          "mod": 10
+        },
+        {
+          "id": "skill-msyqh612-a6kh",
+          "name": "Furtividade",
+          "attribute": "destreza",
+          "mastered": true,
+          "overrideMod": null,
+          "mod": 13
+        },
+        {
+          "id": "skill-msyqh7zq-wj9y",
+          "name": "Intuição",
+          "attribute": "sabedoria",
+          "mastered": true,
+          "overrideMod": null,
+          "mod": 13
+        }
+      ],
+      "defenses": {
+        "resistencias": [
+          {
+            "tipo": "queimante"
+          }
+        ],
+        "imunidades": [
+          {
+            "tipo": "venenos mundanos",
+            "source": "origin",
+            "originKey": "imunidades_espirituais"
+          },
+          {
+            "tipo": "ácido"
+          }
+        ],
+        "vulnerabilidades": [
+          {
+            "tipo": "energia reversa",
+            "source": "origin",
+            "originKey": "pontos_fracos"
+          },
+          {
+            "tipo": "congelante"
+          }
+        ],
+        "condicoesImunes": [
+          "abalado",
+          "desarmar",
+          "sangramento fraco",
+          "envenenado",
+          "sangramento medio",
+          "empurrar"
+        ],
+        "originCondicoesImunes": [],
+        "doteCondicoesImunes": []
+      },
+      "actions": {
+        "total": {
+          "comum": 2,
+          "rapida": 1,
+          "bonus": 1,
+          "movimento": 1,
+          "reacao": 1
+        },
+        "list": [
+          {
+            "name": "Garra teste",
+            "type": "comum",
+            "attackType": "acerto",
+            "toHit": 27,
+            "toHitBase": 25,
+            "cd": 21,
+            "cdBase": 21,
+            "trType": "fortitude",
+            "range": "Corpo-a-Corpo",
+            "area": "-",
+            "rangeType": "cac",
+            "rangeLocked": true,
+            "areaLocked": true,
+            "trades": {
+              "sacrifDadosAcerto": 1,
+              "sacrifDadosCD": 0,
+              "sacrifAcertoDados": 0,
+              "sacrifCdDados": 0
+            },
+            "damage": {
+              "type": "cortante",
+              "narrativeType": "padrao",
+              "isNarrativePhysical": false,
+              "damageIsLocked": false,
+              "damageIsCalculated": true,
+              "numDice": 4,
+              "numDiceBase": 4,
+              "dieSize": 4,
+              "mod": 12,
+              "roll": "4d4+12",
+              "average": 22
+            },
+            "condition": {
+              "tier": "nenhuma",
+              "name": "",
+              "nameKey": "",
+              "payment": "pe"
+            },
+            "cost": 2,
+            "description": "",
+            "finalTextManual": "",
+            "finalTextStale": false,
+            "calc": {
+              "nd": 5,
+              "patamar": "desafio",
+              "difficulty": "experiente"
+            },
+            "id": "act-msyqly6t"
+          },
+          {
+            "name": "Tiro",
+            "type": "bonus",
+            "attackType": "tr_area",
+            "toHit": 25,
+            "toHitBase": 25,
+            "cd": 21,
+            "cdBase": 21,
+            "trType": "reflexos",
+            "range": "18 Metros",
+            "area": "6 Metros",
+            "rangeType": "distancia",
+            "rangeLocked": true,
+            "areaLocked": true,
+            "trades": {
+              "sacrifDadosAcerto": 0,
+              "sacrifDadosCD": 0,
+              "sacrifAcertoDados": 0,
+              "sacrifCdDados": 0
+            },
+            "damage": {
+              "type": "cortante",
+              "narrativeType": "padrao",
+              "isNarrativePhysical": false,
+              "damageIsLocked": false,
+              "damageIsCalculated": true,
+              "numDice": 2,
+              "numDiceBase": 2,
+              "dieSize": 4,
+              "mod": 6,
+              "roll": "2d4+6",
+              "average": 11
+            },
+            "condition": {
+              "tier": "media",
+              "name": "enjoado",
+              "nameKey": "enjoado",
+              "payment": "pe"
+            },
+            "cost": 4,
+            "description": "",
+            "automation": {
+              "enabled": true,
+              "rules": []
+            },
+            "finalTextManual": "",
+            "finalTextStale": false,
+            "calc": {
+              "nd": 5,
+              "patamar": "desafio",
+              "difficulty": "experiente"
+            },
+            "id": "act-msyqnkfx"
+          }
+        ]
+      },
+      "features": [
+        {
+          "id": "origin-imaterialidade",
+          "name": "Imaterialidade",
+          "description": "Como um ser imaterial, uma maldição pode atravessar estruturas sem energia, não precisa respirar e não pode ser vista ou percebida por humanos que não sejam feiticeiros, a menos que esteja com as emoções à flor da pele.",
+          "category": "geral",
+          "trigger": "passiva",
+          "source": "origin",
+          "originKey": "imaterialidade",
+          "automated": false,
+          "locked": true
+        },
+        {
+          "id": "origin-imunidades_espirituais",
+          "name": "Imunidades Espirituais",
+          "description": "Sendo um espírito, uma maldição é imune a doenças e venenos mundanos (não sendo considerados os danos biológicos nem o veneno criado a partir de Ofício ou Condições, por exemplo), assim como não pode ser finalizada por objetos, equipamentos sem energia ou dano de queda.",
+          "category": "geral",
+          "trigger": "passiva",
+          "source": "origin",
+          "originKey": "imunidades_espirituais",
+          "automated": true,
+          "locked": true
+        },
+        {
+          "id": "origin-regeneracao",
+          "name": "Regeneração",
+          "description": "Uma maldição é capaz de regenerar e restaurar o próprio corpo a partir da sua energia amaldiçoada. É necessária uma Ação Comum ou Ação Rápida para se curar, pagando 4 PE; para curar uma Ferida Interna pague 8 PE; para regenerar um membro pague 10 PE.\n\nCura: Mod Con × 3 = 3 × 3 = 9 PV (Patamar desafio, BT +3).",
+          "category": "geral",
+          "trigger": "passiva",
+          "source": "origin",
+          "originKey": "regeneracao",
+          "automated": true,
+          "locked": true,
+          "automation": {
+            "enabled": true,
+            "rules": [
+              {
+                "id": "cat_origin-regeneracao_0",
+                "name": "Regenerar",
+                "enabled": true,
+                "trigger": {
+                  "type": "activated"
+                },
+                "activation": "once",
+                "cost": {
+                  "pe": 4,
+                  "acao": ""
+                },
+                "requires": "",
+                "effects": [
+                  {
+                    "type": "resource",
+                    "resource": "hp",
+                    "op": "add",
+                    "value": 9,
+                    "id": "cat_origin-regeneracao_0_0"
+                  }
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "id": "origin-pontos_fracos",
+          "name": "Pontos Fracos",
+          "description": "Maldições não podem ser curadas por energia reversa nem por itens criados a partir de ofícios, são vulneráveis ao dano de energia reversa, não recebem bônus de comida e não podem ter/usar equipamentos, exceto armas, armaduras e escudos.",
+          "category": "geral",
+          "trigger": "passiva",
+          "source": "origin",
+          "originKey": "pontos_fracos",
+          "automated": true,
+          "locked": true
+        }
+      ],
+      "treinamentos": [
+        {
+          "tipo": "oficial",
+          "key": "agilidade",
+          "nome": "Treino de Agilidade",
+          "descricao": "Com grande velocidade e agilidade, você se torna rápido e capaz de um nível superior de mobilidade e esquivas. Sua margem necessária para conseguir um sucesso crítico em um TR de Reflexos reduz em 2.",
+          "id": "treino-msyqnvqe-aky1"
+        },
+        {
+          "tipo": "oficial",
+          "key": "manejo_arma",
+          "nome": "Treino de Manejo de Arma",
+          "descricao": "Você se torna um mestre no manejo da arma para qual se dedicou a treinar e dominar. Enquanto estiver manuseando a arma escolhida, ela recebe um encantamento de ferramenta amaldiçoada adicional.",
+          "id": "treino-msyqnxud-4bkw"
+        },
+        {
+          "tipo": "oficial",
+          "key": "pericia",
+          "nome": "Treino de Perícia",
+          "descricao": "Você treinou e se dedicou tanto a uma perícia específica que ela se tornou algo no qual você é quase incapaz de falhar, mantendo uma consistência invejável. Caso realize um teste da perícia escolhida e obtenha um resultado menor do que 5 no d20, você pode rolar novamente e manter o melhor resultado. Você também pode suceder em um teste automaticamente caso não seja um teste competido.",
+          "id": "treino-msyqnyrx-odv2"
+        }
+      ],
+      "aptidoesEspeciais": [
+        {
+          "tipo": "oficial",
+          "key": "deteccao_amaldicoada",
+          "categoria": "Aptidões de Controle e Leitura",
+          "nome": "Detecção Amaldiçoada",
+          "descricao": "Treinando e se adaptando a ler rapidamente auras, você adquire uma maior capacidade de prever a próxima ação dos usuários de energia amaldiçoada, o que te favorece não só ofensivamente, mas defensivamente também. Você pode, como uma Ação de Movimento, realizar um teste de Percepção contra a CD Amaldiçoada de uma criatura, recebendo um bônus igual ao seu CL. Caso suceda, você não pode receber desvantagem ou prejuízos para acertar o inimigo enquanto estiver vendo ele, e ignora aumentos de Defesa fornecidos por habilidades ou aptidões durante um turno de combate.",
+          "id": "apt-msyqobkm-pk5c"
+        },
+        {
+          "tipo": "oficial",
+          "key": "bracos_extras",
+          "categoria": "Aptidões de Anatomia",
+          "nome": "Braços Extras",
+          "descricao": "Seu corpo possui um par de braços adicionais. Você recebe +2 em testes de prestidigitação e, se tiver pelo menos duas mãos livres, aplica esse bônus em testes de atletismo. Você também recebe um par adicional de mãos, permitindo equipar dois equipamentos de uma mão ou um equipamento de duas mãos adicional, assim como agarrar duas criaturas e outros benefícios à discrição do Narrador.",
+          "id": "apt-msyqokq5-v4nv"
+        }
+      ],
+      "caracteristicas": [],
+      "dotes": [
+        {
+          "tipo": "oficial",
+          "key": "aparar_ataque",
+          "nome": "Aparar Ataque",
+          "descricao": "Uma vez por rodada você rebate um ataque com outro ataque, assim conseguindo aparar um golpe. Quando for alvo de um ataque corpo a corpo, você pode gastar sua reação para realizar uma jogada de ataque contra o atacante. Caso seu teste supere o do inimigo, você evita o ataque. Caso tenha mais de uma reação você consegue redirecionar um golpe direcionado a você, mudando o alvo gastando 2 PE e mais uma reação: escolha outra criatura dentro do alcance do golpe e, caso o resultado da jogada de ataque dela seja superior à Defesa do novo alvo, ele recebe o ataque.",
+          "id": "dote-msyqoo79-4xih"
+        },
+        {
+          "tipo": "oficial",
+          "key": "bela_tentativa",
+          "nome": "Bela Tentativa",
+          "descricao": "Caso esteja utilizando armas, elas são basicamente extensões do seu corpo e um desarme é uma oportunidade de destruir seus inimigos. Ao suceder em desarmar um alvo, você pode gastar 2 pontos de energia amaldiçoada para, como uma reação, realizar um ataque com a arma desarmada contra o mesmo alvo do desarme. Caso esteja com a arma de seu inimigo, como uma ação comum pode realizar um teste de feitiçaria com CD: 25 + 10 para cada grau da arma; caso passe pode danificar a arma e, caso suceda em 3 testes, você quebra a arma da criatura.",
+          "id": "dote-msyqopjh-rltq"
+        }
+      ],
+      "artimanhas": [],
+      "narratorNotes": "",
+      "stats": {
+        "hpMax": 498,
+        "peMax": 15,
+        "defesa": 27,
+        "atencao": 25,
+        "iniciativa": 6,
+        "deslocamento": 18,
+        "espaco": 3,
+        "guardaInabavalMax": 15,
+        "rdGeral": 0,
+        "rdIrredutivel": 0,
+        "ignorarRd": 0,
+        "vidaTempPorAtaque": 0,
+        "resistenciaParcialMax": 3,
+        "resistenciaTotalMax": 2,
+        "cdBase": 21,
+        "acerto": 25
+      },
+      "saves": {
+        "astucia": 14,
+        "fortitude": 14,
+        "reflexos": 13,
+        "vontade": 13,
+        "integridade": 14
+      },
+      "critMargins": {
+        "astucia": 20,
+        "fortitude": 20,
+        "reflexos": 18,
+        "vontade": 20,
+        "integridade": 20,
+        "ataque": 20
+      },
+      "confrontoDominio": {
+        "modBase": 2,
+        "meiaND": 2,
+        "dom": 0,
+        "treinoBonus": 0,
+        "formula": "1d10 + 2"
+      },
+      "combatState": {
+        "isActive": false,
+        "hpCurrent": 498,
+        "peCurrent": 15,
+        "guardaInabavalCurrent": 15,
+        "resistenciaParcialUsed": 0,
+        "resistenciaTotalUsed": 0,
+        "integridadeCurrent": 100,
+        "activeConditions": [],
+        "activeModifiers": [],
+        "isInDesafiandoMorte": false,
+        "missCounter": 0,
+        "customCounters": [],
+        "combatLog": []
+      },
+      "updatedAt": "2026-08-18T14:09:53.175Z",
+      "editLog": [
+        "2026-08-18T14:09:53.175Z"
+      ],
+      "id": "msyqot93-yniwvfi",
+      "folderId": null,
+      "rulesVersion": "2.5.2",
+      "isBuiltIn": false,
+      "createdAt": "2026-08-18T14:09:53.175Z"
+    }
+  ],
+  "folders": []
+}

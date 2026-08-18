@@ -58,6 +58,189 @@
 
   </div>
 
+  {{#if system.orcamento}}
+  <fieldset class="bloco orcamento-bloco">
+    <legend>Criação do Inimigo (Grimório)</legend>
+
+    <div class="campos-grid">
+      <label>Origem
+        <select name="system.detalhes.origemInimigo">
+          <option value="">—</option>
+          {{#each origensInimigo as |o|}}
+          <option value="{{o}}" {{#if (eq o ../system.detalhes.origemInimigo)}}selected{{/if}}>{{o}}</option>
+          {{/each}}
+        </select>
+      </label>
+      <label title="Só para inimigos com a origem Espírito Amaldiçoado (Grimório, p. 9-10)">Tipo de Espírito
+        <select name="system.detalhes.tipoEspirito">
+          <option value="">—</option>
+          {{#each tiposEspirito as |t|}}
+          <option value="{{t}}" {{#if (eq t ../system.detalhes.tipoEspirito)}}selected{{/if}}>{{t}}</option>
+          {{/each}}
+        </select>
+      </label>
+      <label title="Qual coluna das tabelas de criação foi usada (Grimório, p. 16)">Tabela usada
+        <select name="system.detalhes.tabelaCriacao">
+          {{#each tabelasCriacao as |t|}}
+          <option value="{{t.id}}" {{#if (eq t.id ../system.detalhes.tabelaCriacao)}}selected{{/if}}>{{t.nome}}</option>
+          {{/each}}
+        </select>
+      </label>
+      <label>Ações comuns
+        <input type="number" name="system.inimigo.acoes.comum" value="{{system.inimigo.acoes.comum}}" min="0" />
+      </label>
+      <label>Ações rápidas
+        <input type="number" name="system.inimigo.acoes.rapida" value="{{system.inimigo.acoes.rapida}}" min="0" />
+      </label>
+      <label>Ações bônus
+        <input type="number" name="system.inimigo.acoes.bonus" value="{{system.inimigo.acoes.bonus}}" min="0" />
+      </label>
+      <label>Ações de movimento
+        <input type="number" name="system.inimigo.acoes.movimento" value="{{system.inimigo.acoes.movimento}}" min="0" />
+      </label>
+      <label>Reações
+        <input type="number" name="system.inimigo.acoes.reacao" value="{{system.inimigo.acoes.reacao}}" min="0" />
+      </label>
+      <label title="Bônus na rolagem de confronto de domínios">Confronto de domínio
+        <input type="number" name="system.inimigo.confrontoDominio" value="{{system.inimigo.confrontoDominio}}" step="1" />
+      </label>
+    </div>
+
+    <ul class="orcamento-lista">
+      <li class="{{#if system.orcamento.atributos.excedeu}}estourado{{/if}}">
+        <span>Pontos de atributo</span>
+        <b>{{system.orcamento.atributos.gasto}} / {{system.orcamento.atributos.total}}</b>
+        <em>{{system.orcamento.atributos.formula}} · teto de {{system.orcamento.atributos.limite}} por atributo</em>
+      </li>
+      {{#if system.orcamento.atributos.acimaDoLimite.length}}
+      <li class="estourado">
+        <span>Acima do teto do Patamar</span>
+        <b>{{#each system.orcamento.atributos.acimaDoLimite}}{{this}} {{/each}}</b>
+        <em>o Patamar limita cada atributo a {{system.orcamento.atributos.limite}}</em>
+      </li>
+      {{/if}}
+      <li class="{{#if system.orcamento.pericias.excedeu}}estourado{{/if}}">
+        <span>Perícias treinadas</span>
+        <b>{{system.orcamento.pericias.gasto}} / {{system.orcamento.pericias.total}}</b>
+        <em>o limite é o maior modificador de atributo mental (p. 21)</em>
+      </li>
+      <li>
+        <span>Imunidades · Resistências · Vulnerabilidades</span>
+        <b>{{system.orcamento.imunidades}} · {{system.orcamento.resistencias}} · {{system.orcamento.vulnerabilidades}}</b>
+        <em>cada imunidade pede uma vulnerabilidade condizente (p. 22)</em>
+      </li>
+      <li>
+        <span>Imunidades a condições</span>
+        <b>{{system.orcamento.imunidadesCondicao}}</b>
+        <em>Extrema = 1, Forte = 2, Média e Fraca à vontade (p. 22)</em>
+      </li>
+      <li>
+        <span>Características</span>
+        <b>{{system.orcamento.caracteristicas.gasto}} / {{system.orcamento.caracteristicas.total}}</b>
+        <em>quantidade recomendada para o Patamar (p. 60) — não é um teto</em>
+      </li>
+      <li>
+        <span>Ações por turno do Patamar</span>
+        <b>&nbsp;</b>
+        <em>{{system.orcamento.acoesDoTurno}} (p. 53)</em>
+      </li>
+      <li>
+        <span>Tamanho {{system.detalhes.tamanho}}</span>
+        <b>{{system.orcamento.tamanho.espaco}} m</b>
+        <em>alcance corpo a corpo · manobra {{sinal system.orcamento.tamanho.manobra}} ·
+          furtividade {{sinal system.orcamento.tamanho.furtividade}} ·
+          deslocamento padrão {{system.orcamento.deslocamentoPadrao}} m</em>
+      </li>
+    </ul>
+
+    <div class="campos-grid">
+      <label title="Limite que não pode ser diminuído da RD geral; não acumula com ela (p. 22)">RD irredutível
+        <input type="number" name="system.inimigo.rdIrredutivel" value="{{system.inimigo.rdIrredutivel}}" min="0" />
+      </label>
+      <label title="Quanto da RD do alvo a criatura ignora (p. 22)">Ignorar RD
+        <input type="number" name="system.inimigo.ignorarRD" value="{{system.inimigo.ignorarRD}}" min="0" />
+      </label>
+      <label title="Vida temporária ganha a cada ataque sofrido no mesmo turno; não acumula (p. 18)">Vida temp. por ataque
+        <input type="number" name="system.inimigo.vidaTempPorAtaque" value="{{system.inimigo.vidaTempPorAtaque}}" min="0" />
+      </label>
+      <label title="Vida temporária recebida todo início de rodada (p. 19)">Guarda — Atual
+        <input type="number" name="system.inimigo.guardaInabalavel.value" value="{{system.inimigo.guardaInabalavel.value}}" min="0" />
+      </label>
+      <label>Guarda — Máx.
+        <input type="number" name="system.inimigo.guardaInabalavel.max" value="{{system.inimigo.guardaInabalavel.max}}" min="0" />
+      </label>
+      <label title="Sobe o resultado de um TR em 1 passo (p. 19)">Resist. parcial — Atual
+        <input type="number" name="system.inimigo.resistenciaParcial.value" value="{{system.inimigo.resistenciaParcial.value}}" min="0" />
+      </label>
+      <label>Resist. parcial — Máx.
+        <input type="number" name="system.inimigo.resistenciaParcial.max" value="{{system.inimigo.resistenciaParcial.max}}" min="0" />
+      </label>
+      <label title="Transforma um sucesso em sucesso crítico automaticamente (p. 22)">Resist. total — Atual
+        <input type="number" name="system.inimigo.resistenciaTotal.value" value="{{system.inimigo.resistenciaTotal.value}}" min="0" />
+      </label>
+      <label>Resist. total — Máx.
+        <input type="number" name="system.inimigo.resistenciaTotal.max" value="{{system.inimigo.resistenciaTotal.max}}" min="0" />
+      </label>
+      <label class="largo">Imunidades a condições
+        <input type="text" name="system.inimigo.imunidadesCondicao" value="{{system.inimigo.imunidadesCondicao}}"
+               placeholder="Não é possível ser imune a manobras, desmembramentos e acerto garantido" />
+      </label>
+    </div>
+
+    <fieldset class="bloco manuais-bloco">
+      <legend>Totais fechados {{#unless system.detalhes.valoresManuais}}(desligados){{/unless}}</legend>
+      <p class="dica">Uma ficha pronta traz o total já calculado, e não os ingredientes dele.
+        Preencha só o que a ficha do livro declara; o que ficar <b>vazio</b> continua saindo da
+        fórmula normal. Estes campos só valem com <b>Valores manuais</b> ligado — desligar devolve
+        tudo para as fórmulas sem apagar nada.</p>
+      <div class="campos-grid">
+        <label title="Vazio = 10 + bônus de Percepção">Atenção
+          <input type="number" name="system.manuais.atencao" value="{{system.manuais.atencao}}" placeholder="fórmula" />
+        </label>
+        <label title="Vazio = modificador de Destreza">Iniciativa
+          <input type="number" name="system.manuais.iniciativa" value="{{system.manuais.iniciativa}}" placeholder="fórmula" />
+        </label>
+        <label title="Vazio = 10 + metade do ND + atributo da técnica + BT">CD base
+          <input type="number" name="system.manuais.cd" value="{{system.manuais.cd}}" placeholder="fórmula" />
+        </label>
+        <label title="Vazio = atributo + metade do ND + BT">Acerto
+          <input type="number" name="system.manuais.acerto" value="{{system.manuais.acerto}}" placeholder="fórmula" />
+        </label>
+        {{#each config.resistencias as |r id|}}
+        <label>TR {{r.nome}}
+          <input type="number" name="system.manuais.resistencias.{{id}}"
+                 value="{{lookup ../system.manuais.resistencias id}}" placeholder="fórmula" />
+        </label>
+        <label title="Resultado no d20 a partir do qual o teste é sucesso crítico">Crítico {{r.nome}}
+          <input type="number" name="system.inimigo.margensCritico.{{id}}"
+                 value="{{lookup ../system.inimigo.margensCritico id}}" min="2" max="20" />
+        </label>
+        {{/each}}
+        <label title="Resultado no d20 a partir do qual o ataque é crítico">Crítico de ataque
+          <input type="number" name="system.inimigo.margensCritico.ataque" value="{{system.inimigo.margensCritico.ataque}}" min="2" max="20" />
+        </label>
+      </div>
+
+      <p class="dica">Perícias: o total fechado substitui a fórmula da aba <b>Perícias</b>. O
+        Treinado/Mestre continua sendo marcado lá — aqui fica só o número final da ficha pronta.</p>
+      <div class="campos-grid campos-compactos">
+        {{#each config.pericias as |p id|}}
+        <label>{{p.nome}}
+          <input type="number" name="system.manuais.pericias.{{id}}"
+                 value="{{lookup ../system.manuais.pericias id}}" placeholder="fórmula" />
+        </label>
+        {{/each}}
+      </div>
+    </fieldset>
+
+    <p class="dica">Os números acima são o orçamento recomendado pelo Grimório, não um limite da
+      ficha: uma criatura autoral pode estourar qualquer linha de propósito. O sistema só aponta
+      onde ela estourou. <b>Desafiando a Morte</b> (p. 19): a criatura perde metade das ações
+      (arredondando para cima) e faz um teste de Fortitude por turno com CD 25 + 1 para cada 50 de
+      vida negativa; toda cura dela cai pela metade.</p>
+  </fieldset>
+  {{/if}}
+
   <fieldset class="bloco armas-bloco">
     <legend>Armas &amp; Ataques</legend>
     <header class="itens-header">

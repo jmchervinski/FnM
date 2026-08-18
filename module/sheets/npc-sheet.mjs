@@ -1,11 +1,15 @@
 import { FnmBaseActorSheet } from "./base-actor-sheet.mjs";
 import { FNM } from "../config.mjs";
+import { importarDeArquivo } from "../importar-inimigo.mjs";
 
 /** Ficha de NPC / Maldição — mais enxuta, com valores manuais por padrão. */
 export class FnmNpcSheet extends FnmBaseActorSheet {
   static DEFAULT_OPTIONS = {
     classes: ["fnm-sheet", "fnm-npc"],
-    position: { width: 760, height: 820 }
+    position: { width: 760, height: 820 },
+    actions: {
+      importarInimigo: FnmNpcSheet.onImportarInimigo
+    }
   };
 
   static PARTS = {
@@ -48,6 +52,12 @@ export class FnmNpcSheet extends FnmBaseActorSheet {
     context.tabs = this._prepareTabs("primary");
     context.graus = FNM.graus;
     context.tiposNpc = ["Maldição", "Feiticeiro", "Humano", "Corpo Amaldiçoado", "Outro"];
+    // Listas do Guia de Criação de Inimigos (Grimório, p. 8-22)
+    context.patamares = FNM.patamares;
+    context.tamanhos = FNM.tamanhos;
+    context.origensInimigo = FNM.origensInimigo;
+    context.tiposEspirito = FNM.tiposEspirito;
+    context.tabelasCriacao = FNM.tabelasCriacao;
     return context;
   }
 
@@ -65,5 +75,15 @@ export class FnmNpcSheet extends FnmBaseActorSheet {
       context.enrichedTaticas = await enriquecer(this.actor.system.taticas);
     }
     return context;
+  }
+
+  /**
+   * Preenche a ficha a partir de um JSON exportado por um construtor de
+   * criaturas. É sempre um gesto explícito do Narrador: nada é importado
+   * sozinho, e a ficha continua editável à mão depois (e antes).
+   */
+  static async onImportarInimigo() {
+    if (!this.isEditable) return;
+    await importarDeArquivo(this.actor);
   }
 }

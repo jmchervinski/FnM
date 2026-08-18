@@ -7,6 +7,8 @@
   "TYPES.Item.habilidade": "Habilidade de Especialização",
   "TYPES.Item.talento": "Talento",
   "TYPES.Item.aptidao": "Aptidão Amaldiçoada",
+  "TYPES.Item.dote": "Dote de Inimigo",
+  "TYPES.Item.caracteristica": "Característica de Inimigo",
   "TYPES.Item.tecnica": "Técnica Amaldiçoada",
   "TYPES.Item.feitico": "Feitiço",
   "TYPES.Item.arma": "Arma",

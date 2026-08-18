@@ -1,0 +1,1130 @@
+{
+  "dotesAmaldicoados": [
+    {
+      "nome": "Aura Nefasta",
+      "categoria": "Aura",
+      "areaAptidao": "au",
+      "nivelAptidao": 0,
+      "ndMinimo": 0,
+      "prerequisito": "",
+      "custoPE": 0,
+      "descricao": "<p>Maldita e vil, sua aura é macabra e perturba aqueles que estejam sendo afetados por ela. Toda criatura agressiva que começar um turno dentro de 3 metros de você precisa realizar um teste de resistência de vontade (atributo principal da técnica). Em uma falha, ela fica aterrorizada, podendo repetir o teste no próximo turno dela, deixando de estar aterrorizada em um sucesso. Como uma ação livre, você pode pagar 1 ponto de energia amaldiçoada para expandir esse alcance para 6 metros por 1 rodada.</p>"
+    },
+    {
+      "nome": "Aura de Restrição",
+      "categoria": "Aura",
+      "areaAptidao": "au",
+      "nivelAptidao": 0,
+      "ndMinimo": 0,
+      "prerequisito": "",
+      "custoPE": 1,
+      "descricao": "<p>Com foco em conter, tem-se uma aura mais pesada e densa. Sempre que for agarrar um alvo, você adiciona seu Nível de Aptidão em Aura na rolagem de Atletismo, assim como na rolagem para evitar que uma criatura escape. Uma quantidade de vezes por cena igual ao Nível de Aptidão em Aura, você pode também gastar 1 ponto de energia amaldiçoada para receber vantagem para agarrar ou impor desvantagem na criatura que tentar escapar.</p>"
+    },
+    {
+      "nome": "Aura de Rompimento",
+      "categoria": "Aura",
+      "areaAptidao": "au",
+      "nivelAptidao": 0,
+      "ndMinimo": 8,
+      "prerequisito": "ND 8",
+      "custoPE": 0,
+      "descricao": "<p>Sua aura é afiada, causando danos apenas com o contato. Você pode ativar sua aura lacerante por 1 rodada, como ação livre. Enquanto ativa, uma criatura que iniciar seu turno dentro de 3 metros de você deve realizar um teste de resistência de Fortitude. Em uma falha, ela recebe 1d6 de “Um tipo de dano a sua escolha adquirido na escolha desta aptidão” ignorando resistência e redução de dano. No Nível de Aptidão em Aura 3, o dado aumenta para 2d8; no nível 5, aumenta para 3d10.</p>"
+    },
+    {
+      "nome": "Aura do General",
+      "categoria": "Aura",
+      "areaAptidao": "au",
+      "nivelAptidao": 0,
+      "ndMinimo": 0,
+      "prerequisito": "Líder da Horda",
+      "custoPE": 0,
+      "descricao": "<p>Refletindo uma personalidade ou presença forte, estar coberto pela sua aura parece ser uma grande motivação para aliados. Você pode, como uma Ação Bônus, expandir sua aura para cobrir todo aliado dentro de 9 metros, os quais recebem 1 + metade do seu Nível de Aptidão em Aura em rolagens de dano e testes de perícia dentro do combate. Para cada turno que você manter a aura ativa, você paga 2 pontos de energia amaldiçoada.</p>"
+    },
+    {
+      "nome": "Detecção Amaldiçoada",
+      "categoria": "Controle e Leitura",
+      "areaAptidao": "cl",
+      "nivelAptidao": 0,
+      "ndMinimo": 0,
+      "prerequisito": "",
+      "custoPE": 0,
+      "descricao": "<p>Treinando e se adaptando a ler rapidamente auras, você adquire uma maior capacidade de prever a próxima ação dos usuários de energia amaldiçoada, o que te favorece não só ofensivamente, mas defensivamente também. Você pode, como uma Ação de Movimento, realizar um teste de Percepção contra a CD Amaldiçoada de uma criatura, recebendo um bônus igual ao seu CL. Caso suceda, você não pode receber desvantagem ou prejuízos para acertar o inimigo enquanto estiver vendo ele e ignorar aumentos de Defesa fornecidos por habilidades ou aptidões durante um turno de combate.</p>"
+    },
+    {
+      "nome": "Estímulo Amaldiçoado",
+      "categoria": "Controle e Leitura",
+      "areaAptidao": "cl",
+      "nivelAptidao": 0,
+      "ndMinimo": 0,
+      "prerequisito": "",
+      "custoPE": 1,
+      "descricao": "<p>Você se torna proficiente em utilizar da energia para estimular e reforçar o seu corpo, apurando força e agilidade. Quando realizar uma ação de movimento ou uma ação com as perícias Acrobacia ou Atletismo você pode, como parte da mesma ação, utilizar energia para os seguintes estímulos:</p><ul><li>Caso seja uma ação de movimento, você pode gastar 1 PE para aumentar a distância em um valor igual a metade do seu deslocamento.</li><li>Caso seja um teste (comum ou oposto), você pode gastar até uma quantidade de PE igual a seu Nível de Aptidão em Controle e Leitura, recebendo um bônus de +1 para cada PE gasto. O bônus dura até o começo do seu próximo turno.</li></ul>"
+    },
+    {
+      "nome": "Rastreio de Energia",
+      "categoria": "Controle e Leitura",
+      "areaAptidao": "cl",
+      "nivelAptidao": 0,
+      "ndMinimo": 0,
+      "prerequisito": "",
+      "custoPE": 0,
+      "descricao": "<p>Você refina e amplia suas capacidades de detectar e rastrear energia amaldiçoada. Quando estiver em uma cena em que energia amaldiçoada tenha sido usada ou deixada (Feitiços, aptidões, presença de maldições), você consegue detectar imediatamente vestígios e, caso já conheça de quem eles originam, você descobre na hora. Caso não conheça, você pode realizar um teste de Investigação ou Percepção contra a CD Amaldiçoada de quem originou o vestígio e, em um sucesso, ignora a invisibilidade e você recebe +5 para localizar o alvo.</p>"
+    },
+    {
+      "nome": "Acerto Garantido",
+      "categoria": "Domínio",
+      "areaAptidao": "dom",
+      "nivelAptidao": 0,
+      "ndMinimo": 0,
+      "prerequisito": "Expansão de Domínio Completa, Nível de Aptidão em Barreira e Domínio 4 e Nível 14",
+      "custoPE": 0,
+      "descricao": "<p>Você alcança o ápice das técnicas de domínio, conseguindo usar o acerto garantido, que define uma expansão de domínio letal. Ao obter esta aptidão, você pode adicionar o efeito Acerto Garantido em sua expansão de domínio, o qual não conta para o máximo, imbuindo sua técnica nas barreiras criadas. O funcionamento do Acerto Garantido deve ser elaborado de acordo com o guia de criação de domínios. Adicionar acerto garantido em uma expansão completa aumenta o seu custo em 5 pontos de energia amaldiçoada.</p>"
+    },
+    {
+      "nome": "Modificação Completa",
+      "categoria": "Domínio",
+      "areaAptidao": "dom",
+      "nivelAptidao": 0,
+      "ndMinimo": 0,
+      "prerequisito": "",
+      "custoPE": 0,
+      "descricao": "<p>Seu controle sobre os domínios é tão refinado que, mesmo no imediato momento de expandir seu domínio, você consegue o modificar. Ao utilizar uma expansão de domínio, você pode aplicar as seguintes modificações:</p><ul><li>Inversão de Resistência. Você inverte a resistência interna e externa da sua expansão de domínio, conseguindo lidar melhor com ataques que venham de fora. Ao utilizar essa modificação, troque os pontos de vida do lado interno pelos do lado externo.</li><li>Mudança de Tamanho. Você muda e controla o tamanho da expansão. Você pode expandir ou encolher o espaço da expansão: para cada 1,5m que encolher a expansão, ela recebe 20 pontos de vida adicionais em sua resistência interna e externa; para cada 1,5m que expandir, a resistência interna e externa diminui em 20 pontos de vida. Uma expansão não pode ser encolhida para menos de 3 metros e nem expandida para mais que o triplo do tamanho comum. Ambas as mudanças de tamanho são consideradas na área da expansão, a qual por padrão é de 9 metros.</li></ul>"
+    },
+    {
+      "nome": "Barreira Rápida",
+      "categoria": "Barreira",
+      "areaAptidao": "bar",
+      "nivelAptidao": 3,
+      "ndMinimo": 0,
+      "prerequisito": "Técnicas de Barreira, Nível de Aptidão em Barreira 3",
+      "custoPE": 0,
+      "descricao": "<p>Com treino e repetição, você se torna capaz de erguer barreiras de maneira ainda mais ágil. Erguer ou manipular barreiras se torna Ação Livre.</p>"
+    },
+    {
+      "nome": "Cesta Oca de Vime",
+      "categoria": "Barreira",
+      "areaAptidao": "bar",
+      "nivelAptidao": 1,
+      "ndMinimo": 0,
+      "prerequisito": "Nível de Aptidão em Barreira 1 e Nível 5",
+      "custoPE": 3,
+      "descricao": "<p>Uma antiga e esotérica técnica amaldiçoada utilizada contra domínios, antes mesmo do Domínio Simples ser criado. Como ação bônus ou reação a uma expansão de domínio, você pode gastar 3 PE para criar um trançado de vime ao seu redor e receber os efeitos desta aptidão. Enquanto estiver com a Cesta Oca de Vime ativa, você não é afetado pelo efeito de acerto garantido de uma expansão de domínio. Esta aptidão usa de Concentração e possui Durabilidade igual ao seu Nível de BAR + 1. Sempre que falhar em um teste de concentração, a Durabilidade da sua Cesta Oca de Vime desce em 1. No início do seu turno, caso você tenha sido atingido por um Acerto Garantido, sua Cesta Oca de Vime perde 1 de durabilidade. No início do seu turno, você pode manter o selo desta aptidão, ocupando as suas duas mãos, ao fazer isso, a Cesta Oca de Vime não pode perder durabilidade por qualquer efeito que não seja a falha de concentração. Caso a Cesta Oca de Vime quebre, você recebe o efeito do Acerto Garantido instantaneamente.</p>"
+    },
+    {
+      "nome": "Cortina",
+      "categoria": "Barreira",
+      "areaAptidao": "bar",
+      "nivelAptidao": 0,
+      "ndMinimo": 0,
+      "prerequisito": "Técnicas de Barreira",
+      "custoPE": 1,
+      "descricao": "<p>A cortina é uma técnica de barreira comum, sendo um grande campo de força negro que isola uma área específica, impossibilitando pessoas de fora de ver seu interior. Seu funcionamento básico é de ocultamento, mas podem ser postas condições que expandem sua utilidade. Ao criar uma cortina, você gasta 1 ponto de energia para cada 9 metros que a área dela irá cobrir, e não há um custo para mantê- la. Você também pode colocar condições em uma cortina, ao criá-la, de acordo com as regras sobre cortinas.</p>"
+    },
+    {
+      "nome": "Técnicas de Barreira",
+      "categoria": "Barreira",
+      "areaAptidao": "bar",
+      "nivelAptidao": 1,
+      "ndMinimo": 0,
+      "prerequisito": "Nível de Aptidão em Barreira 1",
+      "custoPE": 0,
+      "descricao": "<p>Você se torna capaz de erguer e manipular barreiras, as quais podem ser usadas para defender o usuário ou prender oponentes. Você pode criar, como uma Ação Livre, até 6 paredes ao seu redor, com cada parede custando 1 ponto de energia amaldiçoada. Cada parede erguida tem 1,5 metros de tamanho, e vida igual a 15 + seu nível de aptidão em Barreiras multiplicado por metade do seu ND. Podem servir tanto como obstáculo como uma maneira de prender seus inimigos. Você pode as manipular e mover usando outra Ação Livre.</p>"
+    },
+    {
+      "nome": "Abençoado Pelas Faíscas Negras",
+      "categoria": "Especial",
+      "areaAptidao": "cl",
+      "nivelAptidao": 3,
+      "ndMinimo": 0,
+      "prerequisito": "Raio Negro, Nível de Aptidão em Controle e Leitura 3",
+      "custoPE": 0,
+      "descricao": "<p>Embora o raio negro seja algo incontrolável, você se foca tanto nisso que parece começar a conseguir cativar as faíscas negras, as quais te abençoam. Você passa a usar o kokusen, por padrão, em um 19 e em um 20 no dado. Ao estar em Estado de Consciência Absoluta, você pode reduzir o valor necessário para Kokusen 1 vez a mais.</p>"
+    },
+    {
+      "nome": "Cura de Exaustão",
+      "categoria": "Especial",
+      "areaAptidao": "",
+      "nivelAptidao": 0,
+      "ndMinimo": 0,
+      "prerequisito": "Energia Reversa ou Regeneração Corporal",
+      "custoPE": 8,
+      "descricao": "<p>Você se torna capaz de curar sua exaustão de técnica ao custo de 8PE.</p>"
+    },
+    {
+      "nome": "Energia Reversa",
+      "categoria": "Especial",
+      "areaAptidao": "",
+      "nivelAptidao": 0,
+      "ndMinimo": 0,
+      "prerequisito": "",
+      "custoPE": 0,
+      "descricao": "<p>Essa tabela diz a capacidade de um feiticeiro se curar a partir da conversão de energia amaldiçoada para energia reversa.</p><p>Curar é uma ação “Rápida” ou “Comum” para uma criatura; para cada vez que ela se curar, ela deve pagar 2 pontos de energia amaldiçoada.</p><p>Para “Regenerar um Membro” deve ser pago 10 pontos de energia por “Membro”, ou 8 pontos de energia para “Ferida Interna”.</p><p><em>A tabela de cura por Patamar e Bônus de Treinamento está na p. 70 do Grimório: as células dela têm duas linhas cada e se embaralham na extração de texto, por isso não foram transcritas aqui.</em></p>"
+    },
+    {
+      "nome": "Fluxo Imparável",
+      "categoria": "Especial",
+      "areaAptidao": "",
+      "nivelAptidao": 0,
+      "ndMinimo": 0,
+      "prerequisito": "",
+      "custoPE": 0,
+      "descricao": "<p>A energia flui constantemente por todo o seu corpo, ao ponto da sua regeneração ser quase imparável. No começo do seu turno, você pode se curar com regeneração corporal como uma ação livre. Caso não o faça, você pode se curar como reação ao ter a sua vida reduzida. [Pré-Requisito: ND 12 Desafio ou Calamidade, Energia Reversa ou Regeneração Corporal] BT +4 BT +5 BT +6 Não Recebe Não Recebe Não Recebe Mod de Con * Mod de Con * Mod de Con * Treinamento Treinamento Treinamento Mod de Con * Mod de Con * Mod de Con * Treinamento (Trein * 1,5) (Trein * 2) Mod de Con * Mod de Con * Mod de Con * (Trein * 1,5) (Trein * 2) (Trein * 2) Mod de Con * (Trein * 1,5) Mod de Con * Mod de Con * (Trein * 2) (Trein * 2)</p>"
+    },
+    {
+      "nome": "Raio Negro",
+      "categoria": "Especial",
+      "areaAptidao": "cl",
+      "nivelAptidao": 3,
+      "ndMinimo": 10,
+      "prerequisito": "Nível de Aptidão em Controle e Leitura 3, Força ou Destreza 16 e ND 10 desafio ou ND 8 Calamidade",
+      "custoPE": 0,
+      "descricao": "<p>O raio negro - ou kokusen - é um fenômeno no jujutsu, onde o golpe de um feiticeiro é altamente amplificado devido a uma distorção no espaço que ocorre quando a energia amaldiçoada é aplicada 0.000001 segundos antes dele acertar. Quando um feiticeiro o acerta, sua energia brilha em negro e o poder destrutivo é maior. Usar o kokusen também aumenta a compreensão da energia amaldiçoada permanentemente. Todos os efeitos da habilidade são:</p><ul><li>Raio Negro. Usar o Kokusen não é algo consciente, ocorrendo apenas em certos momentos. Quando tirar 20 em uma rolagem de ataque corpo-a-corpo, o seu golpe é coberto por raios negros, utilizando o Kokusen. Um golpe com Kokusen causa dano adicional igual a metade do total obtido na rolagem do dano (1.5x). O Dano Após Ataque é aplicado após o Kokusen. Além disso, ele ignora qualquer tipo de resistência ou redução de danos.</li><li>Estado de Consciência Absoluta. Após usar os raios negros, um feiticeiro adentra em um estado de foco, onde torna-se mais fácil acertar golpes, extraindo 120% de seu potencial. Durante 1 rodada, após conseguir um kokusen, o valor necessário para o kokusen reduzirá em um. Caso acerte outro kokusen, a duração será renovada e o valor necessário reduzirá novamente. Ele pode ser reduzido uma quantidade de vezes igual a metade do seu Nível de Aptidão em Controle e Leitura.</li></ul>"
+    },
+    {
+      "nome": "Reversão de Técnica",
+      "categoria": "Especial",
+      "areaAptidao": "",
+      "nivelAptidao": 0,
+      "ndMinimo": 10,
+      "prerequisito": "Ser feiticeiro, ser no mínimo ND 10 Desafio, Comum ou ND 8 Calamidade",
+      "custoPE": 0,
+      "descricao": "<p>Em um processo complexo, você passa a ser capaz de utilizar energia reversa para abastecer a sua técnica, possibilitando assim um efeito contrário ao padrão e com maior potência. Quando obtiver um novo Feitiço, você pode escolher criar uma Reversão de Técnica no lugar: uma Reversão tem o seu custo aumentado em um valor igual ao nível do Feitiço e deve, também, ser criada como algo que reverte o conceito da sua técnica (o Vermelho, Reversão de Técnica do Ilimitado, empurra ao invés de puxar). Ao obter esta aptidão, você recebe um Feitiço adicional, o qual obrigatoriamente deve ser uma reversão.</p>"
+    },
+    {
+      "nome": "Técnica Máxima",
+      "categoria": "Especial",
+      "areaAptidao": "",
+      "nivelAptidao": 0,
+      "ndMinimo": 15,
+      "prerequisito": "Mestre em Feitiçaria e ser no mínimo ND 15 Desafio, Comum ou ND 10 Calamidade",
+      "custoPE": 20,
+      "descricao": "<p>Dentre os feiticeiros jujutsu, existe a possibilidade de levar o potencial da sua técnica ao máximo, criando uma habilidade definitiva a partir dela. É uma arte suprema, com grande complexidade e necessidade de conhecimento sobre a própria técnica. Ao obter esta habilidade, você se torna capaz de criar uma Técnica Máxima: você recebe um novo Feitiço o qual é indefensável. Uma Técnica Máxima custa 20 PE e após ser usada, você deve esperar uma quantidade de rodadas igual a 4. A técnica máxima ignora resistência e redução de dano.</p><p><strong>Técnica Máxima por Patamar</strong></p><table><thead><tr><th>Patamar</th><th>Técnica Máxima</th></tr></thead><tbody><tr><td>Lacaio</td><td>Não Recebe Nada</td></tr><tr><td>Capanga</td><td>Não Recebe Nada</td></tr><tr><td>Comum</td><td>Não Recebe Nada</td></tr><tr><td>Desafio</td><td>Recebe +5 Dados de Dano no dano Padrão da Técnica</td></tr><tr><td>Calamidade</td><td>Recebe +7 Dados de Dano no dano Padrão da Técnica</td></tr></tbody></table>"
+    },
+    {
+      "nome": "Absorção Elemental",
+      "categoria": "Anatomia",
+      "areaAptidao": "",
+      "nivelAptidao": 0,
+      "ndMinimo": 0,
+      "prerequisito": "Ter um elemento como funcionamento básico, Composição Elemental",
+      "custoPE": 0,
+      "descricao": "<p>Você consegue absorver o elemento que o compõe, em prol de se revigorar. Ao receber dano do seu elemento escolhido em Composição Elemental, você pode utilizar sua reação para receber pontos de vida temporários igual a metade do dano recebido.</p>"
+    },
+    {
+      "nome": "Arma Natural",
+      "categoria": "Anatomia",
+      "areaAptidao": "",
+      "nivelAptidao": 0,
+      "ndMinimo": 0,
+      "prerequisito": "",
+      "custoPE": 0,
+      "descricao": "<p>Com uma fisionomia estranha, você possui garras, dentes afiados, cauda ou outro apêndice corporal próprio para ataques. Você recebe um ataque natural que causa 1d8 de dano Cortante, Perfurante ou de Impacto com os traços: Fineza e Enérgica. Esta arma natural conta como um ataque desarmado e se beneficia de efeitos que afetariam ataques desarmados. Caso seu dano desarmado seja superior ao da arma natural, ao invés disso aumente o seu dano desarmado em 1 nível.</p>"
+    },
+    {
+      "nome": "Articulações Extensas",
+      "categoria": "Anatomia",
+      "areaAptidao": "",
+      "nivelAptidao": 0,
+      "ndMinimo": 0,
+      "prerequisito": "",
+      "custoPE": 0,
+      "descricao": "<p>Suas juntas são mais longas, ou suas garras são estendidas, aumentando a distância com que pode atacar. O alcance dos seus ataques corpo a corpo aumenta em 1,5 metros.</p>"
+    },
+    {
+      "nome": "Braços Extras",
+      "categoria": "Anatomia",
+      "areaAptidao": "",
+      "nivelAptidao": 0,
+      "ndMinimo": 0,
+      "prerequisito": "",
+      "custoPE": 0,
+      "descricao": "<p>Seu corpo possui um par de braços adicionais. Você recebe +2 em testes de prestidigitação e, se tiver pelo menos duas mãos livres, aplica esse bônus em testes de atletismo. E recebe um par adicional de mãos, permitindo você equipar dois equipamentos de uma mão ou um equipamento de duas mãos adicional, assim como agarrar duas criaturas e outros benefícios à discrição do Narrador.</p>"
+    },
+    {
+      "nome": "Composição Elemental",
+      "categoria": "Anatomia",
+      "areaAptidao": "",
+      "nivelAptidao": 0,
+      "ndMinimo": 0,
+      "prerequisito": "Ter um elemento como funcionamento básico",
+      "custoPE": 0,
+      "descricao": "<p>Você é composto por um elemento, o qual dita muito sobre sua própria existência. Ao obter esta aptidão, você deve escolher um tipo de dano elemental para ser composto de: você recebe imunidade ao tipo de dano escolhido, além de poder o causar em ataques desarmados ou com arma.</p>"
+    },
+    {
+      "nome": "Corpo Especializado",
+      "categoria": "Anatomia",
+      "areaAptidao": "",
+      "nivelAptidao": 0,
+      "ndMinimo": 0,
+      "prerequisito": "",
+      "custoPE": 0,
+      "descricao": "<p>Seu corpo se desenvolve de maneira a possuir um foco. Escolha uma perícia: você recebe um bônus de 1d4 nela.</p>"
+    },
+    {
+      "nome": "Desenvolvimento Exagerado",
+      "categoria": "Anatomia",
+      "areaAptidao": "",
+      "nivelAptidao": 0,
+      "ndMinimo": 0,
+      "prerequisito": "",
+      "custoPE": 0,
+      "descricao": "<p>Seu corpo se desenvolve de maneira exagerada, ultrapassando o formato e o porte padrão. Você aumenta sua categoria de tamanho em 1 e recebe 1 ponto de vida adicional por nível.</p>"
+    },
+    {
+      "nome": "Olhos Adicionais",
+      "categoria": "Anatomia",
+      "areaAptidao": "",
+      "nivelAptidao": 0,
+      "ndMinimo": 0,
+      "prerequisito": "",
+      "custoPE": 0,
+      "descricao": "<p>Estranhamente, mais olhos começam a surgir em seu corpo, apurando o seu sentido da visão. Você recebe um bônus de +2 em Percepção, o qual aumenta em +1 nos níveis 5, 10, 15 e 20; além disso, sua atenção passa a ter como base 12 ao invés de 10.</p>"
+    },
+    {
+      "nome": "Pernas Extras",
+      "categoria": "Anatomia",
+      "areaAptidao": "",
+      "nivelAptidao": 0,
+      "ndMinimo": 0,
+      "prerequisito": "",
+      "custoPE": 0,
+      "descricao": "<p>No seu corpo cresce um par de pernas extras. Seu deslocamento aumenta em 1,5 metros para cada 2 pontos no seu modificador de destreza e você passa a ignorar terreno difícil que esteja no solo.</p>"
+    }
+  ],
+  "caracteristicas": [
+    {
+      "nome": "Arena Elemental",
+      "categoria": "Geral",
+      "areaAptidao": "",
+      "nivelAptidao": 0,
+      "ndMinimo": 0,
+      "prerequisito": "",
+      "custoPE": 0,
+      "descricao": "<p>Criaturas que possuam elementos em sua composição ou em seu feitiço, recebem um aumento igual a metade do seu bônus de treinamento em seu acerto, seu bônus de treinamento no dano e uma melhoria de ritual caso seu elemento principal esteja presente em pelo menos um raio de 9 metros do usuário, consumido a área para receber a melhoria durante o turno.</p>"
+    },
+    {
+      "nome": "Aura",
+      "categoria": "Geral",
+      "areaAptidao": "",
+      "nivelAptidao": 0,
+      "ndMinimo": 0,
+      "prerequisito": "",
+      "custoPE": 0,
+      "descricao": "<p>A criatura tem auras que podem aplicar desvantagem em jogadores.</p><p><strong>Efeitos de Aura</strong></p><table><thead><tr><th>Grau</th><th>Acerto</th><th>Defesa</th><th>TR</th><th>Perícia</th><th>Crítico</th><th>Terreno</th></tr></thead><tbody><tr><td>4º Grau</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td></tr><tr><td>3º Grau</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>1,5 m</td></tr><tr><td>2º Grau</td><td>-1</td><td>-1</td><td>-1</td><td>-1</td><td>+1</td><td>3 m</td></tr><tr><td>1º Grau</td><td>-2</td><td>-2</td><td>-2</td><td>-2</td><td>+2</td><td>4,5 m</td></tr><tr><td>Grau Esp.</td><td>-3</td><td>-3</td><td>-3</td><td>-3</td><td>+3</td><td>6 m</td></tr></tbody></table>"
+    },
+    {
+      "nome": "Demolição",
+      "categoria": "Geral",
+      "areaAptidao": "",
+      "nivelAptidao": 0,
+      "ndMinimo": 0,
+      "prerequisito": "",
+      "custoPE": 0,
+      "descricao": "<p>Danos causados a estruturas contam a estrutura como vulnerável ao tipo de dano, ataques em área de criaturas que tenham demolição causam +1 de dano a estruturas a cada dado de dano que seja rolado.</p>"
+    },
+    {
+      "nome": "Deslocamento Aéreo",
+      "categoria": "Geral",
+      "areaAptidao": "",
+      "nivelAptidao": 0,
+      "ndMinimo": 0,
+      "prerequisito": "",
+      "custoPE": 0,
+      "descricao": "<p>A criatura tem a capacidade de voar devido ao seu feitiço ou capacidade corporal, recebendo seu valor de deslocamento no chão como deslocamento de voo, recebendo aumento em ambos caso alguma forma de deslocamento receba bônus.</p>"
+    },
+    {
+      "nome": "Fluxo",
+      "categoria": "Geral",
+      "areaAptidao": "",
+      "nivelAptidao": 0,
+      "ndMinimo": 0,
+      "prerequisito": "",
+      "custoPE": 0,
+      "descricao": "<p>Quando a criatura errar três ataques seguidos em um único turno, ele receberá no turno seguinte um acerto aumento de acerto igual a +5 contra o alvo de seus ataques.</p>"
+    },
+    {
+      "nome": "Guloso",
+      "categoria": "Geral",
+      "areaAptidao": "",
+      "nivelAptidao": 0,
+      "ndMinimo": 0,
+      "prerequisito": "",
+      "custoPE": 0,
+      "descricao": "<p>Quando a criatura agarra outra criatura pode gastar uma ação de movimento para poder engolir, ao engolir recebe 1d4+2 aumentando em +1 dado para cada grau de dano ácido. (Exclusivo de Maldições e Fetos Amaldiçoados)</p>"
+    },
+    {
+      "nome": "Ignorar Terreno Difícil",
+      "categoria": "Geral",
+      "areaAptidao": "",
+      "nivelAptidao": 0,
+      "ndMinimo": 0,
+      "prerequisito": "",
+      "custoPE": 0,
+      "descricao": "<p>A criatura tem a capacidade de ignorar um tipo de terreno específico, devido a sua familiaridade com o terreno ou físico especial, escolha entre urbano (Cidades), Ermos (Florestas), Aquática (Submerso/ Inundado) ou Subterrâneo (Cavernas e etc…) sendo incapaz de receber os malefícios de terreno difícil dentro dessa zona.</p>"
+    },
+    {
+      "nome": "Marca",
+      "categoria": "Geral",
+      "areaAptidao": "",
+      "nivelAptidao": 0,
+      "ndMinimo": 0,
+      "prerequisito": "",
+      "custoPE": 0,
+      "descricao": "<p>A criatura tem a capacidade de colocar uma marca em quem ela acerta com um feitiço, ataque ou utilizando uma ação própria para isso. As marcas podem causar dano extra, debuffs ou condições garantidas.</p><p><strong>Efeitos de Marca</strong></p><table><thead><tr><th>Grau</th><th>Dano Fixo</th><th>Prejuízos</th><th>Condições</th></tr></thead><tbody><tr><td>4º Grau</td><td>+1</td><td>-1</td><td>Nenhuma</td></tr><tr><td>3º Grau</td><td>+2</td><td>-2</td><td>Nenhuma</td></tr><tr><td>2º Grau</td><td>+3</td><td>-3</td><td>1 Fraca</td></tr><tr><td>1º Grau</td><td>+4</td><td>-4</td><td>1 Fraca</td></tr><tr><td>Grau Esp.</td><td>+5</td><td>-5</td><td>2 Fracas</td></tr></tbody></table>"
+    },
+    {
+      "nome": "Pavio Curto",
+      "categoria": "Geral",
+      "areaAptidao": "",
+      "nivelAptidao": 0,
+      "ndMinimo": 0,
+      "prerequisito": "",
+      "custoPE": 0,
+      "descricao": "<p>Provocações são seu ponto fraco, seu sangue ferve e sua vontade de matar aumenta, com a adrenalina e ódio fortalecendo seu corpo. Você recebe desvantagem contra a ação provocar, porém causa metade de sua ND como dano extra contra criaturas que tenham provocado você.</p>"
+    },
+    {
+      "nome": "Rastro Amaldiçoado",
+      "categoria": "Geral",
+      "areaAptidao": "",
+      "nivelAptidao": 0,
+      "ndMinimo": 0,
+      "prerequisito": "",
+      "custoPE": 0,
+      "descricao": "<p>Ao se deslocar, a criatura deixa um rastro do tamanho dele no chão ao qual pode ser usado para deixar uma habilidade nela, causar dano de terreno ou usar para algo muito específico do feitiço.</p><p><strong>Dano de Terreno</strong></p><table><thead><tr><th>Bônus de Treinamento</th><th>Dano de Terreno</th></tr></thead><tbody><tr><td>+2</td><td>1d4+1</td></tr><tr><td>+3</td><td>2d4+3</td></tr><tr><td>+4</td><td>3d4+5</td></tr><tr><td>+5</td><td>3d6+8</td></tr><tr><td>+6</td><td>4d6+10</td></tr></tbody></table>"
+    },
+    {
+      "nome": "Terreno Favorito",
+      "categoria": "Geral",
+      "areaAptidao": "",
+      "nivelAptidao": 0,
+      "ndMinimo": 0,
+      "prerequisito": "",
+      "custoPE": 0,
+      "descricao": "<p>Enquanto a criatura estiver em seu ambiente de conforto ou em um ambiente que tenha pleno domínio, ela recebe bonificações de acordo com as bonificações do interior de um domínio da página xx do livro básico.</p>"
+    },
+    {
+      "nome": "Trocar Atributo de Uma Perícia",
+      "categoria": "Geral",
+      "areaAptidao": "",
+      "nivelAptidao": 0,
+      "ndMinimo": 0,
+      "prerequisito": "",
+      "custoPE": 0,
+      "descricao": "<p>A criatura tem a capacidade de trocar o atributo de uma perícia, desde que seja coerente a troca de atributos, exemplo: Realizar atletismo com destreza para testes de correr.</p>"
+    },
+    {
+      "nome": "Ímpeto Gradual",
+      "categoria": "Geral",
+      "areaAptidao": "",
+      "nivelAptidao": 0,
+      "ndMinimo": 0,
+      "prerequisito": "",
+      "custoPE": 0,
+      "descricao": "<p>A criatura recebe uma ação a mais para poder realizar uma ação específica, devido ao feitiço que possui ou uma condição especial dentro de sua criação. Pode-se escolher entre uma Reação, Ação Bônus ou de Movimento, mas nunca uma Ação Comum. R Perícia Crítico Terreno 0 0 0 0 0 0 0 1,5m -1 -1 +1 3m -2 -2 +2 4,5m -3 -3 +3 6m</p>"
+    },
+    {
+      "nome": "Adaptabilidade",
+      "categoria": "Especial",
+      "areaAptidao": "",
+      "nivelAptidao": 0,
+      "ndMinimo": 0,
+      "prerequisito": "",
+      "custoPE": 0,
+      "descricao": "<p>Ao ser acertada a criatura consegue se adaptar a apenas 1 ataque causado contra ela. (Necessidade de um feitiço com esse funcionamento ou item amaldiçoado que funcionará para apenas um único tipo de dano)</p>"
+    },
+    {
+      "nome": "Alterar Tamanho",
+      "categoria": "Especial",
+      "areaAptidao": "",
+      "nivelAptidao": 0,
+      "ndMinimo": 0,
+      "prerequisito": "",
+      "custoPE": 0,
+      "descricao": "<p>Tem a capacidade de alterar seu tamanho livremente: Até ND5 pequeno, médio e grande, a partir da ND10 todos os tamanhos. (recebe os bônus e os ônus do aumento ou redução)</p>"
+    },
+    {
+      "nome": "Anulação",
+      "categoria": "Especial",
+      "areaAptidao": "",
+      "nivelAptidao": 0,
+      "ndMinimo": 0,
+      "prerequisito": "",
+      "custoPE": 0,
+      "descricao": "<p>A criatura tem a capacidade de anular a energia de um ataque por cena, necessitando gastar o PE gasto pelo atacante e possuir uma ação de reação.</p>"
+    },
+    {
+      "nome": "Armazém",
+      "categoria": "Especial",
+      "areaAptidao": "",
+      "nivelAptidao": 0,
+      "ndMinimo": 0,
+      "prerequisito": "",
+      "custoPE": 0,
+      "descricao": "<p>A criatura consegue guardar o dano recebido por um total de três rodadas e não sofre das desvantagens que receberia (dano, condição etc), mas após a terceira rodada recebe o dano x1,5 ou a condição dura duas rodadas a mais, danos causados direto como perda de vida ou raios negros não podem ser guardados.</p>"
+    },
+    {
+      "nome": "Arsenal",
+      "categoria": "Especial",
+      "areaAptidao": "",
+      "nivelAptidao": 0,
+      "ndMinimo": 0,
+      "prerequisito": "",
+      "custoPE": 0,
+      "descricao": "<p>A criatura utiliza armas não naturais, as armas não possuem dano próprio, mas elas alteram o tipo de dano, alcance, e caso tenha uma característica especial, aplicam nos golpes utilizados com ela. (ex: lança invertida celeste)</p>"
+    },
+    {
+      "nome": "Atravessar Estruturas",
+      "categoria": "Especial",
+      "areaAptidao": "",
+      "nivelAptidao": 0,
+      "ndMinimo": 0,
+      "prerequisito": "",
+      "custoPE": 0,
+      "descricao": "<p>A criatura tem a capacidade de atravessar qualquer tipo de estrutura, exceto cortinas com a regra de não atravessar e expansões de domínio já fechadas. (Maldições de ND até 4 recebem gratuitamente essa característica)</p>"
+    },
+    {
+      "nome": "Atração",
+      "categoria": "Especial",
+      "areaAptidao": "",
+      "nivelAptidao": 0,
+      "ndMinimo": 0,
+      "prerequisito": "",
+      "custoPE": 0,
+      "descricao": "<p>A criatura tem a capacidade de 1x por rodada, forçar uma criatura a gastar sua ação de movimento na sua direção caso ela falhe em um TR de vontade.</p>"
+    },
+    {
+      "nome": "Atração de Arma",
+      "categoria": "Especial",
+      "areaAptidao": "",
+      "nivelAptidao": 0,
+      "ndMinimo": 0,
+      "prerequisito": "",
+      "custoPE": 0,
+      "descricao": "<p>A criatura tem a capacidade de atrair armas de um grupo específico e mesmo que a arma tenha retorno ela não volta ao seu dono uma vez que chegue na criatura, a classe de dificuldade é 15 + 5 para cada grau.</p>"
+    },
+    {
+      "nome": "Brechas",
+      "categoria": "Especial",
+      "areaAptidao": "",
+      "nivelAptidao": 0,
+      "ndMinimo": 0,
+      "prerequisito": "",
+      "custoPE": 0,
+      "descricao": "<p>Caso o ataque de uma criatura seja 5 ou abaixo de sua Defesa, ou seja uma falha crítica, a criatura poderá realizar um teste de percepção contra a CD do atacante, podendo realizar um ataque de oportunidade caso suceda no teste.</p>"
+    },
+    {
+      "nome": "Controle Corporal/Mental",
+      "categoria": "Especial",
+      "areaAptidao": "",
+      "nivelAptidao": 0,
+      "ndMinimo": 0,
+      "prerequisito": "",
+      "custoPE": 0,
+      "descricao": "<p>A criatura tem a capacidade de impedir desmembramentos uma quantidade de vezes igual ao seu bônus de treinamento ou após acertar uma quantidade x de ataques ou aplicar uma quantidade x de condições consegue o controle do corpo ou mente de uma criatura. (O controle mental é indicado apenas para feitiços com essa funcionalidade ou criaturas que tenham esse tema.)</p>"
+    },
+    {
+      "nome": "Dimensão de Bolso",
+      "categoria": "Especial",
+      "areaAptidao": "",
+      "nivelAptidao": 0,
+      "ndMinimo": 0,
+      "prerequisito": "",
+      "custoPE": 0,
+      "descricao": "<p>A criatura tem a capacidade de criar uma dimensão própria onde pode usar para esconder algo, sequestrar alguém ou fugir. (Necessário um feitiço caso queira adentrar com ou sem outras pessoas)</p>"
+    },
+    {
+      "nome": "Dupla Personalidade",
+      "categoria": "Especial",
+      "areaAptidao": "",
+      "nivelAptidao": 0,
+      "ndMinimo": 0,
+      "prerequisito": "",
+      "custoPE": 0,
+      "descricao": "<p>A criatura tem 2 personalidades, onde uma é boa e a outra é ruim, onde ela realmente passa dizendo a verdade em testes de intuição e a sua parte ruim sabe de todas as informações da personalidade boa.</p>"
+    },
+    {
+      "nome": "Equipe",
+      "categoria": "Especial",
+      "areaAptidao": "",
+      "nivelAptidao": 0,
+      "ndMinimo": 0,
+      "prerequisito": "",
+      "custoPE": 0,
+      "descricao": "<p>A criatura é composta por mais de 1 unidade, o que permite que ela tenha resistência a ataques individuais, mas é vulnerável a ataques em área.</p>"
+    },
+    {
+      "nome": "Expansão de Domínio",
+      "categoria": "Especial",
+      "areaAptidao": "",
+      "nivelAptidao": 0,
+      "ndMinimo": 0,
+      "prerequisito": "",
+      "custoPE": 0,
+      "descricao": "<p>A criatura possui a aptidão expansão de domínio, utilizando o guia de criação do livro básico pág. xxx, ND8 a criatura possui a incompleta, ND10 completa e ND20 sem barreira, recebe o bônus de rolagem na disputa de domínio também. Custa 2 Ações.</p>"
+    },
+    {
+      "nome": "Falácia",
+      "categoria": "Especial",
+      "areaAptidao": "",
+      "nivelAptidao": 0,
+      "ndMinimo": 0,
+      "prerequisito": "",
+      "custoPE": 0,
+      "descricao": "<p>A criatura tem a capacidade de mentir em testes de intuição uma quantidade de vezes igual ao seu bônus de treinamento, essa característica não pode ser utilizada contra críticos naturais.</p>"
+    },
+    {
+      "nome": "Ignorar Cortinas",
+      "categoria": "Especial",
+      "areaAptidao": "",
+      "nivelAptidao": 0,
+      "ndMinimo": 0,
+      "prerequisito": "",
+      "custoPE": 0,
+      "descricao": "<p>A criatura tem a capacidade de ignorar cortinas, independentemente de suas regras.</p>"
+    },
+    {
+      "nome": "Impacto Atrasado",
+      "categoria": "Especial",
+      "areaAptidao": "",
+      "nivelAptidao": 0,
+      "ndMinimo": 0,
+      "prerequisito": "",
+      "custoPE": 0,
+      "descricao": "<p>A criatura tem a capacidade de bater onde anteriormente outro ser estava, podendo realizar a jogada de acerto considerando a criatura surpresa. Essa característica funciona apenas para o local onde o alvo estava em sua última rodada, a partir da segunda utilização contra a mesma criatura, ela deve realizar um TR de reflexos para não ser considerada surpresa a jogada de ataque.</p>"
+    },
+    {
+      "nome": "Ligação do Destino",
+      "categoria": "Especial",
+      "areaAptidao": "",
+      "nivelAptidao": 0,
+      "ndMinimo": 0,
+      "prerequisito": "",
+      "custoPE": 0,
+      "descricao": "<p>A criatura se aproxima de outra criatura e prepara um ataque, se outra criatura que tiver um vínculo muito forte com o alvo avisar sobre o ataque, o ataque é anulado, caso não avise o ataque é garantido.</p>"
+    },
+    {
+      "nome": "Linguagem Mística",
+      "categoria": "Especial",
+      "areaAptidao": "",
+      "nivelAptidao": 0,
+      "ndMinimo": 0,
+      "prerequisito": "",
+      "custoPE": 0,
+      "descricao": "<p>A criatura força às criaturas a mudarem seu idioma impedindo a comunicação entre eles, impedindo rituais e anulando percepção sonora.</p>"
+    },
+    {
+      "nome": "Miragem Temporal",
+      "categoria": "Especial",
+      "areaAptidao": "",
+      "nivelAptidao": 0,
+      "ndMinimo": 0,
+      "prerequisito": "",
+      "custoPE": 0,
+      "descricao": "<p>Caso os jogadores tenham se movido na última rodada. Você pode alvejar o lugar onde eles estavam no turno passado assim os considerando desprevenidos.</p>"
+    },
+    {
+      "nome": "Partenogênese",
+      "categoria": "Especial",
+      "areaAptidao": "",
+      "nivelAptidao": 0,
+      "ndMinimo": 0,
+      "prerequisito": "",
+      "custoPE": 20,
+      "descricao": "<p>A criatura tem a capacidade de gastar 20PE para dividir uma parte do seu corpo para poder ressuscitar após um descanso longo caso essa parte dividida não tenha sido destruída (Exclusivo de Maldições).</p>"
+    },
+    {
+      "nome": "Perceber o Traçado da Alma",
+      "categoria": "Especial",
+      "areaAptidao": "",
+      "nivelAptidao": 0,
+      "ndMinimo": 0,
+      "prerequisito": "",
+      "custoPE": 0,
+      "descricao": "<p>Tem a capacidade de ver, entender, curar e causar dano na alma, necessitando de possuir Integridade como resistência dominada, um feitiço capaz de manipular a alma ou ND 12 e acima.</p>"
+    },
+    {
+      "nome": "Ping Pong",
+      "categoria": "Especial",
+      "areaAptidao": "",
+      "nivelAptidao": 0,
+      "ndMinimo": 0,
+      "prerequisito": "",
+      "custoPE": 0,
+      "descricao": "<p>Ao acertar um ataque corpo a corpo em alguém, empurre a pessoa uma quantidade de metros igual ao seu modificador de força *1,5 e siga ela, a criatura empurrada não gera ataque de oportunidade.</p>"
+    },
+    {
+      "nome": "Replay",
+      "categoria": "Especial",
+      "areaAptidao": "",
+      "nivelAptidao": 0,
+      "ndMinimo": 0,
+      "prerequisito": "",
+      "custoPE": 0,
+      "descricao": "<p>A primeira vez que acertar uma criatura, ela deve realizar um TR de vontade, numa falha deve realizar as mesmas ações, nos mesmos alvos/mesmo lugar.</p>"
+    },
+    {
+      "nome": "Reversão",
+      "categoria": "Especial",
+      "areaAptidao": "",
+      "nivelAptidao": 0,
+      "ndMinimo": 0,
+      "prerequisito": "",
+      "custoPE": 0,
+      "descricao": "<p>A criatura tem a capacidade de inverter os bônus concedidos entre jogadores, ou seja +1 de acerto se transforma -1 de acerto. OBS: Muito cuidado, essa característica é muito forte e requer um nível de balanceamento muito preciso, podendo afetar uma única criatura por vez por 1 rodada, recebendo um tempo de recarga no mesmo alvo igual a metade do treinamento em rodadas, além de gastar uma ação de reação.</p>"
+    },
+    {
+      "nome": "Reversão Elemental",
+      "categoria": "Especial",
+      "areaAptidao": "",
+      "nivelAptidao": 0,
+      "ndMinimo": 0,
+      "prerequisito": "",
+      "custoPE": 0,
+      "descricao": "<p>Ao ser alvo de um ataque que seja uma variação de um dos 4 elementos (Fogo, água, terra e ar) o ataque regride ao seu elemento oposto e tem sua efetividade reduzida (reduz o dano em 1/3), ativar essa característica exige uma ação de reação.</p>"
+    },
+    {
+      "nome": "Sentido às Cegas",
+      "categoria": "Especial",
+      "areaAptidao": "",
+      "nivelAptidao": 0,
+      "ndMinimo": 0,
+      "prerequisito": "",
+      "custoPE": 0,
+      "descricao": "<p>Ignora a escuridão parcial e total, possuindo olhos especiais ou a capacidade de utilizar seus outros sentidos de forma aguçada para localizar, você recebe acesso aos tipos de percepção especial da página 296 do livro básico.</p>"
+    },
+    {
+      "nome": "Slime",
+      "categoria": "Especial",
+      "areaAptidao": "",
+      "nivelAptidao": 0,
+      "ndMinimo": 0,
+      "prerequisito": "",
+      "custoPE": 0,
+      "descricao": "<p>Quando a criatura recebe um ataque corpo-a-corpo ou um projétil o acertar a arma/projétil fica preso nele tendo que fazer um teste de atletismo com a classe de dificuldade 15 + 3 por grau para tirar a arma/projétil.</p>"
+    },
+    {
+      "nome": "Talismã",
+      "categoria": "Especial",
+      "areaAptidao": "",
+      "nivelAptidao": 0,
+      "ndMinimo": 0,
+      "prerequisito": "",
+      "custoPE": 0,
+      "descricao": "<p>Usuários de Invocações que possuírem essa característica, são capazes de trazer novamente ao campo de batalha suas invocações com metade dos seus pontos de vida e defesa após serem derrotadas, apenas podendo ser exorcizadas caso seu talismã seja destruído. Caso seja uma maldição e possua essa característica, você deverá possuir um objeto núcleo que estará fixo e exposto em uma distância de até 3 metros multiplicado por seu treinamento. Você não pode ser morto ou levado aos portões da morte até que seu talismã seja destruído.</p>"
+    },
+    {
+      "nome": "Transformação",
+      "categoria": "Especial",
+      "areaAptidao": "",
+      "nivelAptidao": 0,
+      "ndMinimo": 0,
+      "prerequisito": "",
+      "custoPE": 0,
+      "descricao": "<p>A criatura tem a capacidade de se transformar e ganhar algumas bonificações como, vantagem em testes de ataque, vantagem em testes de resistência e bônus igual as tabelas acima igual ao seu</p>"
+    },
+    {
+      "nome": "Transformação Especial",
+      "categoria": "Especial",
+      "areaAptidao": "",
+      "nivelAptidao": 0,
+      "ndMinimo": 0,
+      "prerequisito": "",
+      "custoPE": 0,
+      "descricao": "<p>Uma vez por cena, a criatura possuirá uma ação especial para se transformar, ignorando a iniciativa e sendo ativa assim que for anunciada, essa transformação durará a cena e não poderá ser regredida com exceção da derrota ou vontade da criatura transformada, recebendo benefícios de acordo com o narrador.</p>"
+    },
+    {
+      "nome": "Transmissão",
+      "categoria": "Especial",
+      "areaAptidao": "",
+      "nivelAptidao": 0,
+      "ndMinimo": 0,
+      "prerequisito": "",
+      "custoPE": 0,
+      "descricao": "<p>A criatura tem a capacidade de aplicar um efeito de dano contínuo em 1 criatura específica e todas as criaturas que estiverem a 1,5 metros do alvo recebem também caso não passem em um teste de resistência.</p>"
+    },
+    {
+      "nome": "Vínculo",
+      "categoria": "Especial",
+      "areaAptidao": "",
+      "nivelAptidao": 0,
+      "ndMinimo": 0,
+      "prerequisito": "",
+      "custoPE": 0,
+      "descricao": "<p>A criatura no início do combate se vincula a uma outra criatura, ao receber dano, condição, cura, vida temporária ou etc, a criatura vinculada recebe os mesmos bônus, caso a criatura seja oposta ao vínculo, deve realizar um TR de vontade contra o vinculador.</p>"
+    },
+    {
+      "nome": "Zona Festeira",
+      "categoria": "Especial",
+      "areaAptidao": "",
+      "nivelAptidao": 0,
+      "ndMinimo": 0,
+      "prerequisito": "",
+      "custoPE": 0,
+      "descricao": "<p>Todo início de turno, realize uma BATALHA DE DANÇA contra algum voluntário. Caso várias pessoas sejam voluntárias, você escolhe quem. Quem ganhar, recebe vantagem nas próximas 2 rolagens de atributos de presença.</p>"
+    }
+  ],
+  "dotesGerais": [
+    {
+      "nome": "Abençoado Pela Sorte",
+      "categoria": "Geral",
+      "areaAptidao": "",
+      "nivelAptidao": 0,
+      "ndMinimo": 0,
+      "prerequisito": "",
+      "custoPE": 0,
+      "descricao": "<p>Você tem uma sorte inexplicável, a qual o favorece nos momentos mais críticos. Você tem 3 pontos de sorte. Sempre que fizer uma rolagem, você pode gastar um ponto de sorte para rolar outro d20, podendo escolher usar qualquer um dos dois resultados. Você pode escolher rolar o outro dado após ver o resultado da primeira rolagem, mas antes de ver as consequências. Quando um inimigo conseguir um 20 em uma jogada de ataque para acertar, você recupera 1 ponto de sorte. Você recupera seus pontos de sorte após um descanso longo.</p>"
+    },
+    {
+      "nome": "Aparar Ataque",
+      "categoria": "Geral",
+      "areaAptidao": "",
+      "nivelAptidao": 0,
+      "ndMinimo": 0,
+      "prerequisito": "",
+      "custoPE": 0,
+      "descricao": "<p>Uma vez por rodada você rebate um ataque com outro ataque, assim conseguindo aparar um golpe. Quando for alvo de um ataque corpo a corpo, você pode gastar sua reação para realizar uma jogada de ataque contra o atacante. Caso seu teste supere o do inimigo, você evita o ataque, caso tenha mais de uma reação você consegue redirecionar um golpe direcionado a você, mudando o alvo gastando 2PE e mais reação para tentar redirecionar o ataque: Escolha outra criatura dentro do alcance do golpe e caso o resultado da jogada de ataque dela seja superior à Defesa do novo alvo, ele recebe o ataque.</p>"
+    },
+    {
+      "nome": "Assumir Postura",
+      "categoria": "Geral",
+      "areaAptidao": "",
+      "nivelAptidao": 0,
+      "ndMinimo": 0,
+      "prerequisito": "",
+      "custoPE": 0,
+      "descricao": "<p>A postura que uma pessoa mantém em combate molda suas capacidades, fornecendo grandes benefícios. Ao obter esta habilidade, você recebe acesso às posturas, explicadas e listadas no final da especialização. Entrar em uma postura é uma ação bônus.</p><ul><li>Postura da Fortuna. Enquanto estiver na postura da fortuna, ao rodar um d20 e conseguir um resultado igual ou menor ao seu bônus de treinamento, você pode escolher o rolar novamente, ficando com o maior resultado. Você pode utilizar este efeito uma quantidade de vezes igual a metade do seu bônus de treinamento por rodada e apenas uma vez no mesmo dado.</li><li>Postura da Tempestade. Enquanto na postura da tempestade, sempre que acertar um ataque o alvo realiza um TR de Fortitude, sendo derrubado em uma falha. Caso acerte um ataque em um alvo já caído, ele deve repetir o teste e, caso falhe, fica imóvel até o começo do seu turno. [Pré-Requisito: ND 10]</li></ul>"
+    },
+    {
+      "nome": "Atração em Combate",
+      "categoria": "Geral",
+      "areaAptidao": "",
+      "nivelAptidao": 0,
+      "ndMinimo": 0,
+      "prerequisito": "20 de Presença e dominância em Intimidação.",
+      "custoPE": 0,
+      "descricao": "<p>Não só provocar, mas você é capaz de se transformar no centro da atenção daquele que você deseja desafiar. Uma criatura que seja afetada por uma ação de Provocar sua, ao invés de receber desvantagem para atacar outras criaturas, só pode realizar ataques contra você, até que suceda em um teste para escapar da provocação.</p>"
+    },
+    {
+      "nome": "Bela Tentativa",
+      "categoria": "Geral",
+      "areaAptidao": "",
+      "nivelAptidao": 0,
+      "ndMinimo": 0,
+      "prerequisito": "",
+      "custoPE": 2,
+      "descricao": "<p>Caso esteja utilizando armas, elas são basicamente extensões do seu corpo e um desarme é uma oportunidade de destruir seus inimigos. Ao suceder em desarmar um alvo, você pode gastar 2 pontos de energia amaldiçoada para, como uma reação, realizar um ataque com a arma desarmada contra o mesmo alvo do desarme. Caso esteja com a arma de seu inimigo como uma ação comum pode realizar um teste de feitiçaria com CD: 25 + 10 para cada grau da arma, caso passe pode danificar a arma, caso suceda em 3 testes você quebra a arma da criatura.</p>"
+    },
+    {
+      "nome": "Destruindo Tudo",
+      "categoria": "Geral",
+      "areaAptidao": "",
+      "nivelAptidao": 0,
+      "ndMinimo": 0,
+      "prerequisito": "",
+      "custoPE": 0,
+      "descricao": "<p>O ambiente é apenas uma ferramenta para você, sendo utilizado apenas para machucar ainda mais seus inimigos. Uma vez por rodada, ao acertar um ataque desarmado ou armado, você empurra o alvo por 1,5m + 1,5m multiplicado pela metade do seu BT, forçando-o a realizar um TR de fortitude, reduzindo a distância a metade em um sucesso. Se o objeto ter sua vida zerada pelo dano, o alvo empurrado continua sendo empurrado, mas a distância restante é reduzida à metade.</p>"
+    },
+    {
+      "nome": "Domínio dos Fundamentos",
+      "categoria": "Geral",
+      "areaAptidao": "",
+      "nivelAptidao": 0,
+      "ndMinimo": 0,
+      "prerequisito": "",
+      "custoPE": 1,
+      "descricao": "<p>Você tem uma maior dominância sobre os fundamentos da energia amaldiçoada e das suas habilidades. Você pode escolher uma das mudanças de Fundamento abaixo.</p><ul><li>Feitiço Cruel. Quando usar um Feitiço que força um Teste de Resistência você pode gastar 1 ponto de energia amaldiçoada para aumentar a CD do teste em 2 ou 2 pontos para aumentar em 4.</li><li>Feitiço Duplicado. Uma vez por rodada, quando usar um Feitiço de dano cujo alvo seja apenas uma criatura, você pode gastar pontos de energia para dar um segundo alvo à habilidade. O custo para reproduzir a habilidade em outra criatura é 5PE.</li></ul>"
+    },
+    {
+      "nome": "Estudo Amaldiçoado",
+      "categoria": "Geral",
+      "areaAptidao": "",
+      "nivelAptidao": 0,
+      "ndMinimo": 10,
+      "prerequisito": "ND 10 Comum, Desafio ou Calamidade",
+      "custoPE": 0,
+      "descricao": "<p>Você estuda sobre a energia amaldiçoada ao máximo, conseguindo descobrir uma nova maneira de a utilizar. Ao obter este talento, você pode escolher dois Níveis de Aptidão diferentes para serem aumentados em 1.</p>"
+    },
+    {
+      "nome": "Expansão Maestral",
+      "categoria": "Geral",
+      "areaAptidao": "",
+      "nivelAptidao": 0,
+      "ndMinimo": 0,
+      "prerequisito": "Expansão de Domínio Completa",
+      "custoPE": 0,
+      "descricao": "<p>Você pode utilizar expansões de domínio possuindo apenas uma mão livre e expandir o domínio não causa ataques de oportunidade em você.</p>"
+    },
+    {
+      "nome": "Explosão em Cadeia",
+      "categoria": "Geral",
+      "areaAptidao": "",
+      "nivelAptidao": 0,
+      "ndMinimo": 0,
+      "prerequisito": "",
+      "custoPE": 0,
+      "descricao": "<p>Um bom desempenho em uma conjuração o permite aumentar o poder destrutivo, encadeando a força. Ao rolar o dano máximo em um dado de dano de um Feitiço de dano, você rola mais um dado de dano de mesmo valor, adicionando o resultado ao total de dano. Tal habilidade funciona apenas uma vez por dado do Feitiço: caso role-se um dado adicional por causa de Explosão Encadeada e tal seja dano máximo, não se ativa novamente. Focando em sobrecarregar as suas habilidades, você pode consumir energia para a deixar quase impossível de resistir. Quando usar um Feitiço que força um teste de resistência você pode gastar pontos de energia amaldiçoada igual ao seu bônus de treinamento para aumentar a dificuldade do teste. Para cada ponto gasto, a dificuldade aumenta em 1.</p>"
+    },
+    {
+      "nome": "Fúria Berserker",
+      "categoria": "Geral",
+      "areaAptidao": "",
+      "nivelAptidao": 0,
+      "ndMinimo": 0,
+      "prerequisito": "",
+      "custoPE": 0,
+      "descricao": "<p>Durante uma cena de combate uma criatura pode entrar em fúria e liberar seu potencial bestial, se tornando imune a condições que o imobilizam ou que façam ele perder a consciência, porém, a criatura só poderá ter como alvo uma única criatura até que um dos dois cheguem a 0 pontos de vida. Recebe 2 pontos de exaustão caso esteja de pé e a criatura alvo caia. Você consegue sempre perceber um ponto cego na guarda do inimigo, se posicionando em tal. Se mover pelo espaço de um inimigo não conta como terreno difícil, e sempre que você estiver no espaço de um inimigo, faz com que ataques contra você tenham 40% de chance de falhar (1 a 4 em 1d10). A partir do patamar desafio, você pode realizar uma rolagem de furtividade contra um alvo ao qual esteja dentro do espaço dele; caso seu resultado seja superior ao valor de atenção dele, faz com que os ataques da criatura alvo tenha 60% de chance de falhar (1 a 6 em 1d10).</p>"
+    },
+    {
+      "nome": "Imitação",
+      "categoria": "Geral",
+      "areaAptidao": "",
+      "nivelAptidao": 0,
+      "ndMinimo": 0,
+      "prerequisito": "",
+      "custoPE": 0,
+      "descricao": "<p>Você consegue imitar técnicas e estilos de combate de outras pessoas, uma vez que você consegue enxergar a técnica/ estilo de combate consegue a reproduzir perfeitamente recebendo um bônus de +2 para acertar, causa +5 de dano fixo e +3 na Defesa. Uma vez por turno, ao realizar um ataque surpresa ou contra um inimigo desprevenido, você pode adicionar +1 dado de dano.</p>"
+    },
+    {
+      "nome": "Membro Fantasma",
+      "categoria": "Geral",
+      "areaAptidao": "",
+      "nivelAptidao": 0,
+      "ndMinimo": 10,
+      "prerequisito": "ND 10 Desafio e Calamidade.",
+      "custoPE": 10,
+      "descricao": "<p>Atacar a uma distância grande não impõe desvantagem no seu ataque. Seus ataques a distância ignoram meia cobertura e 3/4 de cobertura. Antes de fazer um ataque você pode escolher receber uma penalidade de -10 para acertar em troca de desabilitar um membro do corpo de uma criatura por 1 rodada (aura anuladora pode remover ao custo de 10PE). Caso esteja usando uma arma a distância a desvantagem de atirar corpo-a-corpo é removida.</p>"
+    },
+    {
+      "nome": "Mente e Corpo em Equilíbrio",
+      "categoria": "Geral",
+      "areaAptidao": "",
+      "nivelAptidao": 0,
+      "ndMinimo": 0,
+      "prerequisito": "",
+      "custoPE": 0,
+      "descricao": "<p>Sua mente é imperturbável durante uma boa luta. Você recebe uma quantidade de vantagens igual ao seu bônus de treinamento para resistir a condições mentais e físicas.</p>"
+    },
+    {
+      "nome": "Posicionamento Ameaçador",
+      "categoria": "Geral",
+      "areaAptidao": "",
+      "nivelAptidao": 0,
+      "ndMinimo": 0,
+      "prerequisito": "",
+      "custoPE": 0,
+      "descricao": "<p>Você sabe se posicionar de maneira estratégica, fazendo com que um inimigo que possa o ver te reconheça como uma constante ameaça, mesmo distante. A menos que esteja furtivo, toda criatura que estiver a 3 metros de você tem sua defesa reduzida em 2. Ao acertar uma criatura com um ataque de oportunidade, o movimento dela é reduzido em 0 até o final do turno dela.</p>"
+    },
+    {
+      "nome": "Presença Aterrorizante",
+      "categoria": "Geral",
+      "areaAptidao": "",
+      "nivelAptidao": 0,
+      "ndMinimo": 0,
+      "prerequisito": "Calamidade de Grau 1",
+      "custoPE": 0,
+      "descricao": "<p>Seus inimigos não possuem apenas medo ao olhar para você, eles sentem algo que nunca sentiram antes, um pavor inestimável por você estar do outro lado do tabuleiro. Todos aqueles que te verem pela primeira vez devem realizar um TR de vontade, aqueles que falharem ficam com a condição de Apavorado, aqueles que tiverem um sucesso ficam com a condição de amedrontado e aqueles que tiverem um sucesso crítico ignoram ambas as condições. Aqueles que estiverem Apavorados ou Amedrontados repetem o teste no início de seus turnos, ao obterem sucesso, reduzem o nível da condição em 1 (apavorado -> amedrontado -> abalado -> nada), em um sucesso crítico removem duas etapas.</p>"
+    },
+    {
+      "nome": "Purificação da Alma",
+      "categoria": "Geral",
+      "areaAptidao": "",
+      "nivelAptidao": 0,
+      "ndMinimo": 0,
+      "prerequisito": "",
+      "custoPE": 0,
+      "descricao": "<p>Você entende seu eu verdadeiro por inteiro, sendo capaz de enxergar até mesmo o traçado de uma alma. Ao utilizar uma ação de cura com energia reversa ou não, você pode abdicar de metade dessa cura e passar para sua integridade, sendo limitado a utilizar este dote apenas uma vez por descanso longo.</p>"
+    },
+    {
+      "nome": "Reação Necessária",
+      "categoria": "Geral",
+      "areaAptidao": "",
+      "nivelAptidao": 0,
+      "ndMinimo": 0,
+      "prerequisito": "",
+      "custoPE": 3,
+      "descricao": "<p>Você sabe que, em certos momentos, sua reação é necessária, mesmo que isso signifique ir além do esperado. Uma vez por rodada, caso não possua uma reação, você pode gastar 3 pontos de energia amaldiçoada para realizar uma reação adicional. Se você receber dano de um inimigo que esteja dentro de seu alcance, você pode gastar 2 pontos de estamina e usar sua reação para realizar um ataque contra ele.</p>"
+    },
+    {
+      "nome": "Sentidos Afiados",
+      "categoria": "Geral",
+      "areaAptidao": "",
+      "nivelAptidao": 0,
+      "ndMinimo": 0,
+      "prerequisito": "Não pode ter o talento SENTIDOS ATENTOS",
+      "custoPE": 2,
+      "descricao": "<p>Sua atenção para os arredores nunca falha, usando da energia amaldiçoada para sentir seus arredores e perceber coisas que os outros não conseguem. Sua Atenção aumenta em um valor igual a sua ND, assim como você soma metade desse valor em rolagens de Percepção. Além disso, você pode gastar 2 PE para que, ao estar no ar, você o use como plataforma, se mantendo de pé no ar, você não pode ativamente subir enquanto manter esse efeito, mas pode saltar para subir mais. Esse efeito também pode ser usado como reação ao sofrer dano de queda, o anulando completamente.</p>"
+    },
+    {
+      "nome": "Sentidos Atentos",
+      "categoria": "Geral",
+      "areaAptidao": "",
+      "nivelAptidao": 0,
+      "ndMinimo": 0,
+      "prerequisito": "Não pode ter o talento SENTIDOS AFIADOS",
+      "custoPE": 0,
+      "descricao": "<p>Sua atenção para os arredores nunca falha, mantendo seus sentidos afiados. Você recebe um bônus de +5 em sua Atenção e não pode ser surpreendido caso esteja consciente. Preparado para agir sob pressão e urgência, você sabe como reagir o mais rápido possível. Você recebe +5 de Iniciativa. Após a rolagem de iniciativa, caso você não seja o primeiro, você pode rolar novamente, ficando com o melhor resultado.</p>"
+    },
+    {
+      "nome": "Voto Malevolente",
+      "categoria": "Geral",
+      "areaAptidao": "",
+      "nivelAptidao": 0,
+      "ndMinimo": 8,
+      "prerequisito": "ND 8 Comum, Desafio, ou Calamidade",
+      "custoPE": 0,
+      "descricao": "<p>Você sabe como manter sua cabeça fria mesmo nos momentos mais tensos, lembrando-se da malícia ao criar votos. Ao realizar votos emergenciais, o voto não precisa ter um malefício maior que o benefício, sendo realizado normalmente.</p>"
+    },
+    {
+      "nome": "Última Investida",
+      "categoria": "Geral",
+      "areaAptidao": "",
+      "nivelAptidao": 0,
+      "ndMinimo": 0,
+      "prerequisito": "Não possuir Desafiando a Morte",
+      "custoPE": 0,
+      "descricao": "<p>Ao reconhecer que em breve você irá cair, você entrega toda sua força e energia antes da derrota inevitável. Se você for cair para 0 de vida, pode gastar uma reação para realizar um ataque ou feitiço de alvo único, causando dano máximo contra uma criatura a até 6 metros de você.</p>"
+    }
+  ],
+  "treinamentos": [
+    {
+      "nome": "Treino de Agilidade",
+      "categoria": "Geral",
+      "areaAptidao": "",
+      "nivelAptidao": 0,
+      "ndMinimo": 0,
+      "prerequisito": "",
+      "custoPE": 0,
+      "descricao": "<p>Com grande velocidade e agilidade, você se torna rápido e capaz de um nível superior de mobilidade e esquivas. Sua margem necessária para conseguir um sucesso crítico em um TR de Reflexos reduz em 2.</p>"
+    },
+    {
+      "nome": "Treino de Barreira",
+      "categoria": "Geral",
+      "areaAptidao": "",
+      "nivelAptidao": 0,
+      "ndMinimo": 0,
+      "prerequisito": "",
+      "custoPE": 0,
+      "descricao": "<p>Você domina a técnica de barreiras, conseguindo as conferir uma resistência elevada. Toda parede que você criar com Técnicas de Barreira recebe RD igual ao seu Nível de Aptidão em Barreiras,recebe a capacidade de criar 2 barreiras adicionais e +1 Nível de Aptidão em Barreira.</p>"
+    },
+    {
+      "nome": "Treino de Compreensão",
+      "categoria": "Geral",
+      "areaAptidao": "",
+      "nivelAptidao": 0,
+      "ndMinimo": 0,
+      "prerequisito": "",
+      "custoPE": 0,
+      "descricao": "<p>Você chega muito perto de compreender profundamente a energia amaldiçoada, tornando-se familiar com ela e entendendo melhor uma parte dela. Você aumenta um nível de aptidão a sua escolha em 1.</p>"
+    },
+    {
+      "nome": "Treino de Domínio",
+      "categoria": "Geral",
+      "areaAptidao": "",
+      "nivelAptidao": 0,
+      "ndMinimo": 0,
+      "prerequisito": "",
+      "custoPE": 0,
+      "descricao": "<p>Você se torna um mestre das expansões, entendo o como conseguir a moldar perfeitamente diante a sua vontade e necessidade do momento. Você recebe a aptidão amaldiçoada Modificação Completa e recebe +4 em confrontos.</p>"
+    },
+    {
+      "nome": "Treino de Energia",
+      "categoria": "Geral",
+      "areaAptidao": "",
+      "nivelAptidao": 0,
+      "ndMinimo": 0,
+      "prerequisito": "",
+      "custoPE": 0,
+      "descricao": "<p>Você já estabeleceu uma profunda conexão com a energia amaldiçoada, assim como a conhece cada vez mais completamente. Em uma situação de combate, imerso no fervor da batalha, você consegue gerar energia: durante uma cena de combate, no começo de toda rodada, você ganha PE temporário igual a metade do seu BT.</p>"
+    },
+    {
+      "nome": "Treino de Energia Reversa",
+      "categoria": "Geral",
+      "areaAptidao": "",
+      "nivelAptidao": 0,
+      "ndMinimo": 0,
+      "prerequisito": "",
+      "custoPE": 0,
+      "descricao": "<p>Sua maestria sobre a energia reversa te permite recuperar até mesmo aquilo que parece impossível: você pode usar a aptidão amaldiçoada Regeneração Aprimorada para curar sua exaustão de técnica após usar expansão de domínio, reduzindo em um turno para 2 pontos de energia reversa gastos.</p>"
+    },
+    {
+      "nome": "Treino de Inteligência",
+      "categoria": "Geral",
+      "areaAptidao": "",
+      "nivelAptidao": 0,
+      "ndMinimo": 0,
+      "prerequisito": "",
+      "custoPE": 0,
+      "descricao": "<p>Cálculos matemáticos, equações complexas e noções de espaço são meras conveniências para você. Sua margem necessária para conseguir um sucesso crítico em um TR de Astúcia reduz em 2.</p>"
+    },
+    {
+      "nome": "Treino de Luta",
+      "categoria": "Geral",
+      "areaAptidao": "",
+      "nivelAptidao": 0,
+      "ndMinimo": 0,
+      "prerequisito": "",
+      "custoPE": 0,
+      "descricao": "<p>Você se torna altamente proficiente em luta, conseguindo extrair ao máximo de seu corpo e manobras. Você recebe acesso ao efeito de crítico de ataques desarmados (pugilato). Além disso, você pode, uma vez por rodada, escolher realizar uma rolagem de Acrobacia ou Atletismo com vantagem.</p>"
+    },
+    {
+      "nome": "Treino de Manejo de Arma",
+      "categoria": "Geral",
+      "areaAptidao": "",
+      "nivelAptidao": 0,
+      "ndMinimo": 0,
+      "prerequisito": "",
+      "custoPE": 0,
+      "descricao": "<p>Você se torna um mestre no manejo da arma para qual se dedicou a treinar e dominar. Enquanto estiver manuseando a arma escolhida, ela recebe um encantamento de ferramenta amaldiçoada adicional.</p>"
+    },
+    {
+      "nome": "Treino de Perícia",
+      "categoria": "Geral",
+      "areaAptidao": "",
+      "nivelAptidao": 0,
+      "ndMinimo": 0,
+      "prerequisito": "",
+      "custoPE": 0,
+      "descricao": "<p>Você treinou e se dedicou tanto a uma perícia específica, que ela se tornou algo no qual você é quase incapaz de falhar, mantendo uma consistência invejável. Caso realize um teste da perícia escolhida e obtenha um resultado menor do que 5 no d20, você pode rolar novamente e manter o melhor resultado e pode suceder em um teste automaticamente caso não seja um teste competido.</p>"
+    },
+    {
+      "nome": "Treino de Potencial Físico",
+      "categoria": "Geral",
+      "areaAptidao": "",
+      "nivelAptidao": 0,
+      "ndMinimo": 0,
+      "prerequisito": "",
+      "custoPE": 0,
+      "descricao": "<p>Você conseguiu chegar em um ponto onde seu corpo constantemente se renova e sua energia parece nunca ter fim. Durante uma cena de combate, no começo de toda rodada, você recebe uma quantidade de pontos de estamina temporários igual a metade do seu bônus de treinamento [Apenas para Restringidos Celestes].</p>"
+    },
+    {
+      "nome": "Treino de Presença",
+      "categoria": "Geral",
+      "areaAptidao": "",
+      "nivelAptidao": 0,
+      "ndMinimo": 0,
+      "prerequisito": "",
+      "custoPE": 0,
+      "descricao": "<p>Você se torna uma celebridade. Toda vez que você começar uma conversa com alguém, uma vez por pessoa, rode um 1d20. Caso caia 15 ou maior, a pessoa te conhece e todos os seus testes de carisma contra ela recebem +5.</p>"
+    },
+    {
+      "nome": "Treino de Resistência",
+      "categoria": "Geral",
+      "areaAptidao": "",
+      "nivelAptidao": 0,
+      "ndMinimo": 0,
+      "prerequisito": "",
+      "custoPE": 0,
+      "descricao": "<p>Seu físico atinge um nível superior, concedendo-o uma grande resistência e vigor. Sua margem necessária para conseguir um sucesso crítico em um TR de Fortitude reduz em 2.</p>"
+    },
+    {
+      "nome": "Treino de Vontade",
+      "categoria": "Geral",
+      "areaAptidao": "",
+      "nivelAptidao": 0,
+      "ndMinimo": 0,
+      "prerequisito": "",
+      "custoPE": 0,
+      "descricao": "<p>Seus estudos finalmente deram frutos. Sua margem necessária para conseguir um sucesso crítico em um TR de Vontade reduz em 2.</p>"
+    }
+  ]
+}

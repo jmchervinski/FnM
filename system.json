@@ -1,7 +1,7 @@
 {
   "id": "fnm",
   "title": "Feiticeiros & Maldições (Não-Oficial)",
-  "description": "<p>Sistema NÃO-OFICIAL, feito por fã, para jogar <strong>Feiticeiros &amp; Maldições</strong> no Foundry VTT.</p><p>Feiticeiros &amp; Maldições é um RPG de mesa gratuito criado de fãs para fãs, ambientado no universo de <strong>Jujutsu Kaisen</strong>, obra de <strong>Gege Akutami</strong>. Desenvolvimento: Setsugiri e Parker; Diagramação e Edição: Setsugiri e Jou; Revisão: Jou, Kame e Parker; Artes originais: Konatsuu e Strabey. Baseado no Livro de Regras v2.5.2.</p><p>Este sistema não é afiliado, endossado ou patrocinado pelos autores de Feiticeiros &amp; Maldições nem pelos detentores dos direitos de Jujutsu Kaisen. Todos os créditos da obra original são de Gege Akutami.</p>",
+  "description": "<p>Sistema NÃO-OFICIAL, feito por fã, para jogar <strong>Feiticeiros &amp; Maldições</strong> no Foundry VTT.</p><p>Feiticeiros &amp; Maldições é um RPG de mesa gratuito criado de fãs para fãs, ambientado no universo de <strong>Jujutsu Kaisen</strong>, obra de <strong>Gege Akutami</strong>. Desenvolvimento: Setsugiri e Parker; Diagramação e Edição: Setsugiri e Jou; Revisão: Jou, Kame e Parker; Artes originais: Konatsuu e Strabey. Baseado no Livro de Regras v2.5.2 e no Grimório das Maldições (Versão 1) — Grimório: Setsugiri, Parker, Jou, Justoneblock, Camelo, Kamisori, Bianco, A1rtur Butler e Afty.</p><p>Este sistema não é afiliado, endossado ou patrocinado pelos autores de Feiticeiros &amp; Maldições nem pelos detentores dos direitos de Jujutsu Kaisen. Todos os créditos da obra original são de Gege Akutami.</p>",
   "version": "0.1.0",
   "compatibility": {
     "minimum": "13",
@@ -43,6 +43,8 @@
       "habilidade": { "htmlFields": ["description"] },
       "talento": { "htmlFields": ["description"] },
       "aptidao": { "htmlFields": ["description"] },
+      "dote": { "htmlFields": ["description"] },
+      "caracteristica": { "htmlFields": ["description"] },
       "tecnica": { "htmlFields": ["description", "funcionamento"] },
       "feitico": { "htmlFields": ["description"] },
       "arma": { "htmlFields": ["description"] },
@@ -98,6 +100,24 @@
       "flags": {}
     },
     {
+      "name": "fnm-dotes",
+      "label": "F&M: Dotes de Inimigo",
+      "system": "fnm",
+      "path": "packs/fnm-dotes",
+      "type": "Item",
+      "ownership": { "PLAYER": "NONE", "ASSISTANT": "OWNER" },
+      "flags": {}
+    },
+    {
+      "name": "fnm-caracteristicas",
+      "label": "F&M: Características de Inimigo",
+      "system": "fnm",
+      "path": "packs/fnm-caracteristicas",
+      "type": "Item",
+      "ownership": { "PLAYER": "NONE", "ASSISTANT": "OWNER" },
+      "flags": {}
+    },
+    {
       "name": "fnm-armas",
       "label": "F&M: Armas",
       "system": "fnm",
@@ -125,6 +145,15 @@
       "flags": {}
     },
     {
+      "name": "fnm-grimorio",
+      "label": "F&M: Guia de Criação de Inimigos",
+      "system": "fnm",
+      "path": "packs/fnm-grimorio",
+      "type": "JournalEntry",
+      "ownership": { "PLAYER": "NONE", "ASSISTANT": "OWNER" },
+      "flags": {}
+    },
+    {
       "name": "fnm-macros",
       "label": "F&M: Macros",
       "system": "fnm",
@@ -144,9 +173,12 @@
         "fnm-habilidades",
         "fnm-talentos",
         "fnm-aptidoes",
+        "fnm-dotes",
+        "fnm-caracteristicas",
         "fnm-armas",
         "fnm-equipamentos",
         "fnm-regras",
+        "fnm-grimorio",
         "fnm-macros"
       ]
     }

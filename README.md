@@ -1,12 +1,15 @@
 # Feiticeiros & Maldições — Sistema Não-Oficial para Foundry VTT
 
 Sistema **não-oficial**, feito por fã, para jogar **Feiticeiros & Maldições** no
-[Foundry VTT](https://foundryvtt.com/). Baseado no **Livro de Regras v2.5.2**.
+[Foundry VTT](https://foundryvtt.com/). Baseado no **Livro de Regras v2.5.2** e no
+**Grimório das Maldições (Versão 1)**.
 
 > **Feiticeiros & Maldições** é um projeto criado de fãs para fãs, gratuito e sem fins lucrativos,
 > ambientado no universo de **Jujutsu Kaisen**, obra de **Gege Akutami**.
 > Desenvolvimento: Setsugiri e Parker · Diagramação e Edição: Setsugiri e Jou ·
 > Revisão: Jou, Kame e Parker · Artes originais: Konatsuu e Strabey.
+> Grimório das Maldições — Desenvolvimento: Setsugiri, Parker, Jou, Justoneblock, Camelo,
+> Kamisori, Bianco, A1rtur Butler e Afty · Diagramação e Edição: Setsugiri.
 >
 > Este sistema não é afiliado, endossado nem patrocinado pelos autores de Feiticeiros & Maldições
 > ou pelos detentores dos direitos de Jujutsu Kaisen. Todos os créditos da obra original são de
@@ -42,13 +45,14 @@ https://github.com/jmchervinski/FnM/releases/latest/download/system.json
 | Tipo | Uso |
 | --- | --- |
 | **Personagem** | Feiticeiro jogável, com sete abas espelhando as páginas do Modelo de Ficha oficial v2.5 (Ficha Pessoal, Perícias, Perfil Amaldiçoado, Feitiços, Registro e Inventário, Progressão, Treinamentos) |
-| **NPC / Maldição** | Antagonistas, com PV e Defesa fixos por padrão, além de imunidades, resistências e vulnerabilidades |
+| **NPC / Maldição** | Antagonistas, com PV e Defesa fixos por padrão, imunidades, resistências e vulnerabilidades — e o **orçamento de criação do Grimório**: Patamar, ND, Tamanho e os tetos de atributo, perícia, imunidade e característica que o Patamar concede |
 | **Invocação** | Shikigamis, corpos amaldiçoados, marionetes e maldições domadas, com Vida, Defesa, testes e custo derivados do grau e do invocador |
 
 ### Tipos de item
 
 Origem · Especialização · Habilidade de Especialização · Talento · Aptidão Amaldiçoada ·
-Técnica Amaldiçoada · Feitiço · Arma · Equipamento · Voto de Restrição · Ação de Invocação.
+Técnica Amaldiçoada · Feitiço · Arma · Equipamento · Voto de Restrição · Ação de Invocação ·
+**Dote de Inimigo** · **Característica de Inimigo**.
 
 ### Regras automatizadas
 
@@ -95,6 +99,10 @@ Tudo abaixo é calculado ou executado pelo sistema, com a página do livro anota
   com Custo — e destaca o que passou do limite
 - **Ações e Características de Invocação** como itens próprios, com as tabelas de dano, cura,
   bônus e RD do grau à mão na ficha
+- **Inimigos montados pelo Patamar** (Grimório, p. 8-22): a ficha de NPC mostra o orçamento do
+  Patamar escolhido — pontos de atributo e o teto por atributo, perícias treinadas, imunidades,
+  resistências, vulnerabilidades, imunidades a condição, características recomendadas e as ações
+  do turno — e destaca o que passou do limite. O **Bônus de Treinamento por ND** satura em +6
 - **Descanso Curto e Longo**
 - As **28 condições** do livro registradas como efeitos de status do Foundry
 
@@ -128,8 +136,119 @@ A ficha do sistema segue o layout do arquivo oficial, campo a campo:
 | **Aptidões Amaldiçoadas** | As 64 aptidões do capítulo 8, em uma pasta por área (Aura, Controle e Leitura, Domínio, Barreira, Energia Reversa e Especiais) |
 | **Armas** | As 52 armas dos capítulos 5, em duas pastas: 20 Simples e 32 Complexas, com o efeito de crítico do grupo e o traço especial de cada uma na descrição |
 | **Equipamentos** | 117 itens: 5 uniformes, 4 escudos, 7 kits de ferramentas, os 48 itens especiais (em pastas por custo) e os 53 encantamentos de ferramenta amaldiçoada |
+| **Dotes de Inimigo** | Os 65 Dotes do Grimório das Maldições em 8 pastas: 22 Gerais, 29 Amaldiçoados (por categoria, incluindo a de **Anatomia**, que não existe no livro básico) e os 14 Treinamentos do Passo 4 |
+| **Características de Inimigo** | As 47 Características do Grimório em duas pastas: 13 Gerais e 34 Especiais, com as tabelas de Efeitos de Aura, Efeitos de Marca e Dano de Terreno junto do verbete a que pertencem |
+| **Guia de Criação de Inimigos** | Diário do Narrador com os quatro passos da criação, os graus e Patamares, as origens de inimigo, o preenchimento da ficha e as regras de ações, condições e alma |
 | **Referência de Regras** | Diário com testes e CDs, ações em combate, condições, tipos de dano, tabelas de criação de Feitiços, equipamentos e carregamento, ferramentas amaldiçoadas, invocações, alma, morte, exaustão e descansos |
 | **Macros** | Teste rápido, iniciativa do grupo, aplicar dano em massa, descanso longo do grupo |
+
+---
+
+## O Grimório das Maldições
+
+Além do Livro de Regras, o sistema traz o **Grimório das Maldições (Versão 1, F&M 2.5)**, o
+livro de inimigos. Ele é outro PDF, com outra paginação: as páginas citadas no código e nos
+compêndios do Grimório são as dele, e não as do livro básico.
+
+**O Grimório não tem fichas prontas.** A introdução do capítulo promete que "você encontrará
+diversas fichas já prontas de inimigos", mas a Versão 1 tem 80 páginas e nenhuma delas é um
+bloco de estatísticas: o que o livro entrega é o **guia para montar** as fichas, mais a
+**Galeria** de coisas para pendurar nelas. É isso que está no sistema — não há um bestiário
+para importar porque não há bestiário no PDF.
+
+O que entrou:
+
+- **112 verbetes da Galeria** como itens, nos dois compêndios novos: 29 Dotes Amaldiçoados,
+  22 Dotes Gerais, 14 Treinamentos e 47 Características
+- A **ficha de NPC** ganhou Patamar, ND, Tamanho, Origem de Inimigo e o quadro de **Criação do
+  Inimigo**, que mostra o orçamento do Patamar — pontos de atributo e seu teto por atributo,
+  perícias treinadas, imunidades/resistências/vulnerabilidades, imunidades a condição,
+  características recomendadas e as ações do turno — marcando em vermelho o que estourou
+- Os recursos de sobrevivência do capítulo: **RD Irredutível**, **Ignorar RD**, **Vida
+  Temporária por Ataque**, **Guarda Inabalável**, **Resistência Parcial** e **Total**
+- O **Bônus de Treinamento por ND**, que satura em +6 (a tabela do Grimório para em "17 ou
+  superior") — diferente da progressão aberta do personagem
+- O **diário do Guia de Criação**, só para o Narrador, com os quatro passos, graus e Patamares,
+  origens de inimigo, preenchimento da ficha e as regras de ações, condições e alma
+
+Nada disso limita a ficha: o Grimório é um guia para o Narrador, e uma criatura autoral pode
+estourar qualquer linha de propósito. O sistema só aponta onde ela estourou.
+
+### Importar uma ficha pronta de um construtor
+
+A ficha de NPC tem um botão **Importar JSON** no cabeçalho, que preenche a ficha a partir de um
+arquivo exportado por um construtor de criaturas de F&M 2.5 (o formato `version: "2.0"`, com a
+lista `creatures`). É um **atalho, não um modo**: nada é importado sozinho, a ficha continua
+editável à mão antes e depois, e o Narrador vê um resumo do que será escrito antes de confirmar.
+
+- Um arquivo com várias criaturas abre um seletor
+- Os poderes viram itens: `features`, `caracteristicas` e `artimanhas` viram **Características**;
+  `dotes`, `aptidoesEspeciais` e `treinamentos` viram **Dotes** do tipo correspondente (a
+  categoria de um Dote Amaldiçoado sai do rótulo da Galeria: "Aptidões de Anatomia" → Anatomia)
+- As **Ações** se dividem pelo tipo de resolução: as de **acerto** viram **Armas**, que a ficha já
+  sabe rolar (o bônus próprio da ação vira o `bonusAtaque` da arma, e a margem de crítico vem do
+  arquivo); as por **Teste de Resistência** viram Características, porque não existe item de ação
+  com TR neste sistema. Nos dois casos a descrição carrega o bloco inteiro — acerto, CD, TR,
+  alcance, área, dano, dano médio, custo e condição aplicada
+- Por padrão os poderes do arquivo se **somam** aos que já estão na ficha; há uma caixa para
+  apagar os Dotes e Características antigos antes. O resto da ficha nunca é apagado: o que o
+  arquivo não trouxer fica como estava
+- O que o sistema não tem onde guardar (condições ativas, log de combate, chaves internas do
+  construtor) vira **aviso** na confirmação, em vez de sumir em silêncio
+
+**Por que a importação liga "Valores manuais".** O construtor exporta os totais já fechados —
+Defesa 30, TRs 23, CD 28 — calculados pelas tabelas por ND do Grimório, que este sistema não
+transcreve. Esses totais não teriam como sair das fórmulas do livro básico, então eles entram em
+campos próprios (**Totais fechados**, na aba Principal) que substituem a fórmula quando
+preenchidos — inclusive os totais de **perícia**, que no construtor saem das tabelas de perícia
+por ND e não da soma atributo + metade do nível + proficiência. Um campo vazio ali continua saindo do cálculo normal, e **desligar "Valores
+manuais" devolve tudo para as fórmulas sem apagar os números importados**. A penalidade de
+Exaustão e de Estado da Alma continua entrando por cima do total, como em qualquer ficha.
+
+Para macros, a API está em `game.fnm.importar` (`lerArquivo`, `mapearInimigo`, `aplicarNoAtor`,
+`importarDeArquivo`). `mapearInimigo` é uma função pura, e `npm run check` roda ela contra todo
+`tools/dados/exemplo-inimigo*.json` conferindo cada caminho que ela produz contra o schema do
+NPC — um caminho errado seria descartado em silêncio pelo Foundry, e o teste pega isso. Ao
+encontrar um arquivo que a importação erre, salve-o como mais um `exemplo-inimigo-*.json`: ele
+entra na verificação sozinho.
+
+### O que do Grimório não entrou
+
+- **As tabelas numéricas por ND** (p. 23-52): vida, RD, defesa, acerto, dano médio, dado de
+  dano e CD, para cada um dos cinco Patamares e nas três colunas de dificuldade. São trinta
+  páginas de tabelas com células de várias linhas, que a extração de texto embaralha coluna a
+  coluna. Transcrevê-las à mão colocaria números possivelmente errados dentro do sistema, então
+  elas ficam no PDF — que continua sendo a referência na hora de montar a ficha
+- **A tabela de cura por Patamar × Bônus de Treinamento** da aptidão Energia Reversa (p. 70),
+  pelo mesmo motivo. O verbete no compêndio traz a prosa e aponta a página
+- Os **Dotes Especiais de Restritos Celestes**: a p. 77 promete que eles estarão "ao final dos
+  Dotes Gerais", e a lista termina na p. 80 sem eles. O mesmo vale para a aptidão **Regeneração
+  Corporal**, citada como pré-requisito de Cura de Exaustão e de Fluxo Imparável mas não
+  descrita em lugar nenhum do PDF
+
+### Leituras do Grimório
+
+**A tabela de Patamares** (p. 8) tem as colunas desalinhadas na diagramação: as cinco
+dificuldades e os cinco números de jogadores aparecem deslocados em relação aos nomes dos
+Patamares. O sistema lê a correspondência na ordem impressa — Lacaio/Muito Fácil/1,
+Capanga/Fácil/1, Comum/Média/2, Desafio/Difícil/4, Calamidade/Experiente/6 — que é a única
+leitura em que a dificuldade sobe junto com o Patamar. Confira contra o PDF.
+
+**As aptidões da Galeria não são as do capítulo 8.** Vários verbetes têm nome novo para efeito
+parecido (Aura de Restrição e Aura de Contenção, Aura do General e Aura do Comandante, Aura
+Nefasta e Aura Macabra), e a Galeria traz uma categoria que o livro básico não tem:
+**Anatomia**, exclusiva de maldições e fetos amaldiçoados. Por isso os Dotes ficam em um
+compêndio próprio, sem se misturar com as 64 Aptidões Amaldiçoadas do livro básico.
+
+**Energia Reversa, Cura de Exaustão e Fluxo Imparável** ficam em *Aptidões Especiais*. A p. 64
+lista "Aptidões de Energia Reversa" como uma categoria, mas a Galeria não imprime esse cabeçalho:
+os três verbetes vêm logo depois do cabeçalho de Especiais, na p. 70. O sistema segue o que está
+impresso.
+
+**Assumir Postura** (p. 77) fecha com `[Pré-Requisito: ND 10]`, mas o colchete está dentro do
+marcador da *Postura da Tempestade*, a segunda das duas posturas — quem pega o dote destrava a
+Postura da Fortuna sem ND mínimo. O campo de pré-requisito do item fica vazio e o colchete
+permanece no texto, junto da postura a que pertence.
 
 ---
 
@@ -209,16 +328,28 @@ Rode-o sempre que mexer em templates, schemas ou ícones.
 `tools/build-packs.mjs` lê `tools/pack-data.mjs` e gera os compêndios LevelDB em `packs/`
 usando a CLI oficial do Foundry.
 
-As Habilidades de Especialização, os Talentos, as Aptidões e os Equipamentos vêm de arquivos em
-`tools/dados/`, gerados a partir do texto do livro. Os JSONs são versionados, então o build não
-depende do PDF — só é preciso rodar os extratores para atualizar as regras:
+As Habilidades de Especialização, os Talentos, as Aptidões, os Equipamentos e a Galeria do
+Grimório vêm de arquivos em `tools/dados/`, gerados a partir do texto dos PDFs. Os JSONs são
+versionados, então o build não depende deles — só é preciso rodar os extratores para atualizar
+as regras:
 
 ```bash
-pdftotext -layout -enc UTF-8 "Livro de Regras v2.5.2.pdf" fnm.txt
-python tools/extrai-habilidades.py fnm.txt
-python tools/extrai-talentos.py fnm.txt
-python tools/extrai-aptidoes.py fnm.txt
-python tools/extrai-equipamentos.py fnm.txt
+pdftotext -layout -enc UTF-8 "Livro de Regras v2.5.2.pdf" tools/fnm.txt
+python tools/extrai-habilidades.py tools/fnm.txt
+python tools/extrai-talentos.py tools/fnm.txt
+python tools/extrai-aptidoes.py tools/fnm.txt
+python tools/extrai-equipamentos.py tools/fnm.txt
+npm run build:packs
+```
+
+O Grimório das Maldições é um PDF separado e tem seu próprio extrator. O `-fixed 4` **não é
+opcional**: a calha entre as duas colunas do Grimório tem dois espaços com o `-layout` puro,
+estreita demais para o detector de colunas achar; com `-fixed 4` ela abre para uma dezena de
+espaços e as páginas da Galeria se separam todas.
+
+```bash
+pdftotext -layout -fixed 4 -enc UTF-8 "Grimorio das Maldicoes.pdf" tools/grimorio.txt
+python tools/extrai-grimorio.py tools/grimorio.txt
 npm run build:packs
 ```
 
@@ -236,6 +367,7 @@ module/
   config.mjs         toda a tabela de regras (atributos, perícias, feitiços, condições…)
   data-models.mjs    schemas e derivações de atores e itens
   chat.mjs           cartas de ataque e de dano, e os botões delas
+  importar-inimigo.mjs  leitura do JSON de construtores externos para a ficha de NPC
   documents/         Actor e Item: execução das rolagens
   sheets/            fichas ApplicationV2
 templates/
@@ -245,7 +377,9 @@ styles/fnm.css       tema
 tools/
   build-packs.mjs    geração dos compêndios
   check-fichas.mjs   validação estática das fichas e dos compêndios
+  livro_texto.py     leitura do layout de duas colunas, comum aos extratores
   extrai-*.py        transcrição dos capítulos do PDF para tools/dados/
+  dados/             JSONs versionados dos extratores, e o exemplo de importação
 ```
 
 ### Estrutura de dados úteis para macros

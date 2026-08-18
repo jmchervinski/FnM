@@ -69,6 +69,8 @@ const MODELOS = {
   habilidade: M.HabilidadeDataModel,
   talento: M.TalentoDataModel,
   aptidao: M.AptidaoDataModel,
+  dote: M.DoteDataModel,
+  caracteristica: M.CaracteristicaDataModel,
   tecnica: M.TecnicaDataModel,
   feitico: M.FeiticoDataModel,
   arma: M.ArmaDataModel,
@@ -149,8 +151,9 @@ function camposDe(arquivo) {
  */
 const ICONES_PERMITIDOS = new Set([
   "arrow-up", "asterisk", "bed", "bolt", "clock", "comment", "crosshairs",
-  "dice-d20", "edit", "fire", "ghost", "hand-fist", "heart", "lock", "minus",
-  "plus", "power-off", "shield-alt", "skull", "suitcase", "trash"
+  "dice-d20", "edit", "file-import", "fire", "ghost", "hand-fist", "heart",
+  "lock", "minus", "plus", "power-off", "shield-alt", "skull", "suitcase",
+  "trash"
 ]);
 /**
  * Prefixos de estilo do Font Awesome, que não são nomes de ícone.
@@ -279,6 +282,65 @@ if (raizFoundry) {
   console.log(`      (${vistos.size} caminhos de ícone conferidos contra ${raizFoundry})`);
 } else {
   console.log("      (Foundry não encontrado: caminhos de ícone não conferidos)");
+}
+
+/* -------- 3.5. A importação de inimigo escreve só onde existe campo -------- */
+
+/**
+ * `mapearInimigo` devolve caminhos achatados (`"detalhes.nivel"`) que vão
+ * direto para `Actor#update`. Um caminho que não existe no schema é descartado
+ * em silêncio pelo Foundry: a importação "funciona" e o campo some. Aqui o
+ * mapeador roda contra um arquivo de exemplo e todo caminho produzido é
+ * conferido contra o schema do NPC.
+ */
+{
+  const { mapearInimigo, lerArquivo } = await import(
+    new URL("../module/importar-inimigo.mjs", import.meta.url)
+  );
+
+  const dados = path.join(ROOT, "tools/dados");
+  const exemplos = fs.readdirSync(dados).filter(f => /^exemplo-inimigo.*\.json$/.test(f));
+  if (!exemplos.length) falha("tools/dados: nenhum exemplo-inimigo*.json para conferir");
+
+  const criaturas = exemplos.flatMap(arq => {
+    const lidas = lerArquivo(JSON.parse(fs.readFileSync(path.join(dados, arq), "utf8")));
+    if (!lidas.length) falha(`tools/dados/${arq}: nenhuma criatura reconhecida`);
+    return lidas;
+  });
+
+  const doNpc = esquemas.npc;
+  for (const criatura of criaturas) {
+    const { system, itens } = mapearInimigo(criatura);
+
+    for (const caminho of Object.keys(system)) {
+      // Índices de array viram `*` no schema achatado
+      const normalizado = caminho.replace(/\.\d+(?=\.|$)/g, ".*");
+      if (!doNpc.has(normalizado)) {
+        falha(`importar-inimigo.mjs: "${caminho}" não existe no schema de NPC`);
+      }
+    }
+
+    for (const item of itens) {
+      const doItem = esquemas[item.type];
+      if (!doItem) {
+        falha(`importar-inimigo.mjs: item de tipo desconhecido "${item.type}"`);
+        continue;
+      }
+      for (const campo of Object.keys(item.system)) {
+        // O item passa objetos inteiros (`ajustes`), e o schema achatado só tem
+        // as folhas deles — um prefixo conhecido conta como campo existente.
+        const existe =
+          doItem.has(campo) || [...doItem].some(p => p.startsWith(`${campo}.`));
+        if (!existe) {
+          falha(`importar-inimigo.mjs: "${campo}" não existe no schema de ${item.type}`);
+        }
+      }
+    }
+  }
+  console.log(
+    `      (importação conferida com ${criaturas.length} criatura(s) em ` +
+      `${exemplos.length} arquivo(s) de exemplo)`
+  );
 }
 
 /* -------- 4. O CSS não vaza para a moldura da janela -------- */

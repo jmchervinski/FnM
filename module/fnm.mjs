@@ -8,6 +8,12 @@
 import { FnmActor } from "./documents/actor.mjs";
 import { FnmItem } from "./documents/item.mjs";
 import { registrarChat } from "./chat.mjs";
+import {
+  lerArquivo,
+  mapearInimigo,
+  aplicarNoAtor,
+  importarDeArquivo
+} from "./importar-inimigo.mjs";
 import { FnmCharacterSheet } from "./sheets/character-sheet.mjs";
 import { FnmNpcSheet } from "./sheets/npc-sheet.mjs";
 import { FnmInvocacaoSheet } from "./sheets/invocacao-sheet.mjs";
@@ -30,6 +36,8 @@ import {
   HabilidadeDataModel,
   TalentoDataModel,
   AptidaoDataModel,
+  DoteDataModel,
+  CaracteristicaDataModel,
   TecnicaDataModel,
   FeiticoDataModel,
   ArmaDataModel,
@@ -49,6 +57,8 @@ Hooks.once("init", async function () {
     FnmActor,
     FnmItem,
     config: FNM,
+    // Importação de fichas de inimigo de construtores externos, também para macros
+    importar: { lerArquivo, mapearInimigo, aplicarNoAtor, importarDeArquivo },
     utils: {
       modificador,
       bonusTreinamento,
@@ -73,6 +83,8 @@ Hooks.once("init", async function () {
     habilidade: HabilidadeDataModel,
     talento: TalentoDataModel,
     aptidao: AptidaoDataModel,
+    dote: DoteDataModel,
+    caracteristica: CaracteristicaDataModel,
     tecnica: TecnicaDataModel,
     feitico: FeiticoDataModel,
     arma: ArmaDataModel,

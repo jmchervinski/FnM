@@ -8,6 +8,8 @@ import {
   FNM,
   modificador,
   bonusTreinamento,
+  bonusTreinamentoND,
+  patamarInimigo,
   metadeNivel,
   bonusProficiencia,
   estadoDaAlma,
@@ -68,6 +70,22 @@ const ataquesSchema = () => {
   }
   return new SchemaField(campos);
 };
+
+/**
+ * Um valor que substitui a fórmula quando preenchido. `null` — o campo vazio na
+ * ficha — quer dizer "deixa a fórmula calcular", então 0 e negativo continuam
+ * sendo valores legítimos (uma Iniciativa -1 é uma Iniciativa -1, não um campo
+ * em branco).
+ */
+const manual = () =>
+  new NumberField({ required: false, nullable: true, integer: true, initial: null });
+
+/** Contador de usos "Atual / Máx." das listas de habilidades da ficha oficial. */
+const usosSchema = () =>
+  new SchemaField({
+    value: new NumberField({ required: true, integer: true, min: 0, initial: 0 }),
+    max: new NumberField({ required: true, integer: true, min: 0, initial: 0 })
+  });
 
 /** Proficiência de perícia/resistência: treinado, mestre e bônus avulsos. */
 const proficiencia = () =>
@@ -741,6 +759,8 @@ export class NpcDataModel extends BaseActorModel {
     return {
       ...super.defineSchema(),
       detalhes: new SchemaField({
+        // Para um inimigo, o nível É o Nível de Desafio: "ND 2 é a mesma coisa
+        // que um personagem de jogador nível 2" (Grimório, p. 8).
         nivel: new NumberField({ required: true, integer: true, min: 1, max: 30, initial: 1 }),
         grau: new StringField({ required: true, blank: true, initial: "Grau 4" }),
         tipo: new StringField({
@@ -748,8 +768,93 @@ export class NpcDataModel extends BaseActorModel {
           initial: "Maldição",
           choices: ["Maldição", "Feiticeiro", "Humano", "Corpo Amaldiçoado", "Outro"]
         }),
+        // Patamar de criação (Grimório, p. 8): define a dificuldade, quantos
+        // jogadores o encontro pede e todo o orçamento da ficha.
+        patamar: new StringField({
+          required: true,
+          initial: "comum",
+          choices: FNM.patamares.map(p => p.id)
+        }),
+        origemInimigo: new StringField({
+          required: true,
+          blank: true,
+          initial: "",
+          choices: ["", ...FNM.origensInimigo]
+        }),
+        tipoEspirito: new StringField({
+          required: true,
+          blank: true,
+          initial: "",
+          choices: ["", ...FNM.tiposEspirito]
+        }),
+        tamanho: new StringField({
+          required: true,
+          initial: "Médio",
+          choices: FNM.tamanhos
+        }),
+        // Qual das três colunas de dificuldade das tabelas de criação a ficha
+        // foi montada (Grimório, p. 16). Não muda cálculo: é anotação de mesa.
+        tabelaCriacao: new StringField({
+          required: true,
+          initial: "intermediaria",
+          choices: FNM.tabelasCriacao.map(t => t.id)
+        }),
         // Fichas de NPC costumam trazer PV/Defesa fixos, fora das fórmulas
         valoresManuais: new BooleanField({ required: true, initial: true })
+      }),
+      // Recursos de sobrevivência do Grimório (p. 18-19 e 22)
+      inimigo: new SchemaField({
+        rdIrredutivel: new NumberField({ required: true, integer: true, min: 0, initial: 0 }),
+        ignorarRD: new NumberField({ required: true, integer: true, min: 0, initial: 0 }),
+        vidaTempPorAtaque: new NumberField({ required: true, integer: true, min: 0, initial: 0 }),
+        // Vida temporária de todo início de rodada: guarda o gasto e o máximo
+        guardaInabalavel: usosSchema(),
+        resistenciaParcial: usosSchema(),
+        resistenciaTotal: usosSchema(),
+        // As cinco linhas da tabela de ações por Patamar (p. 53)
+        acoes: new SchemaField({
+          comum: new NumberField({ required: true, integer: true, min: 0, initial: 1 }),
+          rapida: new NumberField({ required: true, integer: true, min: 0, initial: 0 }),
+          bonus: new NumberField({ required: true, integer: true, min: 0, initial: 1 }),
+          movimento: new NumberField({ required: true, integer: true, min: 0, initial: 1 }),
+          reacao: new NumberField({ required: true, integer: true, min: 0, initial: 1 })
+        }),
+        // Margem de sucesso crítico, que os Treinamentos do Passo 4 reduzem
+        // ("a margem para um crítico em um TR de Reflexos reduz em 2", p. 61)
+        margensCritico: new SchemaField({
+          ...Object.fromEntries(
+            Object.keys(FNM.resistencias).map(id => [
+              id,
+              new NumberField({ required: true, integer: true, min: 2, max: 20, initial: 20 })
+            ])
+          ),
+          ataque: new NumberField({ required: true, integer: true, min: 2, max: 20, initial: 20 })
+        }),
+        // Bônus na rolagem de confronto de domínios
+        confrontoDominio: new NumberField({ required: true, integer: true, initial: 0 }),
+        imunidadesCondicao: new StringField({ required: true, blank: true })
+      }),
+      /**
+       * Valores fechados de uma ficha pronta, que só valem com `valoresManuais`
+       * ligado. Uma ficha do Grimório traz o total já calculado pelas tabelas
+       * por ND (p. 23-52) — tabelas que este sistema não transcreve — e esses
+       * totais não têm como sair das fórmulas do livro básico. Vazio (`null`)
+       * significa "usa a fórmula", que é o comportamento normal da ficha.
+       *
+       * A Defesa não está aqui porque já tinha o seu próprio campo,
+       * `combate.defesaManual`, desde antes; ele continua sendo o dela.
+       */
+      manuais: new SchemaField({
+        atencao: manual(),
+        iniciativa: manual(),
+        cd: manual(),
+        acerto: manual(),
+        resistencias: new SchemaField(
+          Object.fromEntries(Object.keys(FNM.resistencias).map(id => [id, manual()]))
+        ),
+        pericias: new SchemaField(
+          Object.fromEntries(Object.keys(FNM.pericias).map(id => [id, manual()]))
+        )
       }),
       jujutsu: new SchemaField({
         atributoTecnica: new StringField({
@@ -776,7 +881,9 @@ export class NpcDataModel extends BaseActorModel {
 
   prepareDerivedData() {
     super.prepareDerivedData();
-    const bt = bonusTreinamento(this.nivel);
+    // O Bônus de Treinamento de um inimigo sai da tabela do Grimório (p. 8),
+    // que satura em +6 — e não da progressão aberta do personagem.
+    const bt = bonusTreinamentoND(this.nivel);
     const metade = metadeNivel(this.nivel);
     const modTecnica = this.atributos[this.jujutsu.atributoTecnica]?.mod ?? 0;
 
@@ -787,10 +894,121 @@ export class NpcDataModel extends BaseActorModel {
     this.ataqueAmaldicoado = modTecnica + metade + bt + this.penalidadeGlobal;
     this.danoDesarmado = danoDesarmado(this.nivel);
 
-    // Com valores manuais, a Defesa digitada na ficha prevalece sobre a fórmula
-    if (this.detalhes.valoresManuais && this.combate.defesaManual > 0) {
+    this.orcamento = this._orcamentoDoPatamar(bt);
+    this._aplicarValoresManuais();
+  }
+
+  /**
+   * Fichas prontas — as do Grimório, as de um construtor externo — trazem os
+   * totais já fechados, e não os ingredientes deles. Com `valoresManuais`
+   * ligado, cada total preenchido substitui a fórmula correspondente; o que
+   * ficar vazio continua saindo do cálculo normal.
+   *
+   * A penalidade global (Exaustão e Estado da Alma) continua entrando depois:
+   * ela é uma condição do momento, não parte do valor de ficha.
+   */
+  _aplicarValoresManuais() {
+    if (!this.detalhes.valoresManuais) return;
+    const m = this.manuais;
+
+    if (this.combate.defesaManual > 0) {
       this.combate.defesa = this.combate.defesaManual + this.penalidadeGlobal;
     }
+    if (m.atencao !== null) this.combate.atencao = m.atencao;
+    if (m.iniciativa !== null) this.combate.iniciativa = m.iniciativa + this.penalidadeGlobal;
+
+    if (m.cd !== null) {
+      this.cdAmaldicoada = m.cd + this.penalidadeGlobal;
+      this.cdEspecializacao = this.cdAmaldicoada;
+    }
+    if (m.acerto !== null) {
+      this.ataqueAmaldicoado = m.acerto + this.penalidadeGlobal;
+      // As três linhas de Jogada de Ataque da ficha passam a valer o mesmo:
+      // uma ficha de inimigo traz um acerto só, não um por tipo de ataque.
+      for (const a of Object.values(this.ataquesView ?? {})) {
+        a.total = m.acerto + this.penalidadeGlobal;
+      }
+    }
+
+    for (const id of Object.keys(FNM.resistencias)) {
+      const valor = m.resistencias[id];
+      if (valor !== null) this.resistencias[id].total = valor + this.penalidadeGlobal;
+    }
+    for (const id of Object.keys(FNM.pericias)) {
+      const valor = m.pericias[id];
+      if (valor !== null) this.pericias[id].total = valor + this.penalidadeGlobal;
+    }
+
+    // A Atenção é 10 + Percepção; se a Percepção virou total fechado e a
+    // Atenção não foi declarada, ela precisa acompanhar o valor novo.
+    if (m.atencao === null && m.pericias.percepcao !== null) {
+      this.combate.atencao = 10 + this.pericias.percepcao.total + this.combate.atencaoOutros;
+    }
+  }
+
+  /**
+   * O orçamento de criação do Patamar (Grimório, p. 8, 16-18 e 22), para a
+   * ficha mostrar o teto de cada recurso ao lado do que já foi gasto — do mesmo
+   * jeito que a ficha de Invocação mostra o orçamento do Grau.
+   *
+   * Nada aqui limita a ficha: o Grimório é um guia para o Narrador, e uma
+   * criatura autoral pode estourar qualquer linha de propósito. O que a ficha
+   * faz é apontar onde ela estourou.
+   */
+  _orcamentoDoPatamar(bt) {
+    const patamar = patamarInimigo(this.detalhes.patamar);
+    const tamanho = FNM.tamanhosCriatura[this.detalhes.tamanho] ?? FNM.tamanhosCriatura["Médio"];
+    const nd = this.nivel;
+
+    // Perícias: "uma criatura pode ter uma quantidade igual ao seu maior
+    // modificador de atributo mental" (p. 21)
+    const mentais = ["inteligencia", "sabedoria", "presenca"];
+    const maiorMental = Math.max(...mentais.map(a => this.atributos[a]?.mod ?? 0));
+
+    const gastoAtributos = FNM.ordemAtributos.reduce(
+      (total, id) => total + (this.atributos[id]?.value ?? 0),
+      0
+    );
+    const totalAtributos = patamar.atributos(nd, bt);
+    const acimaDoLimite = FNM.ordemAtributos.filter(
+      id => (this.atributos[id]?.value ?? 0) > patamar.limiteAtributo
+    );
+
+    const treinadas = Object.values(this.pericias).filter(p => p.treinado || p.mestre);
+
+    // `patamar` fica de fora do que é devolvido: ele carrega a função que
+    // calcula os pontos de atributo, e dado derivado tem que ser serializável.
+    return {
+      tamanho,
+      nome: patamar.nome,
+      dificuldade: patamar.dificuldade,
+      jogadores: patamar.jogadores,
+      atributos: {
+        gasto: gastoAtributos,
+        total: totalAtributos,
+        formula: patamar.formulaAtributos,
+        limite: patamar.limiteAtributo,
+        excedeu: gastoAtributos > totalAtributos,
+        acimaDoLimite: acimaDoLimite.map(id => FNM.atributos[id].abrev)
+      },
+      pericias: {
+        gasto: treinadas.length,
+        total: Math.max(0, maiorMental),
+        excedeu: treinadas.length > Math.max(0, maiorMental)
+      },
+      imunidades: patamar.imunidades,
+      resistencias: patamar.resistencias,
+      vulnerabilidades: patamar.vulnerabilidades,
+      imunidadesCondicao: patamar.imunidadesCondicao,
+      deslocamentoPadrao: tamanho.deslocamento,
+      // Recomendações do Patamar: quantas ações o turno tem (p. 53) e quantas
+      // Características o livro sugere (p. 60)
+      acoesDoTurno: patamar.acoes,
+      caracteristicas: {
+        gasto: this.parent?.items?.filter(i => i.type === "caracteristica").length ?? 0,
+        total: patamar.caracteristicas
+      }
+    };
   }
 }
 
@@ -1037,13 +1255,6 @@ export class InvocacaoDataModel extends BaseActorModel {
 /*  Base comum aos itens                        */
 /* -------------------------------------------- */
 
-/** Contador de usos "Atual / Máx." das listas de habilidades da ficha oficial. */
-const usosSchema = () =>
-  new SchemaField({
-    value: new NumberField({ required: true, integer: true, min: 0, initial: 0 }),
-    max: new NumberField({ required: true, integer: true, min: 0, initial: 0 })
-  });
-
 class BaseItemModel extends foundry.abstract.TypeDataModel {
   static defineSchema() {
     return {
@@ -1143,6 +1354,76 @@ export class AptidaoDataModel extends BaseItemModel {
         choices: ["", ...Object.keys(FNM.niveisAptidao)]
       }),
       nivelAptidao: new NumberField({ required: true, integer: true, min: 0, max: 5, initial: 0 }),
+      prerequisito: new StringField({ required: true, blank: true }),
+      custoPE: new NumberField({ required: true, integer: true, min: 0, initial: 0 }),
+      acao: new StringField({ required: true, blank: true }),
+      usos: usosSchema()
+    };
+  }
+}
+
+/**
+ * Dote — a habilidade pronta de um inimigo (Grimório, p. 20).
+ *
+ * O Grimório separa os Dotes em dois tipos, e o livro dá o paralelo exato com
+ * o lado dos jogadores: os **Gerais** (p. 77-80) equivalem às Habilidades de
+ * Especialização, e os **Amaldiçoados** (p. 64-71) equivalem às Aptidões
+ * Amaldiçoadas — por isso só estes últimos têm categoria e Nível de Aptidão.
+ *
+ * Os **Treinamentos** do Passo 4 (p. 61-62) entram aqui como um terceiro tipo:
+ * o livro não os chama de Dote, mas eles funcionam igual — vêm prontos de uma
+ * lista fechada e são pagos por um orçamento (1 ponto + 1 por grau, p. 61).
+ *
+ * `ndMinimo` é o Nível de Desafio mínimo lido do pré-requisito; serve para a
+ * ficha avisar quando o dote está acima do ND do inimigo.
+ */
+export class DoteDataModel extends BaseItemModel {
+  static defineSchema() {
+    return {
+      ...super.defineSchema(),
+      tipoDote: new StringField({
+        required: true,
+        initial: "Geral",
+        choices: ["Geral", "Amaldiçoado", "Treinamento"]
+      }),
+      categoria: new StringField({
+        required: true,
+        blank: true,
+        initial: "",
+        choices: ["", ...FNM.categoriasDoteAmaldicoado]
+      }),
+      areaAptidao: new StringField({
+        required: true,
+        blank: true,
+        choices: ["", ...Object.keys(FNM.niveisAptidao)]
+      }),
+      nivelAptidao: new NumberField({ required: true, integer: true, min: 0, max: 5, initial: 0 }),
+      ndMinimo: new NumberField({ required: true, integer: true, min: 0, max: 30, initial: 0 }),
+      prerequisito: new StringField({ required: true, blank: true }),
+      custoPE: new NumberField({ required: true, integer: true, min: 0, initial: 0 }),
+      acao: new StringField({ required: true, blank: true }),
+      usos: usosSchema()
+    };
+  }
+}
+
+/**
+ * Característica de inimigo (Grimório, p. 72-76).
+ *
+ * Diferente dos Dotes, as Características são montadas pelo Narrador: as
+ * **Gerais** servem de base mecânica e comparação entre criaturas, e as
+ * **Especiais** são o traço que quebra ou altera uma regra normal e dá
+ * identidade à criatura.
+ */
+export class CaracteristicaDataModel extends BaseItemModel {
+  static defineSchema() {
+    return {
+      ...super.defineSchema(),
+      categoria: new StringField({
+        required: true,
+        initial: "Geral",
+        choices: FNM.categoriasCaracteristica
+      }),
       prerequisito: new StringField({ required: true, blank: true }),
       custoPE: new NumberField({ required: true, integer: true, min: 0, initial: 0 }),
       acao: new StringField({ required: true, blank: true }),
