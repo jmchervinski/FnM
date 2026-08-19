@@ -69,6 +69,9 @@ export class FnmNpcSheet extends FnmBaseActorSheet {
   /** @override */
   async _preparePartContext(partId, context) {
     context = await super._preparePartContext(partId, context);
+
+    if (partId === "acoes") context.acoesPorTipo = this._agruparAcoes(context.itens);
+
     if (partId === "biografia") {
       const enriquecer = html =>
         foundry.applications.ux.TextEditor.implementation.enrichHTML(html ?? "", {
@@ -80,6 +83,33 @@ export class FnmNpcSheet extends FnmBaseActorSheet {
       context.enrichedTaticas = await enriquecer(this.actor.system.taticas);
     }
     return context;
+  }
+
+  /**
+   * Agrupa as ações da criatura pela ação que cada uma consome no turno
+   * (Grimório, p. 53), que é como o Narrador precisa lê-las em combate: o que
+   * cabe na Ação Comum, o que é Reação, o que é Bônus.
+   *
+   * Ataques (Armas) e efeitos por Teste de Resistência (Feitiços) entram na
+   * mesma lista, e cada um mantém os próprios botões — a diferença entre eles é
+   * quem rola o d20, não onde eles moram na ficha.
+   */
+  _agruparAcoes(itens = {}) {
+    const armas = (itens.arma ?? []).map(item => ({
+      item,
+      ehArma: true,
+      acao: item.system.acao || "Ação Comum"
+    }));
+    const feiticos = (itens.feitico ?? []).map(item => ({
+      item,
+      ehArma: false,
+      acao: item.system.conjuracao || "Ação Comum"
+    }));
+    const todas = [...armas, ...feiticos];
+
+    return FNM.conjuracoes
+      .map(nome => ({ nome, entradas: todas.filter(e => e.acao === nome) }))
+      .filter(grupo => grupo.entradas.length);
   }
 
   /**

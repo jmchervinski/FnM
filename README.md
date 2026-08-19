@@ -82,6 +82,10 @@ Tudo abaixo é calculado ou executado pelo sistema, com a página do livro anota
   do grau da Ferramenta Amaldiçoada
 - **Conjuração de Feitiços**: gasta PE, avisa quando o nível está fora do seu acesso, aplica o
   acréscimo de custo do Estado da Alma e resolve por TR ou pelo mesmo fluxo de ataque das armas
+- **Efeitos por Teste de Resistência** saem numa carta própria, que não resolve nada sozinha: quem
+  rola é o alvo. A carta traz o botão de **rolar o TR** — para os tokens marcados como alvo, com a
+  CD já preenchida — e o de **dano**, quando o efeito causa. Antes o dano caía no chat antes de
+  alguém ter resistido
 - **Custo de Feitiço** derivado do nível, com Marca Registrada e afins reduzindo até o mínimo de 1
 - **Integridade da Alma** e seus quatro **Estados** (penalidade em rolagens, custo extra e condições)
 - **Dano na Alma**: ignora RD e PV temporários, reduz a vida máxima junto da atual
@@ -186,7 +190,8 @@ editável à mão antes e depois, e o Narrador vê um resumo do que será escrit
   `dotes`, `aptidoesEspeciais` e `treinamentos` viram **Dotes** do tipo correspondente (a
   categoria de um Dote Amaldiçoado sai do rótulo da Galeria: "Aptidões de Anatomia" → Anatomia)
 - As **Ações** se dividem pelo tipo de resolução, e as duas metades caem na aba **Ações** da
-  ficha, roláveis: as de **acerto** viram **Armas** (o bônus próprio da ação vira o `bonusAtaque`,
+  ficha — agrupadas pela ação que consomem no turno (Comum, Rápida, Bônus, Movimento, Reação) e
+  roláveis: as de **acerto** viram **Armas** (o bônus próprio da ação vira o `bonusAtaque`,
   e a margem de crítico vem do arquivo); as por **Teste de Resistência** viram **Feitiços**, que é
   o item que já resolve por TR — com resistência, área, dano e custo em PE. Nos dois casos a
   descrição carrega o bloco inteiro: acerto, CD, TR, alcance, área, dano, dano médio, custo e

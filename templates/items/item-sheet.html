@@ -323,6 +323,13 @@
           {{/each}}
         </select>
       </label>
+      <label title="Qual ação do turno o ataque consome — é por ela que a aba de Ações do NPC agrupa">Ação
+        <select name="system.acao">
+          {{#each config.conjuracoes as |a|}}
+          <option value="{{a}}" {{#if (eq a ../system.acao)}}selected{{/if}}>{{a}}</option>
+          {{/each}}
+        </select>
+      </label>
       <label>Dano <input type="text" name="system.dano" value="{{system.dano}}" placeholder="1d6" /></label>
       <label title="Dano ao usar com as duas mãos">Dano versátil
         <input type="text" name="system.danoVersatil" value="{{system.danoVersatil}}" placeholder="1d8" />

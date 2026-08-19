@@ -344,6 +344,46 @@ if (raizFoundry) {
   );
 }
 
+/* -------- 3.6. Todo template citado no código existe de fato -------- */
+
+/**
+ * Um caminho de template errado — ou um template novo que ninguém referenciou —
+ * só aparece em runtime, na hora em que a carta ou a aba tenta renderizar. Aqui
+ * os dois lados são conferidos contra o disco.
+ */
+{
+  const fontes = [];
+  const walkMjs = d => {
+    for (const e of fs.readdirSync(d, { withFileTypes: true })) {
+      const p = path.join(d, e.name);
+      if (e.isDirectory()) walkMjs(p);
+      else if (e.name.endsWith(".mjs")) fontes.push(p);
+    }
+  };
+  walkMjs(path.join(ROOT, "module"));
+
+  const citados = new Set();
+  for (const arq of fontes) {
+    for (const m of fs.readFileSync(arq, "utf8").matchAll(/systems\/fnm\/(templates\/[\w/-]+\.html)/g)) {
+      citados.add(m[1]);
+      if (!fs.existsSync(path.join(ROOT, m[1]))) {
+        falha(`${path.basename(arq)}: template "${m[1]}" não existe`);
+      }
+    }
+  }
+
+  // Uma carta de chat renderiza fora do ciclo da ficha; sem estar no preload,
+  // ela depende de o Foundry buscar o template na hora.
+  const preload = fs.readFileSync(path.join(ROOT, "module/fnm.mjs"), "utf8");
+  for (const arq of fs.readdirSync(path.join(ROOT, "templates/chat"))) {
+    const rel = `templates/chat/${arq}`;
+    if (!preload.includes(`systems/fnm/${rel}`)) {
+      falha(`fnm.mjs: "${rel}" não está na lista de templates pré-carregados`);
+    }
+  }
+  console.log(`      (${citados.size} template(s) citados no código conferidos)`);
+}
+
 /* -------- 4. O CSS não vaza para a moldura da janela -------- */
 
 /**

@@ -575,6 +575,9 @@ function montarAcao(acao, acertoBase, margemAtaque) {
       description: descricao,
       categoria: "Simples",
       tipo: TIPOS_DE_ALCANCE[chave(acao?.rangeType)] ?? "Corpo a Corpo",
+      // Qual ação do turno o ataque consome — é por isto que a aba de Ações
+      // agrupa, então não pode ficar só na descrição
+      acao: TIPOS_DE_ACAO[chave(acao?.type)] ?? "Ação Comum",
       grupo: "",
       dano: rolagem || "1d6",
       danoVersatil: "",

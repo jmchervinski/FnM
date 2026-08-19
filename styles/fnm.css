@@ -1444,3 +1444,35 @@
   color: var(--fnm-azul);
   font-variant-numeric: tabular-nums;
 }
+
+/* Aba de Ações do NPC: uma seção por ação consumida no turno */
+.fnm-sheet .acoes-grupo {
+  margin: 0.5rem 0 0.15rem;
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--fnm-azul);
+  border-bottom: 1px solid var(--fnm-osso-escuro);
+}
+.fnm-sheet .acao-marca {
+  display: inline-block;
+  padding: 0 0.3rem;
+  border-radius: 3px;
+  font-size: 0.6rem;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  color: var(--fnm-osso);
+}
+.fnm-sheet .acao-marca-ataque {
+  background: var(--fnm-sangue);
+}
+.fnm-sheet .acao-marca-tr {
+  background: var(--fnm-azul);
+}
+
+/* Carta de chat de um efeito resolvido pelo TR do alvo */
+.fnm-carta-resistencia .fnm-nota-alvo {
+  margin: 0.3rem 0 0;
+  font-size: 0.7rem;
+  opacity: 0.75;
+}

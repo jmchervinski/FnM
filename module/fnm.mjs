@@ -173,7 +173,8 @@ async function preloadHandlebarsTemplates() {
     "systems/fnm/templates/actors/parts/linha-uso.html",
     "systems/fnm/templates/chat/ataque-dialogo.html",
     "systems/fnm/templates/chat/ataque.html",
-    "systems/fnm/templates/chat/dano.html"
+    "systems/fnm/templates/chat/dano.html",
+    "systems/fnm/templates/chat/resistencia.html"
   ];
   return foundry.applications.handlebars.loadTemplates(paths);
 }

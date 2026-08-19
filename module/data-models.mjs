@@ -1547,6 +1547,9 @@ export class ArmaDataModel extends BaseItemModel {
       ...super.defineSchema(),
       categoria: new StringField({ required: true, initial: "Simples", choices: FNM.categoriasArma }),
       tipo: new StringField({ required: true, initial: "Corpo a Corpo", choices: FNM.tiposArma }),
+      // Qual ação o ataque consome. Para um personagem é quase sempre a Ação
+      // Comum; para um inimigo do Grimório é o que separa as ações do turno.
+      acao: new StringField({ required: true, initial: "Ação Comum", choices: FNM.conjuracoes }),
       grupo: new StringField({
         required: true,
         blank: true,

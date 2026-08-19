@@ -1,0 +1,44 @@
+{{!-- Carta de um efeito resolvido pelo Teste de Resistência do alvo (p. 205, 280).
+
+      Diferente do ataque, aqui quem rola é o alvo — então a carta não traz
+      resultado, e sim os dois botões que continuam a ação: o TR de quem foi
+      atingido e o dano do efeito. --}}
+<div class="fnm-carta fnm-carta-resistencia">
+
+  <header class="fnm-carta-cabecalho">
+    <img src="{{img}}" width="36" height="36" alt="" />
+    <div class="fnm-carta-titulo">
+      <h3>{{nome}}</h3>
+      <p class="fnm-sub">{{subtitulo}}</p>
+    </div>
+  </header>
+
+  <div class="fnm-veredito fnm-tom-neutro">
+    <span class="fnm-veredito-rotulo">TR de {{resistenciaNome}}</span>
+    <span class="fnm-veredito-alvo">CD {{cd}}</span>
+  </div>
+
+  {{#if linhas}}
+  <p class="fnm-linhas">{{#each linhas as |l|}}{{{l}}}<br>{{/each}}</p>
+  {{/if}}
+
+  <p class="fnm-aviso">{{efeitoDaFalha}}</p>
+
+  <div class="fnm-acoes">
+    <button type="button" data-fnm-acao="tr">
+      <i class="fas fa-dice-d20"></i> Rolar TR de {{resistenciaNome}}
+    </button>
+    {{#if temDano}}
+    <button type="button" data-fnm-acao="dano">
+      <i class="fas fa-bolt"></i> Dano ({{dano}})
+    </button>
+    {{/if}}
+  </div>
+
+  <p class="fnm-nota-alvo">O TR rola para os tokens que você marcou como alvo; sem alvo marcado,
+    rola para os que você tem selecionados.</p>
+
+  {{#if descricao}}
+  <div class="fnm-carta-desc">{{{descricao}}}</div>
+  {{/if}}
+</div>

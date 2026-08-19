@@ -8,7 +8,7 @@
  * (p. 335).
  */
 import { FNM, custoSustento } from "../config.mjs";
-import { cartaAtaque, cartaDano } from "../chat.mjs";
+import { cartaAtaque, cartaDano, cartaResistencia } from "../chat.mjs";
 
 /** Constrói a fórmula do d20 conforme vantagem/desvantagem (p. 282). */
 function formulaD20(vantagem = 0) {
@@ -244,11 +244,15 @@ export class FnmActor extends Actor {
   }
 
   /** Teste de Resistência (p. 280). */
-  async rolarResistencia(id) {
+  async rolarResistencia(id, { cd } = {}) {
     const resistencia = this.system.resistencias?.[id];
     if (!resistencia) return ui.notifications.error(`Resistência desconhecida: ${id}`);
 
-    const dados = await this._dialogoTeste(`TR de ${resistencia.nome}`);
+    // Vindo do botão de uma carta, a CD já é conhecida e chega preenchida
+    const dados = await this._dialogoTeste(
+      `TR de ${resistencia.nome}`,
+      cd === undefined || cd === null ? {} : { cd }
+    );
     if (!dados) return null;
 
     return this.executarTeste({
@@ -755,15 +759,19 @@ export class FnmActor extends Actor {
     await this.update({ "system.recursos.pe.value": pe.value - custoTotal });
     linhas.push(`<b>PE:</b> -${custoTotal} → ${pe.value - custoTotal}/${pe.max}`);
 
-    // Resolução: teste de ataque amaldiçoado ou TR imposto ao alvo (p. 280/205)
+    // Resolução por TR: a carta não resolve nada sozinha. Quem rola o teste é o
+    // alvo, e o dano só sai depois — então os dois viram botões, em vez de o
+    // dano cair no chat antes de alguém ter resistido (p. 205, 280).
     if (sys.resolucao === "resistencia") {
-      const nomeTR = FNM.resistencias[sys.resistencia]?.nome ?? "à escolha do Narrador";
-      linhas.push(
-        `<b>Teste de Resistência:</b> ${nomeTR} contra <b>CD ${s.cdAmaldicoada}</b>` +
-          (sys.nivel === "0"
-            ? " (sucesso anula o dano)"
-            : " (sucesso reduz o dano à metade)")
-      );
+      await cartaResistencia({
+        ator: this,
+        item,
+        cd: s.cdAmaldicoada,
+        resistencia: sys.resistencia,
+        linhas,
+        dano: sys.dano || sys.danoPadrao
+      });
+      return true;
     }
 
     await ChatMessage.create({
@@ -781,14 +789,6 @@ export class FnmActor extends Actor {
       const perfil = this._perfilFeitico(item);
       const escolhas = await this._dialogoAtaque(perfil);
       if (escolhas) await this._executarAtaque(perfil, escolhas);
-      return true;
-    }
-
-    // Fora da resolução por ataque, o dano do Feitiço sai direto: quem resiste
-    // é o alvo, no TR já anunciado na carta acima
-    const formulaDano = sys.dano || sys.danoPadrao;
-    if (formulaDano) {
-      await this._rolarDano(this._perfilFeitico(item), { critico: false });
     }
 
     return true;
