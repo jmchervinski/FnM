@@ -1,0 +1,62 @@
+# Publica a release do sistema quando uma tag v* é enviada.
+#
+# O ponto central é a verificação de versão logo no começo: a tag e o campo
+# `version` do system.json TÊM que dizer a mesma coisa. O Foundry decide se há
+# atualização comparando o `version` do manifesto publicado com o da cópia
+# instalada — o nome da tag não entra nessa conta. Uma release cujo system.json
+# repete a versão anterior é invisível no Foundry, que foi o que aconteceu da
+# v0.0.3 à v0.2.0. Aqui isso vira erro de build em vez de mistério na mesa.
+name: Release
+
+on:
+  push:
+    tags:
+      - "v*"
+
+permissions:
+  contents: write
+
+jobs:
+  publicar:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Instalar dependências
+        run: npm ci
+
+      - name: Conferir que a tag e o system.json concordam
+        run: |
+          TAG="${GITHUB_REF_NAME#v}"
+          MANIFESTO=$(node -p "require('./system.json').version")
+          echo "tag=$TAG  system.json=$MANIFESTO"
+          if [ "$TAG" != "$MANIFESTO" ]; then
+            echo "::error::A tag v$TAG não bate com a versão $MANIFESTO do system.json."
+            echo "::error::Rode 'npm run release -- $TAG' e recrie a tag."
+            exit 1
+          fi
+
+      - name: Gerar os compêndios
+        run: npm run build:packs
+
+      - name: Validar fichas e automação
+        run: npm run check
+
+      - name: Montar o system.zip
+        run: |
+          zip -r system.zip \
+            system.json LICENSE README.md \
+            module styles templates lang packs \
+            -x '*.git*'
+
+      - name: Publicar a release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            system.json
+            system.zip
+          generate_release_notes: true

@@ -322,9 +322,34 @@ adota a leitura conservadora e mantém 1d12 também no nível 13.
 
 ```bash
 npm install
-npm run check        # valida as fichas contra os schemas
+npm run check        # valida as fichas e a automação
 npm run build:packs  # gera os compêndios
 ```
+
+### Publicar uma release
+
+O Foundry decide se há atualização comparando o campo **`version` do manifesto publicado** com o
+da cópia instalada. O nome da tag do git **não entra nessa conta**: uma release cujo `system.json`
+repete a versão anterior é invisível — o Foundry busca o manifesto, vê o mesmo número e conclui
+que já está em dia. Foi o que aconteceu da v0.0.3 à v0.2.0, quatro tags publicadas com
+`version: "0.1.0"` dentro.
+
+Por isso o número é carimbado por script, e nunca digitado à mão:
+
+```bash
+npm run release -- 0.3.0
+npm run build:packs && npm run check
+git commit -am "Versão 0.3.0" && git push
+git tag v0.3.0 && git push origin v0.3.0
+```
+
+O `npm run release` recusa uma versão que não seja maior que a atual, aponta `download` para o zip
+daquela versão e mantém `manifest` na release *latest* — que é o endereço fixo que o Foundry
+consulta para saber se saiu coisa nova.
+
+O push da tag dispara `.github/workflows/release.yml`, que **bloqueia o build se a tag e o
+`system.json` discordarem**, gera os compêndios, roda a validação, monta o `system.zip` e publica
+a release com os dois arquivos. O erro que causou o problema original virou falha de build.
 
 ### `npm run check` — por que ele existe
 
@@ -401,6 +426,7 @@ tools/
   build-packs.mjs    geração dos compêndios
   check-fichas.mjs   validação estática das fichas e dos compêndios
   testa-automacao.mjs  roda a derivação real dos modelos e confere o que ela produz
+  preparar-release.mjs carimba a versão da release no system.json
   livro_texto.py     leitura do layout de duas colunas, comum aos extratores
   extrai-*.py        transcrição dos capítulos do PDF para tools/dados/
   dados/             JSONs versionados dos extratores, e o exemplo de importação
