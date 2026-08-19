@@ -258,6 +258,68 @@ const npcBase = sys => {
   }
 }
 
+/* -------- 6. Quem faz o Teste de Resistência é o alvo, não quem conjurou -------- */
+
+{
+  // O mundo de mentira: dois atores e o que cada um representa no cenário
+  const ator = (id, nome, meu) => ({ id, name: nome, isOwner: meu });
+  const conjurador = ator("caster", "Criatura teste", true);
+  const vitima = ator("alvo", "Yuji", true);
+  const alheio = ator("outro", "Megumi", false);
+
+  const tokens = {
+    "Scene.x.Token.alvo": { actor: vitima },
+    "Scene.x.Token.alheio": { actor: alheio }
+  };
+
+  const avisos = [];
+  globalThis.fromUuidSync = uuid => tokens[uuid];
+  globalThis.ui = { notifications: { warn: m => avisos.push(m), info: m => avisos.push(m) } };
+  globalThis.game = { user: { targets: new Set() } };
+  globalThis.canvas = { tokens: { controlled: [] } };
+
+  const { alvosDaCarta } = await import(new URL("../module/chat.mjs", import.meta.url));
+  const nomes = lista => lista.map(a => a.name).join(",");
+
+  // O caso que quebrou: a carta guardou a vítima, mas quem clicou estava com o
+  // próprio conjurador selecionado. Vale o que a carta guardou.
+  globalThis.canvas.tokens.controlled = [{ actor: conjurador }];
+  confere(
+    "TR: o alvo guardado na carta vence a seleção atual",
+    nomes(alvosDaCarta({ alvos: ["Scene.x.Token.alvo"], atorId: "caster" }, "testar")),
+    "Yuji"
+  );
+
+  // Sem alvo guardado, o conjurador selecionado não vira alvo de si mesmo
+  avisos.length = 0;
+  confere(
+    "TR: sem alvo guardado, o conjurador não testa contra o próprio efeito",
+    nomes(alvosDaCarta({ alvos: [], atorId: "caster" }, "testar")),
+    ""
+  );
+  confere("TR: e avisa que a carta não guardou alvos", avisos.length, 1);
+
+  // Um alvo que o usuário não controla não rola: o dono é que clica
+  avisos.length = 0;
+  confere(
+    "TR: alvo de outro jogador não rola por quem clicou",
+    nomes(alvosDaCarta({ alvos: ["Scene.x.Token.alheio"], atorId: "caster" }, "testar")),
+    ""
+  );
+  confere("TR: e o aviso diz de quem é o alvo", /Megumi/.test(avisos[0] ?? "") ? "sim" : "não", "sim");
+
+  // Vários alvos, dos quais só um é meu
+  avisos.length = 0;
+  confere(
+    "TR: rola só para os alvos que você controla",
+    nomes(alvosDaCarta(
+      { alvos: ["Scene.x.Token.alvo", "Scene.x.Token.alheio"], atorId: "caster" },
+      "testar"
+    )),
+    "Yuji"
+  );
+}
+
 if (problemas) {
   console.log(`\n${problemas} problema(s) de automação encontrado(s).`);
   process.exit(1);

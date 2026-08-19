@@ -126,6 +126,7 @@ export async function cartaAtaque({
 /** Publica a carta de uma rolagem de dano. */
 export async function cartaDano({ ator, perfil, roll, critico, versatil, componentes }) {
   const tipo = FNM.tiposDano[perfil.tipoDano];
+  const alvos = alvosMarcados();
   const conteudo = await foundry.applications.handlebars.renderTemplate(TEMPLATE_DANO, {
     nome: perfil.nome,
     img: perfil.img,
@@ -136,7 +137,8 @@ export async function cartaDano({ ator, perfil, roll, critico, versatil, compone
     versatil,
     tipoDano: tipo?.nome ?? "",
     categoriaDano: tipo?.categoria ?? "",
-    componentes
+    componentes,
+    alvos: nomesDosAlvos(alvos)
   });
 
   return ChatMessage.create({
@@ -152,7 +154,8 @@ export async function cartaDano({ ator, perfil, roll, critico, versatil, compone
         // O total e o tipo ficam na carta para os botões de aplicar não
         // dependerem de a ficha de origem continuar aberta
         total: roll.total,
-        tipoDano: perfil.tipoDano ?? ""
+        tipoDano: perfil.tipoDano ?? "",
+        alvos
       }
     }
   });
@@ -168,6 +171,7 @@ export async function cartaDano({ ator, perfil, roll, critico, versatil, compone
 export async function cartaResistencia({ ator, item, cd, resistencia, linhas = [], dano }) {
   const nomeTR = FNM.resistencias[resistencia]?.nome ?? "à escolha do Narrador";
   const sys = item.system;
+  const alvos = alvosMarcados();
 
   const conteudo = await foundry.applications.handlebars.renderTemplate(TEMPLATE_RESISTENCIA, {
     nome: item.name,
@@ -184,6 +188,7 @@ export async function cartaResistencia({ ator, item, cd, resistencia, linhas = [
         : "Um sucesso no teste reduz o dano à metade.",
     temDano: !!dano,
     dano,
+    alvos: nomesDosAlvos(alvos),
     descricao: sys.description
   });
 
@@ -191,7 +196,16 @@ export async function cartaResistencia({ ator, item, cd, resistencia, linhas = [
     speaker: ChatMessage.getSpeaker({ actor: ator }),
     content: conteudo,
     flags: {
-      fnm: { tipo: "resistencia", atorId: ator.id, itemId: item.id, cd, resistencia }
+      fnm: {
+        tipo: "resistencia",
+        atorId: ator.id,
+        itemId: item.id,
+        cd,
+        resistencia,
+        // Quem estava marcado AGORA é quem faz o teste depois, seja quem for
+        // que clique no botão
+        alvos
+      }
     }
   });
 }
@@ -246,25 +260,56 @@ export function registrarChat() {
   });
 }
 
+/** Os tokens marcados como alvo agora, no formato que a carta guarda. */
+export function alvosMarcados() {
+  return [...(game.user.targets ?? [])].map(t => t.document?.uuid).filter(Boolean);
+}
+
+/** Os nomes dos alvos guardados, para a carta dizer de quem ela está falando. */
+function nomesDosAlvos(alvos = []) {
+  return [...new Set(alvos.map(uuid => fromUuidSync(uuid)?.actor?.name).filter(Boolean))];
+}
+
 /**
  * Os atores sobre os quais um botão de carta age.
  *
- * Os alvos marcados (`game.user.targets`) têm precedência sobre os tokens
- * selecionados, porque marcar é o gesto de "estes aqui foram atingidos".
- * Quem o usuário não controla fica de fora — o dono resolve pelo mesmo botão.
+ * A lista boa é a que a carta guardou: quem estava marcado como alvo NA HORA em
+ * que o efeito foi usado. Ela é o que faz o botão funcionar para o jogador do
+ * alvo, que não marcou ninguém e provavelmente nem tem o próprio token
+ * selecionado — e é o que impede o conjurador de virar alvo de si mesmo só por
+ * estar selecionado quando alguém clicou.
+ *
+ * Sem alvos guardados (carta antiga, ou efeito usado sem marcar ninguém), cai
+ * para o que o usuário tem marcado ou selecionado agora, tirando o autor.
+ *
+ * Exportada para tools/testa-automacao.mjs: foi esta escolha de alvo que errou
+ * antes, mandando o conjurador fazer o teste contra o próprio efeito.
  */
-function alvosDoUsuario(oQueFaz) {
-  const marcados = [...(game.user.targets ?? [])];
-  const tokens = marcados.length ? marcados : (canvas.tokens?.controlled ?? []);
-  if (!tokens.length) {
-    ui.notifications.warn(`Marque como alvo (ou selecione) os tokens para ${oQueFaz}.`);
-    return [];
+export function alvosDaCarta({ alvos, atorId }, oQueFaz) {
+  const guardados = (alvos ?? [])
+    .map(uuid => fromUuidSync(uuid)?.actor)
+    .filter(Boolean);
+
+  let atores = [...new Set(guardados)];
+  if (!atores.length) {
+    const marcados = [...(game.user.targets ?? [])];
+    const tokens = marcados.length ? marcados : (canvas.tokens?.controlled ?? []);
+    // Quem usou o efeito não faz teste contra o próprio efeito
+    atores = [...new Set(tokens.map(t => t.actor).filter(a => a && a.id !== atorId))];
+    if (!atores.length) {
+      ui.notifications.warn(
+        `Esta carta não guardou alvos. Marque como alvo os tokens para ${oQueFaz}.`
+      );
+      return [];
+    }
   }
 
-  const atores = [...new Set(tokens.map(t => t.actor).filter(Boolean))];
   const meus = atores.filter(a => a.isOwner);
   if (!meus.length) {
-    ui.notifications.warn("Você não controla nenhum dos alvos marcados.");
+    ui.notifications.warn(
+      `O alvo é ${atores.map(a => a.name).join(", ")} — quem controla esse token é que rola. ` +
+        "Peça ao dono para clicar, ou clique como Narrador."
+    );
     return [];
   }
   if (meus.length < atores.length) {
@@ -281,13 +326,14 @@ function alvosDoUsuario(oQueFaz) {
  * diálogo, com a CD já preenchida — assim dá para lançar o situacional de cada
  * um separadamente.
  */
-async function rolarTRdosAlvos({ resistencia, cd }) {
+async function rolarTRdosAlvos(flags) {
+  const { resistencia, cd } = flags;
   if (!resistencia) {
     return ui.notifications.warn(
       "Este efeito não declara qual Teste de Resistência ele força — escolha um na ficha do item."
     );
   }
-  for (const alvo of alvosDoUsuario("fazer o teste")) {
+  for (const alvo of alvosDaCarta(flags, "fazer o teste")) {
     await alvo.rolarResistencia(resistencia, { cd });
   }
 }
@@ -300,14 +346,15 @@ async function rolarTRdosAlvos({ resistencia, cd }) {
  * A Redução de Dano de cada alvo é descontada por `aplicarDano`, então o número
  * do botão é o dano bruto, não o que a criatura vai efetivamente perder.
  */
-async function aplicarNosAlvos({ total, tipoDano }, acao, fator) {
+async function aplicarNosAlvos(flags, acao, fator) {
+  const { total, tipoDano } = flags;
   const bruto = Number(total);
   if (!Number.isFinite(bruto)) {
     return ui.notifications.warn("Esta carta não guardou o total do dano.");
   }
 
   const quantidade = Math.max(0, Math.floor(bruto * fator));
-  const alvos = alvosDoUsuario(acao === "curar" ? "curar" : "receber o dano");
+  const alvos = alvosDaCarta(flags, acao === "curar" ? "curar" : "receber o dano");
 
   for (const alvo of alvos) {
     if (acao === "curar") await alvo.curar(quantidade);

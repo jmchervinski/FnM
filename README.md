@@ -83,9 +83,10 @@ Tudo abaixo é calculado ou executado pelo sistema, com a página do livro anota
 - **Conjuração de Feitiços**: gasta PE, avisa quando o nível está fora do seu acesso, aplica o
   acréscimo de custo do Estado da Alma e resolve por TR ou pelo mesmo fluxo de ataque das armas
 - **Efeitos por Teste de Resistência** saem numa carta própria, que não resolve nada sozinha: quem
-  rola é o alvo. A carta traz o botão de **rolar o TR** — para os tokens marcados como alvo, com a
-  CD já preenchida — e o de **dano**, quando o efeito causa. Antes o dano caía no chat antes de
-  alguém ter resistido
+  rola é o alvo. A carta **guarda quem estava marcado como alvo na hora em que o efeito saiu**, e o
+  botão de **rolar o TR** rola para eles, com a CD já preenchida — é isso que faz o botão funcionar
+  para o jogador do alvo, que não marcou ninguém e talvez nem tenha o próprio token selecionado. A
+  carta mostra de quem ela está falando. O botão de **dano** aparece quando o efeito causa
 - **Aplicar o dano** nos alvos pela própria carta, em **cheio**, **metade** (sucesso no TR) ou
   **dobro** (vulnerabilidade), além de um botão para devolver o valor como **cura**. A Redução de
   Dano de cada alvo é descontada na aplicação

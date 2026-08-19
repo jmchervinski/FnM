@@ -35,8 +35,13 @@
     {{/if}}
   </div>
 
-  <p class="fnm-nota-alvo">O TR rola para os tokens que você marcou como alvo; sem alvo marcado,
-    rola para os que você tem selecionados.</p>
+  {{#if alvos}}
+  <p class="fnm-nota-alvo">Alvo: <b>{{#each alvos}}{{this}}{{#unless @last}}, {{/unless}}{{/each}}</b>
+    — quem controla esse token é que rola o teste.</p>
+  {{else}}
+  <p class="fnm-nota-alvo">Nenhum token estava marcado como alvo quando o efeito saiu: marque os
+    alvos antes de usar, ou selecione-os agora para rolar.</p>
+  {{/if}}
 
   {{#if descricao}}
   <div class="fnm-carta-desc">{{{descricao}}}</div>
