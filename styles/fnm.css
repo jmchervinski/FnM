@@ -1476,3 +1476,20 @@
   font-size: 0.7rem;
   opacity: 0.75;
 }
+
+/* Botões de aplicar dano/cura na carta, e a nota de alvo que os acompanha */
+.fnm-carta-dano .fnm-acoes button {
+  flex: 1 1 auto;
+  font-size: 0.72rem;
+}
+.fnm-carta .fnm-nota-alvo {
+  margin: 0.3rem 0 0;
+  font-size: 0.7rem;
+  opacity: 0.75;
+}
+
+/* Campo de Defesa oculta no diálogo de ataque */
+.fnm-dialogo-ataque input[disabled] {
+  font-style: italic;
+  opacity: 0.6;
+}

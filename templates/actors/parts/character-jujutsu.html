@@ -98,7 +98,8 @@
                  placeholder="Completa, incompleta, Domínio Simples…" /></label>
       </div>
       <label class="campo-largo">Descrição da Expansão</label>
-      {{editor enrichedExpansao target="system.jujutsu.expansao.descricao" button=true engine="prosemirror" editable=editable}}
+      <prose-mirror name="system.jujutsu.expansao.descricao" toggled value="{{source.jujutsu.expansao.descricao}}"
+                  {{#unless editable}}disabled{{/unless}}>{{{enrichedExpansao}}}</prose-mirror>
       <p class="dica">Exige Aptidão em Domínio. Conjurar um domínio consome um nível absurdo de energia (p. 182).</p>
     </fieldset>
 
@@ -107,7 +108,8 @@
       <label class="campo-largo">Nome da Técnica Máxima
         <input type="text" name="system.jujutsu.tecnicaMaxima.nome" value="{{system.jujutsu.tecnicaMaxima.nome}}" /></label>
       <label class="campo-largo">Descrição</label>
-      {{editor enrichedTecnicaMaxima target="system.jujutsu.tecnicaMaxima.descricao" button=true engine="prosemirror" editable=editable}}
+      <prose-mirror name="system.jujutsu.tecnicaMaxima.descricao" toggled value="{{source.jujutsu.tecnicaMaxima.descricao}}"
+                  {{#unless editable}}disabled{{/unless}}>{{{enrichedTecnicaMaxima}}}</prose-mirror>
       <p class="dica">A Técnica Máxima usa a linha própria da tabela de Feitiços (dano 26d12/28d12, alcance 60 m).</p>
     </fieldset>
   </div>

@@ -196,7 +196,8 @@
     <label class="campo-largo">Funcionamento Básico</label>
     <p class="dica">Descreva primeiro o conceito e a dinâmica da técnica; depois, a parte mecânica
       (equipamentos concedidos, limitações, mecânicas próprias) — p. 197.</p>
-    {{editor enrichedFuncionamento target="system.funcionamento" button=true engine="prosemirror" editable=editable}}
+    <prose-mirror name="system.funcionamento" toggled value="{{source.funcionamento}}"
+                  {{#unless editable}}disabled{{/unless}}>{{{enrichedFuncionamento}}}</prose-mirror>
     {{/if}}
 
     {{#if (eq item.type "feitico")}}
@@ -560,7 +561,8 @@
       </label>
     </div>
     <label class="campo-largo">Restrição assumida</label>
-    {{editor enrichedRestricao target="system.restricao" button=true engine="prosemirror" editable=editable}}
+    <prose-mirror name="system.restricao" toggled value="{{source.restricao}}"
+                  {{#unless editable}}disabled{{/unless}}>{{{enrichedRestricao}}}</prose-mirror>
     {{/if}}
 
     {{!-- Ajustes mecânicos aplicados ao dono do item --}}
@@ -578,6 +580,7 @@
     </fieldset>
 
     <label class="campo-largo">Descrição</label>
-    {{editor enrichedDescription target="system.description" button=true engine="prosemirror" editable=editable}}
+    <prose-mirror name="system.description" toggled value="{{source.description}}"
+                  {{#unless editable}}disabled{{/unless}}>{{{enrichedDescription}}}</prose-mirror>
   </div>
 </div>

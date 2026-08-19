@@ -32,4 +32,24 @@
     (p. 307).</p>
   {{/if}}
 
+  {{!-- Aplicar o dano é sempre um gesto de quem lê a carta, e não um efeito
+        automático da rolagem: o Narrador decide quem foi atingido e se o valor
+        vale cheio, pela metade (sucesso no TR) ou dobrado. --}}
+  <div class="fnm-acoes">
+    <button type="button" data-fnm-acao="aplicar" data-fnm-fator="1">
+      <i class="fas fa-heart"></i> Aplicar {{total}}
+    </button>
+    <button type="button" data-fnm-acao="aplicar" data-fnm-fator="0.5" title="Sucesso no Teste de Resistência">
+      <i class="fas fa-shield-alt"></i> Metade
+    </button>
+    <button type="button" data-fnm-acao="aplicar" data-fnm-fator="2" title="Vulnerabilidade ao tipo de dano">
+      <i class="fas fa-fire"></i> Dobro
+    </button>
+    <button type="button" data-fnm-acao="curar" title="Aplica como cura, em vez de dano">
+      <i class="fas fa-plus"></i> Curar
+    </button>
+  </div>
+  <p class="fnm-nota-alvo">Vale para os tokens marcados como alvo; sem alvo marcado, para os
+    que você tem selecionados.</p>
+
 </div>

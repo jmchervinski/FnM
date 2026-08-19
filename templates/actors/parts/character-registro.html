@@ -17,7 +17,8 @@
         <label>Marca <input type="text" name="system.aparencia.marca" value="{{system.aparencia.marca}}" /></label>
       </div>
       <label class="campo-largo">Descrição da aparência</label>
-      {{editor enrichedAparencia target="system.aparencia.descricao" button=true engine="prosemirror" editable=editable}}
+      <prose-mirror name="system.aparencia.descricao" toggled value="{{source.aparencia.descricao}}"
+                  {{#unless editable}}disabled{{/unless}}>{{{enrichedAparencia}}}</prose-mirror>
     </fieldset>
 
     {{!-- Aspectos Pessoais (p. 15-16) --}}
@@ -46,7 +47,8 @@
   <fieldset class="bloco">
     <legend>Domínio Inato</legend>
     <p class="dica">O "espaço interior" do personagem, refletindo mente e alma em um ambiente metafísico.</p>
-    {{editor enrichedDominio target="system.aspectos.dominioInato" button=true engine="prosemirror" editable=editable}}
+    <prose-mirror name="system.aspectos.dominioInato" toggled value="{{source.aspectos.dominioInato}}"
+                  {{#unless editable}}disabled{{/unless}}>{{{enrichedDominio}}}</prose-mirror>
   </fieldset>
 
   {{!-- Inventário, com Espaços Ocupados x Limite de Espaços --}}
@@ -129,12 +131,14 @@
 
   <fieldset class="bloco">
     <legend>Biografia</legend>
-    {{editor enrichedBiografia target="system.biografia" button=true engine="prosemirror" editable=editable}}
+    <prose-mirror name="system.biografia" toggled value="{{source.biografia}}"
+                  {{#unless editable}}disabled{{/unless}}>{{{enrichedBiografia}}}</prose-mirror>
   </fieldset>
 
   <fieldset class="bloco">
     <legend>Anotações</legend>
     <p class="dica">Use este espaço para o funcionamento das suas habilidades, talentos e outros.</p>
-    {{editor enrichedAnotacoes target="system.anotacoes" button=true engine="prosemirror" editable=editable}}
+    <prose-mirror name="system.anotacoes" toggled value="{{source.anotacoes}}"
+                  {{#unless editable}}disabled{{/unless}}>{{{enrichedAnotacoes}}}</prose-mirror>
   </fieldset>
 </div>

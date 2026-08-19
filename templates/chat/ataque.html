@@ -17,7 +17,9 @@
 
   <div class="fnm-veredito fnm-tom-{{veredito.tom}}">
     <span class="fnm-veredito-rotulo">{{veredito.rotulo}}</span>
-    {{#if defesa}}<span class="fnm-veredito-alvo">contra Defesa {{defesa}}</span>{{/if}}
+    {{!-- data-fnm-gm: o gancho do chat remove estes trechos para quem não é
+          Narrador, então o jogador lê o veredito sem ler o número. --}}
+    {{#if defesa}}<span class="fnm-veredito-alvo" data-fnm-gm>contra Defesa {{defesa}}</span>{{/if}}
   </div>
 
   <ul class="fnm-linhas">
@@ -27,7 +29,8 @@
       {{/if}}
     </li>
     {{#if cobertura}}
-    <li><b>{{cobertura.nome}}:</b> a Defesa do alvo subiu para {{defesa}}.</li>
+    <li data-fnm-gm><b>{{cobertura.nome}}:</b> a Defesa do alvo subiu para {{defesa}}.</li>
+    <li data-fnm-jogador><b>{{cobertura.nome}}:</b> o alvo estava coberto.</li>
     {{/if}}
     {{#if camuflagem}}
     <li><b>{{camuflagem.nome}}:</b> d10 = {{camuflagem.d10}}

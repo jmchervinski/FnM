@@ -144,7 +144,17 @@ export async function cartaDano({ ator, perfil, roll, critico, versatil, compone
     content: conteudo,
     rolls: [roll],
     sound: CONFIG.sounds.dice,
-    flags: { fnm: { tipo: "dano", atorId: ator.id, itemId: perfil.item?.id ?? null } }
+    flags: {
+      fnm: {
+        tipo: "dano",
+        atorId: ator.id,
+        itemId: perfil.item?.id ?? null,
+        // O total e o tipo ficam na carta para os botões de aplicar não
+        // dependerem de a ficha de origem continuar aberta
+        total: roll.total,
+        tipoDano: perfil.tipoDano ?? ""
+      }
+    }
   });
 }
 
@@ -193,14 +203,29 @@ export async function cartaResistencia({ ator, item, cd, resistencia, linhas = [
 export function registrarChat() {
   Hooks.on("renderChatMessageHTML", (mensagem, elemento) => {
     const flags = mensagem.flags?.fnm;
-    if (flags?.tipo !== "ataque" && flags?.tipo !== "resistencia") return;
+    if (!flags?.tipo) return;
+
+    // A carta é escrita uma vez e lida por todo mundo, então o que é do
+    // Narrador é retirado do DOM na hora de renderizar, para cada leitor.
+    // Vale para a Defesa do alvo: o jogador lê o veredito, não o número.
+    const ehNarrador = game.user.isGM;
+    for (const trecho of elemento.querySelectorAll(ehNarrador ? "[data-fnm-jogador]" : "[data-fnm-gm]")) {
+      trecho.remove();
+    }
+
+    if (!["ataque", "resistencia", "dano"].includes(flags.tipo)) return;
 
     for (const botao of elemento.querySelectorAll("[data-fnm-acao]")) {
       botao.addEventListener("click", async evento => {
         evento.preventDefault();
+        const acao = botao.dataset.fnmAcao;
 
         // O TR é do alvo, e não de quem publicou a carta: ele resolve sozinho
-        if (botao.dataset.fnmAcao === "tr") return rolarTRdosAlvos(flags);
+        if (acao === "tr") return rolarTRdosAlvos(flags);
+        // Aplicar dano e curar também agem sobre o alvo, não sobre a origem
+        if (acao === "aplicar" || acao === "curar") {
+          return aplicarNosAlvos(flags, acao, Number(botao.dataset.fnmFator) || 1);
+        }
 
         const ator = game.actors.get(flags.atorId);
         if (!ator) return ui.notifications.warn("O ator desta carta não existe mais.");
@@ -222,12 +247,39 @@ export function registrarChat() {
 }
 
 /**
- * Rola o Teste de Resistência de quem foi atingido.
+ * Os atores sobre os quais um botão de carta age.
  *
  * Os alvos marcados (`game.user.targets`) têm precedência sobre os tokens
  * selecionados, porque marcar é o gesto de "estes aqui foram atingidos".
- * Cada alvo abre o próprio diálogo, com a CD já preenchida — assim dá para
- * lançar o situacional de cada um separadamente.
+ * Quem o usuário não controla fica de fora — o dono resolve pelo mesmo botão.
+ */
+function alvosDoUsuario(oQueFaz) {
+  const marcados = [...(game.user.targets ?? [])];
+  const tokens = marcados.length ? marcados : (canvas.tokens?.controlled ?? []);
+  if (!tokens.length) {
+    ui.notifications.warn(`Marque como alvo (ou selecione) os tokens para ${oQueFaz}.`);
+    return [];
+  }
+
+  const atores = [...new Set(tokens.map(t => t.actor).filter(Boolean))];
+  const meus = atores.filter(a => a.isOwner);
+  if (!meus.length) {
+    ui.notifications.warn("Você não controla nenhum dos alvos marcados.");
+    return [];
+  }
+  if (meus.length < atores.length) {
+    ui.notifications.info(
+      `${atores.length - meus.length} alvo(s) que você não controla ficaram de fora; ` +
+        "o dono deles pode usar o mesmo botão."
+    );
+  }
+  return meus;
+}
+
+/**
+ * Rola o Teste de Resistência de quem foi atingido. Cada alvo abre o próprio
+ * diálogo, com a CD já preenchida — assim dá para lançar o situacional de cada
+ * um separadamente.
  */
 async function rolarTRdosAlvos({ resistencia, cd }) {
   if (!resistencia) {
@@ -235,26 +287,30 @@ async function rolarTRdosAlvos({ resistencia, cd }) {
       "Este efeito não declara qual Teste de Resistência ele força — escolha um na ficha do item."
     );
   }
+  for (const alvo of alvosDoUsuario("fazer o teste")) {
+    await alvo.rolarResistencia(resistencia, { cd });
+  }
+}
 
-  const marcados = [...(game.user.targets ?? [])];
-  const tokens = marcados.length ? marcados : (canvas.tokens?.controlled ?? []);
-  if (!tokens.length) {
-    return ui.notifications.warn(
-      "Marque como alvo (ou selecione) os tokens que devem fazer o teste."
-    );
+/**
+ * Aplica o dano da carta nos alvos, ou o devolve como cura.
+ *
+ * `fator` cobre os três casos da mesa sem exigir uma nova rolagem: cheio,
+ * metade (sucesso no Teste de Resistência, p. 205) e dobro (vulnerabilidade).
+ * A Redução de Dano de cada alvo é descontada por `aplicarDano`, então o número
+ * do botão é o dano bruto, não o que a criatura vai efetivamente perder.
+ */
+async function aplicarNosAlvos({ total, tipoDano }, acao, fator) {
+  const bruto = Number(total);
+  if (!Number.isFinite(bruto)) {
+    return ui.notifications.warn("Esta carta não guardou o total do dano.");
   }
 
-  const atores = [...new Set(tokens.map(t => t.actor).filter(Boolean))];
-  const meus = atores.filter(a => a.isOwner);
-  if (!meus.length) {
-    return ui.notifications.warn("Você não controla nenhum dos alvos marcados.");
-  }
-  if (meus.length < atores.length) {
-    ui.notifications.info(
-      `${atores.length - meus.length} alvo(s) que você não controla ficaram de fora; ` +
-        "o dono deles pode rolar pelo mesmo botão."
-    );
-  }
+  const quantidade = Math.max(0, Math.floor(bruto * fator));
+  const alvos = alvosDoUsuario(acao === "curar" ? "curar" : "receber o dano");
 
-  for (const alvo of meus) await alvo.rolarResistencia(resistencia, { cd });
+  for (const alvo of alvos) {
+    if (acao === "curar") await alvo.curar(quantidade);
+    else await alvo.aplicarDano(quantidade, { tipo: tipoDano || "" });
+  }
 }

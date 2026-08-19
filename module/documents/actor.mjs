@@ -501,6 +501,10 @@ export class FnmActor extends Actor {
         escolheAtributo: perfil.atributos.length > 1,
         alvo: alvo?.name ?? "",
         defesa: alvo?.system?.combate?.defesa ?? 15,
+        // Com um alvo marcado, só o Narrador vê o número: o jogador precisa
+        // saber se acertou, não contra quanto. Sem alvo, o campo continua
+        // aberto — não há o que esconder e alguém tem que informar a Defesa.
+        defesaOculta: !!alvo && !game.user.isGM,
         atributos: perfil.atributos.map(id => ({
           id,
           nome: FNM.atributos[id].nome,

@@ -47,10 +47,21 @@
     </label>
     {{/if}}
 
+    {{!-- A Defesa do alvo é informação do Narrador: o jogador só precisa saber
+          se acertou. Com um alvo marcado o valor vai escondido no formulário —
+          ele entra na conta do mesmo jeito, sem aparecer na tela. --}}
+    {{#if defesaOculta}}
+    <label title="A Defesa do alvo é definida pelo Narrador">
+      Defesa do alvo{{#if alvo}} <span class="fnm-alvo">({{alvo}})</span>{{/if}}
+      <input type="text" value="oculta" disabled />
+      <input type="hidden" name="defesa" value="{{defesa}}" />
+    </label>
+    {{else}}
     <label title="Deixe 0 para rolar sem veredito de acerto ou erro">
       Defesa do alvo{{#if alvo}} <span class="fnm-alvo">({{alvo}})</span>{{/if}}
       <input type="number" name="defesa" value="{{defesa}}" step="1" min="0" />
     </label>
+    {{/if}}
 
     <label title="Coberturas não se acumulam: vale só a maior (p. 294)">Cobertura
       <select name="cobertura">

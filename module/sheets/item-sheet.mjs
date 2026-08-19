@@ -27,6 +27,9 @@ export class FnmItemSheet extends HandlebarsApplicationMixin(ItemSheetV2) {
 
     context.item = this.item;
     context.system = sys;
+    // Dado de FONTE: o <prose-mirror> edita o HTML cru, e não o enriquecido —
+    // salvar o enriquecido gravaria os links já resolvidos por cima do texto.
+    context.source = this.item.toObject().system;
     context.editable = this.isEditable;
     context.config = FNM;
 

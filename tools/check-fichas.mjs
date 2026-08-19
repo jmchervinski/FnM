@@ -285,6 +285,33 @@ if (raizFoundry) {
   console.log("      (Foundry não encontrado: caminhos de ícone não conferidos)");
 }
 
+/* -------- 3.4. Todo template compila como Handlebars -------- */
+
+/**
+ * Um `{{#if}}` sem fechamento não quebra nada até a ficha ser aberta, e aí a
+ * aba inteira some sem erro visível. O Handlebars que o Foundry distribui
+ * compila os templates aqui, antes disso.
+ */
+if (raizFoundry) {
+  const hbs = path.join(raizFoundry, "node_modules/handlebars/lib/index.js");
+  if (fs.existsSync(hbs)) {
+    const { default: Handlebars } = await import(`file://${hbs.replace(/\\/g, "/")}`);
+    let compilados = 0;
+    for (const arq of arquivos) {
+      try {
+        Handlebars.precompile(fs.readFileSync(arq, "utf8"));
+        compilados++;
+      } catch (erro) {
+        falha(
+          `${path.relative(ROOT, arq).replace(/\\/g, "/")}: não compila como Handlebars — ` +
+            String(erro.message).split("\n")[0]
+        );
+      }
+    }
+    console.log(`      (${compilados} template(s) compilados como Handlebars)`);
+  }
+}
+
 /* -------- 3.5. A importação de inimigo escreve só onde existe campo -------- */
 
 /**

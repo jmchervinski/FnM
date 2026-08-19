@@ -86,6 +86,11 @@ Tudo abaixo é calculado ou executado pelo sistema, com a página do livro anota
   rola é o alvo. A carta traz o botão de **rolar o TR** — para os tokens marcados como alvo, com a
   CD já preenchida — e o de **dano**, quando o efeito causa. Antes o dano caía no chat antes de
   alguém ter resistido
+- **Aplicar o dano** nos alvos pela própria carta, em **cheio**, **metade** (sucesso no TR) ou
+  **dobro** (vulnerabilidade), além de um botão para devolver o valor como **cura**. A Redução de
+  Dano de cada alvo é descontada na aplicação
+- **A Defesa do alvo é do Narrador.** Com um alvo marcado, o jogador rola sem ver o número — o
+  diálogo esconde o campo e a carta mostra só o veredito. O Narrador vê o valor nos dois lugares
 - **Custo de Feitiço** derivado do nível, com Marca Registrada e afins reduzindo até o mínimo de 1
 - **Integridade da Alma** e seus quatro **Estados** (penalidade em rolagens, custo extra e condições)
 - **Dano na Alma**: ignora RD e PV temporários, reduz a vida máxima junto da atual

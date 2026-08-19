@@ -1,13 +1,15 @@
 <div class="tab biografia {{tab.cssClass}}" data-group="primary" data-tab="biografia">
   <fieldset class="bloco">
     <legend>Biografia</legend>
-    {{editor enrichedBiografia target="system.biografia" button=true engine="prosemirror" editable=editable}}
+    <prose-mirror name="system.biografia" toggled value="{{source.biografia}}"
+                  {{#unless editable}}disabled{{/unless}}>{{{enrichedBiografia}}}</prose-mirror>
   </fieldset>
 
   {{#if enrichedTaticas}}
   <fieldset class="bloco">
     <legend>Táticas &amp; Notas do Narrador</legend>
-    {{editor enrichedTaticas target="system.taticas" button=true engine="prosemirror" editable=editable}}
+    <prose-mirror name="system.taticas" toggled value="{{source.taticas}}"
+                  {{#unless editable}}disabled{{/unless}}>{{{enrichedTaticas}}}</prose-mirror>
   </fieldset>
   {{/if}}
 </div>
