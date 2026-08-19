@@ -9,6 +9,12 @@
     <fieldset class="bloco combate-bloco">
       <legend>Combate</legend>
       <div class="combate-grid">
+        <label title="Base digitada. Os ajustes de itens, o ajuste avulso e os PV perdidos entram em cima dela">PV máximo
+          <input type="number" name="system.recursos.pv.max" value="{{source.recursos.pv.max}}" min="0" />
+        </label>
+        <label title="Base digitada, do mesmo jeito que o PV máximo">PE máximo
+          <input type="number" name="system.recursos.pe.max" value="{{source.recursos.pe.max}}" min="0" />
+        </label>
         <label title="Usada no lugar da fórmula quando 'Valores manuais' está ligado">Defesa fixa
           <input type="number" name="system.combate.defesaManual" value="{{system.combate.defesaManual}}" min="0" />
         </label>

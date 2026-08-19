@@ -6,7 +6,7 @@
   "type": "module",
   "scripts": {
     "build:packs": "node tools/build-packs.mjs",
-    "check": "node tools/check-fichas.mjs",
+    "check": "node tools/check-fichas.mjs && node tools/testa-automacao.mjs",
     "lint": "eslint module/**/*.mjs tools/**/*.mjs",
     "format": "prettier --write \"**/*.{js,mjs,json,html,css}\""
   },

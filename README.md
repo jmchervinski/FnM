@@ -280,10 +280,22 @@ Invocação ("no final deste capítulo") e a seção de **domar maldições** n�
 e o próprio texto aponta a Enciclopédia como a lista maior. Por isso o sistema entrega as tabelas
 de criação, e não um catálogo de invocações prontas.
 
-Também vale registrar o que **não é automatizado**: habilidades, talentos, origens e
-aptidões entram na ficha como texto. Se uma delas concede +2 na CD ou +1 na Defesa, o valor
-precisa ser lançado nos campos "Outros" ou no bloco de ajustes do item — o sistema não usa
-Active Effects, e as condições não são aplicadas automaticamente pelas rolagens.
+Também vale registrar **até onde vai a automação**. Habilidades, talentos, origens, aptidões,
+Dotes e Características entram na ficha como texto: o sistema não usa Active Effects, e as
+condições não são aplicadas automaticamente pelas rolagens.
+
+O que um item **consegue** mexer sozinho é o bloco **Ajustes no dono**, que toda ficha de item
+tem: PV máximo, PE máximo, Defesa, Deslocamento e Redução de Dano. Enquanto o dono possuir o
+item, os cinco entram na conta — Armas e Equipamentos só quando **equipados**, Votos só quando
+**ativos**. Um Dote que dá "+10 PV" precisa ter esse +10 lançado ali; a descrição sozinha não
+mexe em nada. O resto (uma aptidão que concede +2 na CD, por exemplo) vai nos campos "Outros"
+da ficha.
+
+Isso é verificado: `npm run check` roda `tools/testa-automacao.mjs`, que monta atores de mentira,
+executa a derivação real dos DataModels e confere que os ajustes de item chegam ao ator, que os
+totais fechados substituem as fórmulas (e que a Exaustão ainda pesa em cima deles), que o
+orçamento do Patamar conta os pontos gastos acima da base de 10, e que uma ficha importada
+reproduz exatamente os números do arquivo depois de derivada.
 
 Nada disso bloqueia o jogo: todos esses elementos podem ser criados à mão como itens, e as
 fichas já têm os campos para eles. Para incluí-los nos compêndios, adicione as entradas em
@@ -388,6 +400,7 @@ styles/fnm.css       tema
 tools/
   build-packs.mjs    geração dos compêndios
   check-fichas.mjs   validação estática das fichas e dos compêndios
+  testa-automacao.mjs  roda a derivação real dos modelos e confere o que ela produz
   livro_texto.py     leitura do layout de duas colunas, comum aos extratores
   extrai-*.py        transcrição dos capítulos do PDF para tools/dados/
   dados/             JSONs versionados dos extratores, e o exemplo de importação

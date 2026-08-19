@@ -523,6 +523,13 @@ FNM.carga = { base: 8, defesaSobrecarga: -5, deslocamentoSobrecarga: -4.5 };
  * mostra o orçamento do Grau.
  */
 
+/**
+ * "Todos os atributos começam no 10" (p. 16). O orçamento de atributos de um
+ * Patamar conta os pontos gastos acima dessa base — e um atributo pode ser
+ * baixado até 8 para devolver pontos aos outros.
+ */
+FNM.atributoBaseInimigo = 10;
+
 /** Categorias das Aptidões para Inimigos, os "Dotes Amaldiçoados" (p. 20, 64-71). */
 FNM.categoriasDoteAmaldicoado = [
   "Aura",

@@ -54,6 +54,10 @@ export class FnmBaseActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) 
 
     context.actor = this.actor;
     context.system = sys;
+    // Dado de FONTE, para os campos cuja derivação soma em cima do que foi
+    // digitado: ligar o input ao valor derivado faria ele somar de novo a cada
+    // gravação. O `name=` continua apontando para o caminho real.
+    context.source = this.actor.toObject().system;
     context.editable = this.isEditable;
     context.config = FNM;
     context.isGM = game.user?.isGM ?? false;

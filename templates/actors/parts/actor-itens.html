@@ -16,7 +16,21 @@
         {{#if item.system.ndMinimo}} · ND {{item.system.ndMinimo}}+{{/if}}
         {{#if item.system.nivelRequerido}} · nível {{item.system.nivelRequerido}}{{/if}}
         {{#if item.system.quantidade}} · x{{item.system.quantidade}}{{/if}}
+        {{#if item.system.custoPE}} · {{item.system.custoPE}} PE{{/if}}
+        {{#if item.system.acao}} · {{item.system.acao}}{{/if}}
       </span>
+      {{!-- Contador de usos, só para os itens que declaram um máximo. São
+            botões, e não campos: um campo de item dentro do formulário do ator
+            invalidaria o submit inteiro da ficha. --}}
+      {{#if item.system.usos.max}}
+      <span class="usos-controle" title="Usos restantes / máximo">
+        <a class="mini-btn" data-action="gastarUso" title="Gastar um uso"><i class="fas fa-minus"></i></a>
+        <span class="usos-valor">{{item.system.usos.value}}</span>
+        <span class="divisor">/</span>
+        <span class="usos-max">{{item.system.usos.max}}</span>
+        <a class="mini-btn" data-action="recuperarUso" title="Recuperar um uso"><i class="fas fa-plus"></i></a>
+      </span>
+      {{/if}}
       <div class="item-controls">
         <a data-action="itemChat" title="Enviar ao chat"><i class="fas fa-comment"></i></a>
         <a data-action="itemEdit" title="Editar"><i class="fas fa-edit"></i></a>

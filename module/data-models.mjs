@@ -880,6 +880,11 @@ export class NpcDataModel extends BaseActorModel {
   }
 
   prepareDerivedData() {
+    // Os máximos entram antes de super(): a Integridade e, com ela, o Estado da
+    // Alma derivam do PV máximo, e `_prepararAlma` roda lá dentro.
+    this.ajustesItens = this._ajustesDeItens();
+    this._aplicarMaximos();
+
     super.prepareDerivedData();
     // O Bônus de Treinamento de um inimigo sai da tabela do Grimório (p. 8),
     // que satura em +6 — e não da progressão aberta do personagem.
@@ -947,6 +952,26 @@ export class NpcDataModel extends BaseActorModel {
   }
 
   /**
+   * Máximos de PV e PE de um inimigo.
+   *
+   * O máximo de uma ficha de inimigo é digitado, e não somado a partir das
+   * especializações como o do personagem: é o valor que a tabela por ND deu.
+   * Em cima dele entram as mesmas três fontes que a ficha oficial prevê — os
+   * ajustes dos itens que o inimigo carrega (um Dote que dá +10 PV precisava
+   * dar +10 PV), o ajuste avulso do recurso e a coluna PERDIDOS, que é o que o
+   * Dano na Alma consome e o descanso longo não devolve.
+   *
+   * O valor digitado continua sendo o da fonte; quem soma é a derivação, então
+   * a ficha edita a base e mostra o total sem um alimentar o outro.
+   */
+  _aplicarMaximos() {
+    for (const [chave, piso] of [["pv", 1], ["pe", 0]]) {
+      const r = this.recursos[chave];
+      r.max = Math.max(piso, r.max + this.ajustesItens[chave] + r.ajuste - r.perdidos);
+    }
+  }
+
+  /**
    * O orçamento de criação do Patamar (Grimório, p. 8, 16-18 e 22), para a
    * ficha mostrar o teto de cada recurso ao lado do que já foi gasto — do mesmo
    * jeito que a ficha de Invocação mostra o orçamento do Grau.
@@ -965,8 +990,11 @@ export class NpcDataModel extends BaseActorModel {
     const mentais = ["inteligencia", "sabedoria", "presenca"];
     const maiorMental = Math.max(...mentais.map(a => this.atributos[a]?.mod ?? 0));
 
+    // "Todos os atributos começam no 10" (p. 16): o orçamento do Patamar conta
+    // os pontos gastos ACIMA dessa base, não a soma dos valores. Baixar um
+    // atributo (até 8) devolve pontos, e a subtração já cuida disso sozinha.
     const gastoAtributos = FNM.ordemAtributos.reduce(
-      (total, id) => total + (this.atributos[id]?.value ?? 0),
+      (total, id) => total + (this.atributos[id]?.value ?? 0) - FNM.atributoBaseInimigo,
       0
     );
     const totalAtributos = patamar.atributos(nd, bt);
