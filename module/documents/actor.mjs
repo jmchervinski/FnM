@@ -17,6 +17,19 @@ function sinalDe(valor) {
   return n >= 0 ? `+${n}` : String(n);
 }
 
+/**
+ * As Invocações que um ator controla (p. 258).
+ *
+ * Exportada para tools/testa-automacao.mjs: é a escolha de QUANDO recalcular
+ * uma Invocação que estava faltando, e ela merece teste próprio.
+ */
+export function invocacoesDe(atorId, atores) {
+  if (!atorId) return [];
+  return [...(atores ?? [])].filter(
+    a => a.type === "invocacao" && a.system?.detalhes?.invocador === atorId
+  );
+}
+
 /** Constrói a fórmula do d20 conforme vantagem/desvantagem (p. 282). */
 function formulaD20(vantagem = 0) {
   if (vantagem > 0) return "2d20kh";

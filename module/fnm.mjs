@@ -5,7 +5,7 @@
  * Kame), ambientado no universo de Jujutsu Kaisen, de Gege Akutami.
  * Baseado no Livro de Regras v2.5.2.
  */
-import { FnmActor } from "./documents/actor.mjs";
+import { FnmActor, invocacoesDe } from "./documents/actor.mjs";
 import { FnmItem } from "./documents/item.mjs";
 import { registrarChat } from "./chat.mjs";
 import {
@@ -197,3 +197,34 @@ Hooks.on("preCreateActor", (actor, data) => {
 
   actor.updateSource(updates);
 });
+
+/* -------------------------------------------- */
+/*  Invocações acompanham o nível do invocador  */
+/* -------------------------------------------- */
+
+/**
+ * O nível do invocador é a única coisa que a Invocação lê da ficha dele, e dela
+ * saem Vida, Defesa, todo teste e a CD das ações (p. 261). Mas o Foundry deriva
+ * cada ator por conta própria: subir de nível recalculava o personagem e
+ * deixava o shikigami parado nos números antigos, até o mundo ser recarregado.
+ *
+ * `reset()` reinicializa o documento, o que refaz `prepareDerivedData` — é o
+ * caminho mais barato para a Invocação reler o nível novo.
+ */
+function recalcularInvocacoes(atorId) {
+  for (const invocacao of invocacoesDe(atorId, game.actors)) {
+    invocacao.reset();
+    // Só redesenha a ficha de quem estava com ela aberta
+    if (invocacao.sheet?.rendered) invocacao.sheet.render(false);
+  }
+}
+
+Hooks.on("updateActor", (actor, mudanca) => {
+  // Só o nível importa: reagir a toda alteração recalcularia as Invocações a
+  // cada ponto de vida perdido pelo invocador, sem mudar nenhum número delas
+  if (foundry.utils.getProperty(mudanca, "system.detalhes.nivel") === undefined) return;
+  recalcularInvocacoes(actor.id);
+});
+
+// Sem invocador as fórmulas caem para nível 1: as Invocações precisam saber
+Hooks.on("deleteActor", actor => recalcularInvocacoes(actor.id));

@@ -609,7 +609,44 @@ const npcBase = sys => {
   confere("Descanso: a exaustão cai um nível", ator.updates["system.exaustao"], 1);
 }
 
-/* -------- 10. O diálogo cabe na tela de quem está jogando -------- */
+/* -------- 10. As Invocações acompanham o nível do invocador -------- */
+
+{
+  globalThis.Actor ??= class {};
+  const { invocacoesDe } = await import(new URL("../module/documents/actor.mjs", import.meta.url));
+
+  const inv = (id, invocador) => ({ id, type: "invocacao", system: { detalhes: { invocador } } });
+  const mundo = [
+    { id: "gojo", type: "character", system: {} },
+    inv("cao", "gojo"),
+    inv("sapo", "gojo"),
+    inv("coruja", "megumi"),
+    { id: "maldicao", type: "npc", system: { detalhes: { invocador: "gojo" } } }
+  ];
+
+  const nomes = lista => lista.map(a => a.id).join(",");
+  confere(
+    "Invocador: acha as Invocações que dependem dele",
+    nomes(invocacoesDe("gojo", mundo)),
+    "cao,sapo"
+  );
+  confere(
+    "Invocador: não pega a Invocação de outro",
+    nomes(invocacoesDe("megumi", mundo)),
+    "coruja"
+  );
+  // Um NPC com o campo preenchido não é uma Invocação: o tipo é que manda
+  confere(
+    "Invocador: só o tipo invocacao conta",
+    invocacoesDe("gojo", mundo).every(a => a.type === "invocacao"),
+    true
+  );
+  // Uma Invocação sem invocador não pode ser arrastada por um id vazio
+  confere("Invocador: id vazio não casa com ninguém", nomes(invocacoesDe("", mundo)), "");
+  confere("Invocador: sem mundo não quebra", nomes(invocacoesDe("gojo", null)), "");
+}
+
+/* -------- 11. O diálogo cabe na tela de quem está jogando -------- */
 
 {
   const { tamanhoDeDialogo } = await import(new URL("../module/dialogos.mjs", import.meta.url));
