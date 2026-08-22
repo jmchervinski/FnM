@@ -109,6 +109,13 @@ Tudo abaixo é calculado ou executado pelo sistema, com a página do livro anota
   com Custo — e destaca o que passou do limite
 - **Ações e Características de Invocação** como itens próprios, com as tabelas de dano, cura,
   bônus e RD do grau à mão na ficha
+- **Ações de Invocação jogáveis pela ficha**: o botão de usar cobra o custo em PE **do invocador**
+  (a Invocação não tem energia própria), gasta o uso e resolve a ação pelo caminho que ela declara —
+  jogada de ataque contra a Defesa do alvo, ou carta de **Teste de Resistência** com a CD já
+  calculada (10 + metade do nível do Controlador + o modificador do atributo da ação). O atributo e
+  o treinamento saem da linha de ataque escolhida — Força no corpo a corpo, Destreza a distância, e
+  o Bônus de Treinamento só entra na jogada em que a Invocação foi treinada. O dano e a cura somam
+  o modificador desse atributo, **dobrado no Grau Especial**
 - **Inimigos montados pelo Patamar** (Grimório, p. 8-22): a ficha de NPC mostra o orçamento do
   Patamar escolhido — pontos de atributo e o teto por atributo, perícias treinadas, imunidades,
   resistências, vulnerabilidades, imunidades a condição, características recomendadas e as ações

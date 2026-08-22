@@ -4,9 +4,9 @@
   <header class="fnm-carta-cabecalho">
     <img src="{{img}}" width="36" height="36" alt="" />
     <div class="fnm-carta-titulo">
-      <h3>Dano — {{nome}}</h3>
+      <h3>{{#if cura}}Cura{{else}}Dano{{/if}} — {{nome}}</h3>
       <p class="fnm-sub">
-        {{#if critico}}Acerto crítico{{else}}Acerto{{/if}}
+        {{#if cura}}{{subtitulo}}{{else}}{{#if critico}}Acerto crítico{{else}}Acerto{{/if}}{{/if}}
         {{#if versatil}} · empunhada com as duas mãos{{/if}}
         {{#if tipoDano}} · {{tipoDano}}{{#if categoriaDano}} ({{categoriaDano}}){{/if}}{{/if}}
       </p>
@@ -16,7 +16,7 @@
   {{{rolagem}}}
 
   <details class="fnm-detalhes">
-    <summary>Como o dano foi montado</summary>
+    <summary>Como {{#if cura}}a cura{{else}}o dano{{/if}} foi montad{{#if cura}}a{{else}}o{{/if}}</summary>
     <ul class="fnm-modificadores">
       {{#each componentes as |c|}}
       <li>
@@ -36,6 +36,11 @@
         automático da rolagem: o Narrador decide quem foi atingido e se o valor
         vale cheio, pela metade (sucesso no TR) ou dobrado. --}}
   <div class="fnm-acoes">
+    {{#if cura}}
+    <button type="button" data-fnm-acao="curar">
+      <i class="fas fa-plus"></i> Curar {{total}}
+    </button>
+    {{else}}
     <button type="button" data-fnm-acao="aplicar" data-fnm-fator="1">
       <i class="fas fa-heart"></i> Aplicar {{total}}
     </button>
@@ -48,6 +53,7 @@
     <button type="button" data-fnm-acao="curar" title="Aplica como cura, em vez de dano">
       <i class="fas fa-plus"></i> Curar
     </button>
+    {{/if}}
   </div>
   {{#if alvos}}
   <p class="fnm-nota-alvo">Alvo: <b>{{#each alvos}}{{this}}{{#unless @last}}, {{/unless}}{{/each}}</b></p>

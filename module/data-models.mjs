@@ -1258,6 +1258,13 @@ export class InvocacaoDataModel extends BaseActorModel {
       this.extras.defesa +
       this.ajustesItens.defesa;
 
+    // A Invocação é treinada em UMA jogada de ataque (p. 261), escolhida na
+    // ficha. As três linhas existem no schema base, mas quem manda aqui é a
+    // escolha do grau — sem isto o Bônus de Treinamento nunca entraria.
+    for (const id of Object.keys(FNM.tiposAtaque)) {
+      this.ataques[id].treinado = this.detalhes.ataqueTreinado === id;
+    }
+
     this._prepararAtaques();
     this._prepararEstado();
     this._prepararOrcamento();
@@ -1723,6 +1730,14 @@ export class AcaoInvocacaoDataModel extends BaseItemModel {
         blank: true,
         choices: ["", "ataque", "resistencia"]
       }),
+      // Corpo a corpo ou a distância: decide o atributo da jogada (Força ou
+      // Destreza), se o treinamento da Invocação entra, e a linha da tabela de
+      // dano que a ação segue (p. 263)
+      linhaAtaque: new StringField({
+        required: true,
+        initial: "corpoACorpo",
+        choices: ["corpoACorpo", "distancia"]
+      }),
       resistencia: new StringField({
         required: true,
         blank: true,
@@ -1762,6 +1777,21 @@ export class AcaoInvocacaoDataModel extends BaseItemModel {
     // Ação Simples não causa dano nem cura (p. 262)
     this.simplesComDano =
       this.tipo === "Ação Simples" && (!!this.dano || !!this.cura);
+
+    // O que a automação sabe fazer com esta ação, na ordem em que ela resolve:
+    // primeiro o acerto (jogada de ataque ou TR do alvo), depois o efeito
+    this.ehAtaque = this.resolucao === "ataque";
+    this.ehResistencia = this.resolucao === "resistencia";
+    this.temDano = !!this.dano && this.dano !== "—";
+    this.temCura = !!this.cura && this.cura !== "—";
+    // Sem nada disso a ação é só texto, e o botão de usar vira o de mandar ao
+    // chat. Uma Característica é passiva: ela nunca é "usada", mesmo quando
+    // traz um dado de dano que a mesa queira rolar à parte (p. 262)
+    this.rolavel =
+      this.tipo !== "Característica" &&
+      (this.ehAtaque || this.ehResistencia || this.temDano || this.temCura);
+    this.ilimitada = this.usos.max === 0;
+    this.semUsos = !this.ilimitada && this.usos.value <= 0;
   }
 }
 

@@ -81,11 +81,15 @@ export class FnmInvocacaoSheet extends FnmBaseActorSheet {
       .filter(a => a.type === "character")
       .map(a => ({ id: a.id, name: a.name, selected: a.id === sys.detalhes.invocador }));
 
-    // Ações e Características agrupadas, na ordem em que o livro as apresenta
+    // Ações e Características agrupadas, na ordem em que o livro as apresenta.
+    // Cada entrada já traz o que a linha precisa mostrar sobre a automação:
+    // como a ação resolve, contra que CD, e que botões fazem sentido.
     context.acoesPorTipo = FNM.tiposAcaoInvocacao
       .map(tipo => ({
         tipo,
-        itens: (context.itens.acaoInvocacao ?? []).filter(a => a.system.tipo === tipo)
+        itens: (context.itens.acaoInvocacao ?? [])
+          .filter(a => a.system.tipo === tipo)
+          .map(item => this._entradaDeAcao(item))
       }))
       .filter(g => g.itens.length);
 
@@ -97,6 +101,28 @@ export class FnmInvocacaoSheet extends FnmBaseActorSheet {
     context.excedeuComCusto = o.acoesComCusto?.usadas > o.acoesComCusto?.total;
 
     return context;
+  }
+
+  /**
+   * Uma linha da lista de Ações, com o que a ficha precisa exibir sobre como
+   * ela resolve. A CD sai do mesmo cálculo que a automação usa na hora de
+   * publicar a carta, para o número da ficha e o da mesa nunca divergirem.
+   */
+  _entradaDeAcao(item) {
+    const sys = item.system;
+    const cd = sys.ehResistencia ? this.actor.cdDaAcaoInvocacao(item) : null;
+    return {
+      item,
+      id: item.id,
+      name: item.name,
+      img: item.img,
+      system: sys,
+      linhaNome: sys.linhaAtaque === "distancia" ? "A Distância" : "Corpo a Corpo",
+      // Só a jogada em que a Invocação foi treinada soma o Bônus de Treinamento
+      treinada: this.actor.system.detalhes.ataqueTreinado === sys.linhaAtaque,
+      resistenciaNome: FNM.resistencias[sys.resistencia]?.nome ?? "",
+      cd
+    };
   }
 
   /** @override */

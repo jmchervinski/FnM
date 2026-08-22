@@ -320,7 +320,171 @@ const npcBase = sys => {
   );
 }
 
-/* -------- 7. O diálogo cabe na tela de quem está jogando -------- */
+/* -------- 7. A Invocação resolve as próprias Ações -------- */
+
+{
+  // Uma Invocação de Segundo Grau de um invocador de nível 9: BT +3, metade
+  // do nível 4. É o degrau em que a Constituição passa a contar inteira.
+  const invocacaoBase = sys => {
+    sys.detalhes.grau = "Segundo";
+    sys.detalhes.ataqueTreinado = "corpoACorpo";
+    sys.atributos.forca.value = 18;
+    sys.atributos.destreza.value = 14;
+    sys.atributos.constituicao.value = 16;
+    sys.recursos.integridade.value = 999;
+  };
+
+  // Uma Invocação não tem nível próprio: nível e Bônus de Treinamento saem do
+  // invocador (p. 261). O mundo de mentira precisa de um, senão tudo cai no
+  // nível 1 e o teste mediria a fórmula errada.
+  globalThis.game.actors = { get: id => (id === "gojo" ? { system: { nivel: 9 } } : null) };
+  const comInvocador = sys => {
+    invocacaoBase(sys);
+    sys.detalhes.invocador = "gojo";
+  };
+
+  /* A escolha da criação chega às linhas de ataque */
+  {
+    const inv = prepararAtor(M.InvocacaoDataModel, invocacaoBase);
+    confere(
+      "Invocação: a jogada treinada soma o Bônus de Treinamento",
+      inv.ataques.corpoACorpo.treinado,
+      true
+    );
+    confere(
+      "Invocação: a jogada não treinada não soma",
+      inv.ataques.distancia.treinado,
+      false
+    );
+    // Força 18 (+4) + metade do nível + BT contra Destreza 14 (+2) + metade do nível
+    confere(
+      "Invocação: o treino vale exatamente o Bônus de Treinamento",
+      inv.ataques.corpoACorpo.total - inv.ataques.distancia.total,
+      4 - 2 + inv.bonusTreinamentoUsuario
+    );
+
+    const semTreino = prepararAtor(M.InvocacaoDataModel, sys => {
+      invocacaoBase(sys);
+      sys.detalhes.ataqueTreinado = "";
+    });
+    confere(
+      "Invocação: sem jogada treinada nenhuma linha soma o BT",
+      semTreino.ataques.corpoACorpo.treinado,
+      false
+    );
+  }
+
+  /* A Ação declara sozinha o que a automação pode fazer com ela */
+  {
+    const ataque = prepararAtor(M.AcaoInvocacaoDataModel, sys => {
+      sys.resolucao = "ataque";
+      sys.dano = "2d12";
+      sys.categoria = "Ataque";
+      sys.tipo = "Ação Complexa";
+    });
+    confere("Ação: resolução por ataque é reconhecida", ataque.ehAtaque, true);
+    confere("Ação: com dado de dano ela é rolável", ataque.rolavel, true);
+    confere("Ação: sem limite de usos ela é ilimitada", ataque.ilimitada, true);
+    confere("Ação: ilimitada nunca fica sem usos", ataque.semUsos, false);
+
+    const tr = prepararAtor(M.AcaoInvocacaoDataModel, sys => {
+      sys.resolucao = "resistencia";
+      sys.resistencia = "reflexos";
+      sys.dano = "1d12 + 1d6";
+    });
+    confere("Ação: resolução por TR é reconhecida", tr.ehResistencia, true);
+    confere("Ação: um TR não vira jogada de ataque", tr.ehAtaque, false);
+
+    const auxilio = prepararAtor(M.AcaoInvocacaoDataModel, sys => {
+      sys.categoria = "Auxílio";
+      sys.cura = "1d12";
+    });
+    confere("Ação: a cura sozinha já torna a ação rolável", auxilio.rolavel, true);
+    confere("Ação: cura não é dano", auxilio.temDano, false);
+
+    const texto = prepararAtor(M.AcaoInvocacaoDataModel, sys => {
+      sys.tipo = "Característica";
+    });
+    confere("Ação: uma Característica sem números não é rolável", texto.rolavel, false);
+
+    // Uma Característica é passiva: nem com dado de dano ela vira uma ação a
+    // ser usada — o dado continua rolável à parte
+    const passivaComDado = prepararAtor(M.AcaoInvocacaoDataModel, sys => {
+      sys.tipo = "Característica";
+      sys.dano = "1d6";
+    });
+    confere("Ação: Característica com dano continua passiva", passivaComDado.rolavel, false);
+    confere("Ação: mas o dado dela continua rolável", passivaComDado.temDano, true);
+
+    const esgotada = prepararAtor(M.AcaoInvocacaoDataModel, sys => {
+      sys.dano = "1d8";
+      sys.usos = { value: 0, max: 3 };
+    });
+    confere("Ação: usos zerados travam o uso", esgotada.semUsos, true);
+
+    // O travessão é como a ficha escreve "não tem": não pode virar fórmula
+    const semDado = prepararAtor(M.AcaoInvocacaoDataModel, sys => {
+      sys.dano = "—";
+      sys.cura = "—";
+    });
+    confere("Ação: um travessão não é dado de dano", semDado.temDano, false);
+    confere("Ação: nem dado de cura", semDado.temCura, false);
+  }
+
+  /* O perfil que vai para o diálogo de ataque e para a carta */
+  {
+    globalThis.Actor = class {};
+    globalThis.Roll = class {};
+    const { FnmActor } = await import(new URL("../module/documents/actor.mjs", import.meta.url));
+
+    const perfilDe = (ajustarInvocacao, sysAcao) => {
+      const sys = prepararAtor(M.InvocacaoDataModel, ajustarInvocacao);
+      const item = prepararAtor(M.AcaoInvocacaoDataModel, a => fundir(a, sysAcao));
+      return FnmActor.prototype._perfilAcaoInvocacao.call({ system: sys }, {
+        name: "Golpe",
+        img: "",
+        system: item
+      });
+    };
+
+    const corpo = perfilDe(invocacaoBase, { linhaAtaque: "corpoACorpo", dano: "2d12" });
+    confere("Perfil: corpo a corpo usa Força", corpo.atributos[0], "forca");
+    confere("Perfil: a linha treinada entra como treinada", corpo.treinado, true);
+    confere("Perfil: o dano da ação é o da rolagem", corpo.dano, "2d12");
+    confere("Perfil: o modificador entra no dano", corpo.somaAtributoNoDano, true);
+
+    const distante = perfilDe(invocacaoBase, { linhaAtaque: "distancia", dano: "1d10" });
+    confere("Perfil: a distância usa Destreza", distante.atributos[0], "destreza");
+    confere("Perfil: a linha não treinada sai sem treino", distante.treinado, false);
+
+    // Só o Grau Especial dobra o modificador no dano e na cura (p. 272)
+    confere("Perfil: fora do Especial o modificador conta uma vez", corpo.multiplicadorAtributoNoDano, 1);
+    const especial = perfilDe(
+      sys => {
+        invocacaoBase(sys);
+        sys.detalhes.grau = "Especial";
+      },
+      { linhaAtaque: "corpoACorpo", dano: "3d12" }
+    );
+    confere("Perfil: o Grau Especial dobra o modificador", especial.multiplicadorAtributoNoDano, 2);
+
+    /* A CD do TR: 10 + metade do nível do Controlador + modificador da ação */
+    const inv9 = prepararAtor(M.InvocacaoDataModel, comInvocador);
+    confere("Invocação: o nível vem do invocador", inv9.nivelUsuario, 9);
+    confere("Invocação: o Bônus de Treinamento também", inv9.bonusTreinamentoUsuario, 4);
+    // 10 + metade do nível 9 do Controlador (p. 263)
+    confere("Invocação: a CD base sobe com o nível do invocador", inv9.cdAcao, 14);
+
+    const cd = FnmActor.prototype._cdAcaoInvocacao.call({ system: inv9 }, corpo);
+    confere("CD: o atributo é o da linha de ataque da ação", cd.chave, "forca");
+    confere("CD: a base é a da Invocação", cd.base, 14);
+    confere("CD: o modificador é o do atributo da ação", cd.mod, 4);
+    // A ficha e a carta têm de mostrar o MESMO número
+    confere("CD: ficha e carta fecham no mesmo total", cd.base + cd.mod, 18);
+  }
+}
+
+/* -------- 8. O diálogo cabe na tela de quem está jogando -------- */
 
 {
   const { tamanhoDeDialogo } = await import(new URL("../module/dialogos.mjs", import.meta.url));

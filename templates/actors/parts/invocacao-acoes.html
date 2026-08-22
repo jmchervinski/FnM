@@ -48,28 +48,61 @@
   <fieldset class="bloco">
     <legend>{{grupo.tipo}}</legend>
     <ol class="item-list">
-      {{#each grupo.itens as |item|}}
-      <li class="item" data-item-id="{{item.id}}">
-        <img class="item-img" src="{{item.img}}" width="24" height="24" />
-        <a class="item-nome" data-action="itemExpand">{{item.name}}</a>
+      {{#each grupo.itens as |acao|}}
+      {{!-- Com contador de usos a linha ganha uma coluna a mais no grid --}}
+      <li class="item {{#if acao.system.usos.max}}item-com-usos{{/if}}" data-item-id="{{acao.id}}">
+        <img class="item-img" src="{{acao.img}}" width="24" height="24" />
+        <a class="item-nome" data-action="itemExpand">{{acao.name}}</a>
         <span class="item-tag">
-          {{#if item.system.categoria}}{{item.system.categoria}}{{/if}}
-          {{#if item.system.dano}} · {{item.system.dano}}{{/if}}
-          {{#if item.system.cura}} · cura {{item.system.cura}}{{/if}}
-          {{#if item.system.alcance}} · {{item.system.alcance}} m{{/if}}
-          {{#if item.system.area}} · área {{item.system.area}} m{{/if}}
-          {{#if item.system.custoPE}} · {{item.system.custoPE}} PE{{/if}}
+          {{!-- Como a ação resolve vem primeiro: é o que decide o botão de usar --}}
+          {{#if acao.system.ehAtaque}}
+          <b class="acao-marca acao-marca-ataque">Ataque</b> {{acao.linhaNome}}{{#unless acao.treinada}} (sem treino){{/unless}}
+          {{else if acao.system.ehResistencia}}
+          <b class="acao-marca acao-marca-tr">TR</b> {{acao.resistenciaNome}} (CD {{acao.cd}})
+          {{else if acao.system.categoria}}{{acao.system.categoria}}{{/if}}
+          {{#if acao.system.dano}} · {{acao.system.dano}}{{/if}}
+          {{#if acao.system.cura}} · cura {{acao.system.cura}}{{/if}}
+          {{#if acao.system.alcance}} · {{acao.system.alcance}} m{{/if}}
+          {{#if acao.system.area}} · área {{acao.system.area}} m{{/if}}
+          {{#if acao.system.custoPE}} · {{acao.system.custoPE}} PE{{/if}}
         </span>
+        {{#if acao.system.usos.max}}
+        <span class="usos-controle" title="Usos restantes / máximo">
+          <a class="mini-btn" data-action="gastarUso" title="Gastar um uso"><i class="fas fa-minus"></i></a>
+          <span class="usos-valor">{{acao.system.usos.value}}</span>
+          <span class="divisor">/</span>
+          <span class="usos-max">{{acao.system.usos.max}}</span>
+          <a class="mini-btn" data-action="recuperarUso" title="Recuperar um uso"><i class="fas fa-plus"></i></a>
+        </span>
+        {{/if}}
         <div class="item-controls">
+          {{#if acao.system.rolavel}}
+          <a data-action="usarAcaoInvocacao"
+             title="Usar: cobra o custo do invocador, gasta o uso e resolve o acerto">
+            <i class="fas {{#if acao.system.ehAtaque}}fa-crosshairs{{else}}fa-fire{{/if}}"></i>
+          </a>
+          {{/if}}
+          {{#if acao.system.temDano}}
+          <a data-action="danoAcaoInvocacao" title="Rolar só o dano"><i class="fas fa-bolt"></i></a>
+          {{/if}}
+          {{#if acao.system.temCura}}
+          <a data-action="curaAcaoInvocacao" title="Rolar só a cura"><i class="fas fa-heart"></i></a>
+          {{/if}}
           <a data-action="itemChat" title="Enviar ao chat"><i class="fas fa-comment"></i></a>
           <a data-action="itemEdit" title="Editar"><i class="fas fa-edit"></i></a>
           <a data-action="itemDelete" title="Excluir"><i class="fas fa-trash"></i></a>
         </div>
         <div class="item-descricao">
-          {{#if item.system.prejuizoAuxilio}}
-          <p class="dica"><b>Prejuízo por múltiplos auxílios:</b> {{item.system.prejuizoAuxilio}}</p>
+          {{#if acao.system.exigeComplexa}}
+          <p class="dica aviso">Uma Ação de Ataque tem de ser uma Ação Complexa (p. 263).</p>
           {{/if}}
-          {{{item.system.description}}}
+          {{#if acao.system.simplesComDano}}
+          <p class="dica aviso">Uma Ação Simples não pode causar dano nem curar (p. 262).</p>
+          {{/if}}
+          {{#if acao.system.prejuizoAuxilio}}
+          <p class="dica"><b>Prejuízo por múltiplos auxílios:</b> {{acao.system.prejuizoAuxilio}}</p>
+          {{/if}}
+          {{{acao.system.description}}}
         </div>
       </li>
       {{/each}}

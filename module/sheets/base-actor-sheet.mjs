@@ -28,6 +28,9 @@ export class FnmBaseActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) 
       atacarArma: FnmBaseActorSheet.onAtacarArma,
       danoArma: FnmBaseActorSheet.onDanoArma,
       conjurarFeitico: FnmBaseActorSheet.onConjurarFeitico,
+      usarAcaoInvocacao: FnmBaseActorSheet.onUsarAcaoInvocacao,
+      danoAcaoInvocacao: FnmBaseActorSheet.onDanoAcaoInvocacao,
+      curaAcaoInvocacao: FnmBaseActorSheet.onCuraAcaoInvocacao,
       aplicarDano: FnmBaseActorSheet.onAplicarDano,
       curar: FnmBaseActorSheet.onCurar,
       testeDeMorte: FnmBaseActorSheet.onTesteDeMorte,
@@ -197,6 +200,24 @@ export class FnmBaseActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) 
   static async onConjurarFeitico(event, target) {
     const item = this.#itemDe(target);
     if (item) await this.actor.conjurarFeitico(item);
+  }
+
+  /** Usa uma Ação de Invocação: cobra o custo e resolve o acerto (p. 262-272). */
+  static async onUsarAcaoInvocacao(event, target) {
+    const item = this.#itemDe(target);
+    if (item) await this.actor.usarAcaoInvocacao(item);
+  }
+
+  /** Dano avulso de uma Ação, sem passar pelo acerto nem gastar o uso. */
+  static async onDanoAcaoInvocacao(event, target) {
+    const item = this.#itemDe(target);
+    if (item) await this.actor.rolarDano(item);
+  }
+
+  /** Cura avulsa de uma Ação de Auxílio, pelo mesmo motivo. */
+  static async onCuraAcaoInvocacao(event, target) {
+    const item = this.#itemDe(target);
+    if (item) await this.actor.rolarCuraAcao(item);
   }
 
   /* ------------------------------------------ */

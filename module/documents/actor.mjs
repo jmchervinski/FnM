@@ -11,6 +11,12 @@ import { FNM, custoSustento } from "../config.mjs";
 import { cartaAtaque, cartaDano, cartaResistencia } from "../chat.mjs";
 import { comRolagem, opcoesDeDialogo } from "../dialogos.mjs";
 
+/** Um número com o sinal sempre visível, para as linhas das cartas. */
+function sinalDe(valor) {
+  const n = Number(valor) || 0;
+  return n >= 0 ? `+${n}` : String(n);
+}
+
 /** Constrói a fórmula do d20 conforme vantagem/desvantagem (p. 282). */
 function formulaD20(vantagem = 0) {
   if (vantagem > 0) return "2d20kh";
@@ -432,6 +438,61 @@ export class FnmActor extends Actor {
   }
 
   /**
+   * Descreve uma Ação de Invocação para o mesmo caminho de ataque e dano das
+   * armas (p. 263-269).
+   *
+   * O que muda em relação a uma arma é de onde vêm os números: a Invocação não
+   * empunha nada, então o atributo sai da linha de ataque escolhida na ação
+   * (Força no corpo a corpo, Destreza a distância), o treinamento é a única
+   * jogada em que a Invocação foi treinada (p. 261) e o bônus de dano é o
+   * modificador desse mesmo atributo — dobrado no Grau Especial.
+   */
+  _perfilAcaoInvocacao(item) {
+    const sys = item.system;
+    const s = this.system;
+    const grau = s.grau ?? FNM.grausInvocacao.Quarto;
+    const linha = sys.linhaAtaque === "distancia" ? "distancia" : "corpoACorpo";
+    const cfg = FNM.tiposAtaque[linha];
+
+    const partes = [sys.tipo];
+    if (sys.categoria) partes.push(sys.categoria);
+    partes.push(grau.nome);
+
+    const propriedades = [];
+    if (sys.alvo) propriedades.push(sys.alvo);
+    if (sys.area) {
+      propriedades.push(`área de ${sys.area} m${sys.formatoArea ? ` (${sys.formatoArea})` : ""}`);
+    }
+    if (sys.custoPE) propriedades.push(`${sys.custoPE} PE`);
+
+    return {
+      item,
+      nome: item.name,
+      img: item.img,
+      subtitulo: partes.join(" · "),
+      tipo: linha === "distancia" ? "A Distância" : "Corpo a Corpo",
+      linhaAtaque: linha,
+      atributos: [s.ataques?.[linha]?.atributo || cfg.atributo],
+      // A Invocação só é treinada na jogada que escolheu na criação (p. 261)
+      treinado: s.detalhes?.ataqueTreinado === linha,
+      bonusAtaque: 0,
+      critico: 20,
+      dano: sys.dano,
+      danoVersatil: "",
+      tipoDano: sys.tipoDano,
+      bonusDano: 0,
+      grau: "",
+      grupo: "",
+      alcance: sys.alcance ? `${sys.alcance} metros` : "",
+      propriedades: propriedades.join(" · "),
+      // O bônus de dano de uma Ação é o modificador do atributo (p. 263) e no
+      // Grau Especial ele conta dobrado
+      somaAtributoNoDano: true,
+      multiplicadorAtributoNoDano: grau.dobraModificador ? 2 : 1
+    };
+  }
+
+  /**
    * Modificadores da jogada de ataque, na ordem da fórmula do livro (p. 279).
    *
    * A mesma lista alimenta o diálogo e o detalhamento da carta: o jogador vê
@@ -658,13 +719,15 @@ export class FnmActor extends Actor {
     return this._executarAtaque(perfil, escolhas);
   }
 
-  /** Rolagem de dano de uma arma, de um Feitiço, ou do ataque desarmado sem item. */
+  /** Rolagem de dano de uma arma, Feitiço, Ação de Invocação, ou desarmado. */
   async rolarDano(item, opcoes = {}) {
     const perfil = !item
       ? this._perfilDesarmado()
       : item.type === "feitico"
         ? this._perfilFeitico(item)
-        : this._perfilArma(item);
+        : item.type === "acaoInvocacao"
+          ? this._perfilAcaoInvocacao(item)
+          : this._perfilArma(item);
     return this._rolarDano(perfil, opcoes);
   }
 
@@ -677,7 +740,9 @@ export class FnmActor extends Actor {
     const chave = atributo ?? this._melhorAtributo(perfil.atributos);
     // Só o dano de arma soma o modificador do atributo que a maneja (p. 306);
     // o dano de um Feitiço é o da tabela do nível dele (p. 205)
-    const modAttr = perfil.somaAtributoNoDano ? s.atributos[chave].mod : 0;
+    // O Grau Especial de uma Invocação conta o modificador dobrado (p. 272)
+    const fator = perfil.multiplicadorAtributoNoDano ?? 1;
+    const modAttr = perfil.somaAtributoNoDano ? s.atributos[chave].mod * fator : 0;
 
     const usaVersatil = versatil && !!perfil.danoVersatil;
     const base = (usaVersatil ? perfil.danoVersatil : perfil.dano) || "";
@@ -696,7 +761,10 @@ export class FnmActor extends Actor {
         rotulo: critico ? `Dados dobrados: ${base} duas vezes` : `Dados da arma: ${base}`,
         semValor: true
       },
-      { rotulo: FNM.atributos[chave].nome, valor: modAttr }
+      {
+        rotulo: fator > 1 ? `${FNM.atributos[chave].nome} (dobrado)` : FNM.atributos[chave].nome,
+        valor: modAttr
+      }
     ];
     if (grau) componentes.push({ rotulo: `Ferramenta de ${grau.nome}`, valor: grau.bonusArma });
     const bonusManual = perfil.bonusDano - (grau?.bonusArma ?? 0);
@@ -799,6 +867,208 @@ export class FnmActor extends Actor {
     }
 
     return true;
+  }
+
+  /* ------------------------------------------ */
+  /*  Ações de Invocação                        */
+  /* ------------------------------------------ */
+
+  /**
+   * CD do Teste de Resistência forçado por uma Ação de Ataque (p. 263):
+   * 10 + metade do nível do Controlador + o modificador do atributo da ação.
+   */
+  _cdAcaoInvocacao(perfil) {
+    const chave = perfil.atributos[0];
+    const base = this.system.cdAcao ?? 10;
+    return { chave, base, mod: this.system.atributos[chave]?.mod ?? 0 };
+  }
+
+  /**
+   * A CD de uma Ação, para a ficha mostrar o mesmo número que a carta publica.
+   */
+  cdDaAcaoInvocacao(item) {
+    const cd = this._cdAcaoInvocacao(this._perfilAcaoInvocacao(item));
+    return cd.base + cd.mod;
+  }
+
+  /** Rolagem de cura avulsa de uma Ação de Auxílio, sem passar pelo uso. */
+  async rolarCuraAcao(item) {
+    return this._rolarCura(this._perfilAcaoInvocacao(item));
+  }
+
+  /**
+   * Cobra em PE o uso de uma Ação com Custo.
+   *
+   * Uma Invocação não tem energia própria: quem paga é o invocador (p. 269).
+   * Sem invocador escolhido não há de quem descontar, e a mesa decide se segue
+   * assim mesmo — é o caso de uma Invocação de NPC, que não tem ficha ligada.
+   *
+   * Devolve `null` quando o uso deve ser abortado.
+   */
+  async _cobrarCustoAcao(item) {
+    const custo = item.system.custoPE;
+    if (!custo) return [];
+
+    const invocador = this.system.invocador;
+    if (!invocador) {
+      const seguir = await foundry.applications.api.DialogV2.confirm({
+        window: { title: "Sem invocador escolhido" },
+        content: `<p><b>${item.name}</b> custa ${custo} PE, mas ${this.name} não tem invocador
+          escolhido na ficha — não há de quem descontar. Usar mesmo assim?</p>`,
+        rejectClose: false
+      });
+      return seguir ? [`<b>Custo:</b> ${custo} PE (sem invocador para pagar)`] : null;
+    }
+
+    const pe = invocador.system.recursos.pe;
+    if (custo > pe.value) {
+      ui.notifications.warn(
+        `PE insuficiente: ${item.name} custa ${custo} PE e ${invocador.name} tem ${pe.value}.`
+      );
+      return null;
+    }
+
+    await invocador.update({ "system.recursos.pe.value": pe.value - custo });
+    return [
+      `<b>PE de ${invocador.name}:</b> -${custo} → ${pe.value - custo}/${pe.max}`
+    ];
+  }
+
+  /**
+   * Usa uma Ação ou Característica de Invocação (p. 262-272).
+   *
+   * É o equivalente de `conjurarFeitico` para o capítulo das Invocações: cobra
+   * o custo do invocador, gasta o uso e resolve a ação pelo caminho que ela
+   * declara — jogada de ataque contra a Defesa, Teste de Resistência do alvo,
+   * ou apenas o dano/cura de um efeito que não depende de acerto.
+   *
+   * A ordem importa: o que o jogador pode cancelar (o diálogo do ataque) vem
+   * ANTES do que é gasto, para uma desistência não custar PE nem uso.
+   */
+  async usarAcaoInvocacao(item) {
+    const sys = item.system;
+
+    // Características são passivas: não há o que resolver, só o que mostrar
+    if (sys.tipo === "Característica" || !sys.rolavel) return item.roll();
+
+    if (sys.semUsos) {
+      return ui.notifications.warn(`${item.name} não tem usos restantes.`);
+    }
+    // Erros de criação não impedem o uso na mesa, mas a ficha avisa (p. 262-263)
+    if (sys.exigeComplexa) {
+      ui.notifications.warn(`${item.name}: uma Ação de Ataque tem de ser Ação Complexa (p. 263).`);
+    }
+    if (sys.simplesComDano) {
+      ui.notifications.warn(`${item.name}: uma Ação Simples não causa dano nem cura (p. 262).`);
+    }
+
+    const perfil = this._perfilAcaoInvocacao(item);
+
+    // O diálogo do ataque é a única etapa cancelável, e vem antes do gasto
+    let escolhas = null;
+    if (sys.ehAtaque) {
+      escolhas = await this._dialogoAtaque(perfil);
+      if (!escolhas) return null;
+    }
+
+    const linhasCusto = await this._cobrarCustoAcao(item);
+    if (linhasCusto === null) return null;
+
+    if (!sys.ilimitada) {
+      await item.update({ "system.usos.value": sys.usos.value - 1 });
+    }
+
+    const linhas = [
+      `<b>${perfil.subtitulo}</b>`,
+      `<b>Alvo:</b> ${sys.alvo}` +
+        (sys.alcance ? ` · <b>Alcance:</b> ${sys.alcance} m` : "") +
+        (sys.area ? ` · <b>Área:</b> ${sys.area} m${sys.formatoArea ? ` (${sys.formatoArea})` : ""}` : "")
+    ];
+    if (sys.prejuizoAuxilio) {
+      linhas.push(`<b>Prejuízo por múltiplos auxílios:</b> ${sys.prejuizoAuxilio}`);
+    }
+    if (!sys.ilimitada) {
+      linhas.push(`<b>Usos:</b> ${sys.usos.value - 1}/${sys.usos.max}`);
+    }
+    linhas.push(...linhasCusto);
+
+    // Resolução por TR: quem rola é o alvo, então a carta sai só com os botões
+    // do teste e do dano — o mesmo caminho de um Feitiço (p. 263)
+    if (sys.ehResistencia) {
+      const cd = this._cdAcaoInvocacao(perfil);
+      linhas.push(
+        `<b>CD:</b> ${cd.base} da Invocação ${sinalDe(cd.mod)} de ` +
+          `${FNM.atributos[cd.chave].nome} (p. 263)`
+      );
+      await cartaResistencia({
+        ator: this,
+        item,
+        cd: cd.base + cd.mod,
+        resistencia: sys.resistencia,
+        subtitulo: perfil.subtitulo,
+        // O capítulo 10 não diz o que o sucesso faz, então a carta assume o
+        // meio dano dos Feitiços (p. 205) — é o padrão que deixa as duas
+        // leituras ao alcance de um clique: metade no botão "Metade", ou nada
+        // é só não aplicar. O contrário obrigaria a refazer a conta na mão.
+        efeitoDaFalha:
+          "Um sucesso no teste reduz o dano à metade — use o botão <b>Metade</b> na carta de dano. " +
+          "Se na sua mesa o sucesso anula o efeito, não aplique nada.",
+        linhas,
+        dano: sys.dano
+      });
+      return true;
+    }
+
+    await ChatMessage.create({
+      speaker: ChatMessage.getSpeaker({ actor: this }),
+      content:
+        `<div class="fnm-carta"><h3>${item.name}</h3>` +
+        `<p>${linhas.join("<br>")}</p>` +
+        (sys.description ? `<div class="fnm-carta-desc">${sys.description}</div>` : "") +
+        `</div>`
+    });
+
+    if (sys.ehAtaque) {
+      await this._executarAtaque(perfil, escolhas);
+    } else if (sys.temDano) {
+      // Sem jogada de acerto o dano é automático: sai junto da carta
+      await this._rolarDano(perfil);
+    }
+
+    if (sys.temCura) await this._rolarCura(perfil);
+    return true;
+  }
+
+  /**
+   * Rolagem de cura de uma Ação de Auxílio (p. 268-269). O bônus é o mesmo do
+   * dano — o modificador do atributo da ação, dobrado no Grau Especial.
+   */
+  async _rolarCura(perfil) {
+    const chave = perfil.atributos[0];
+    const fator = perfil.multiplicadorAtributoNoDano ?? 1;
+    const mod = (this.system.atributos[chave]?.mod ?? 0) * fator;
+    const base = perfil.item?.system?.cura;
+    if (!base || base === "—") return null;
+
+    const roll = new Roll(`${base} + @mod`, { mod });
+    await roll.evaluate();
+
+    await cartaDano({
+      ator: this,
+      perfil,
+      roll,
+      critico: false,
+      versatil: false,
+      cura: true,
+      componentes: [
+        { rotulo: `Dados de cura: ${base}`, semValor: true },
+        {
+          rotulo: fator > 1 ? `${FNM.atributos[chave].nome} (dobrado)` : FNM.atributos[chave].nome,
+          valor: mod
+        }
+      ]
+    });
+    return roll;
   }
 
   /* ------------------------------------------ */

@@ -124,7 +124,15 @@ export async function cartaAtaque({
 }
 
 /** Publica a carta de uma rolagem de dano. */
-export async function cartaDano({ ator, perfil, roll, critico, versatil, componentes }) {
+export async function cartaDano({
+  ator,
+  perfil,
+  roll,
+  critico,
+  versatil,
+  componentes,
+  cura = false
+}) {
   const tipo = FNM.tiposDano[perfil.tipoDano];
   const alvos = alvosMarcados();
   const conteudo = await foundry.applications.handlebars.renderTemplate(TEMPLATE_DANO, {
@@ -135,8 +143,10 @@ export async function cartaDano({ ator, perfil, roll, critico, versatil, compone
     total: roll.total,
     critico,
     versatil,
-    tipoDano: tipo?.nome ?? "",
-    categoriaDano: tipo?.categoria ?? "",
+    // Uma Ação de Auxílio recupera PV: a carta é a mesma, com um botão só
+    cura,
+    tipoDano: cura ? "" : (tipo?.nome ?? ""),
+    categoriaDano: cura ? "" : (tipo?.categoria ?? ""),
     componentes,
     alvos: nomesDosAlvos(alvos)
   });
@@ -168,7 +178,16 @@ export async function cartaDano({ ator, perfil, roll, critico, versatil, compone
  * nenhum, e sim os dois botões que continuam a ação: o TR de quem foi atingido
  * e o dano do efeito.
  */
-export async function cartaResistencia({ ator, item, cd, resistencia, linhas = [], dano }) {
+export async function cartaResistencia({
+  ator,
+  item,
+  cd,
+  resistencia,
+  linhas = [],
+  dano,
+  subtitulo,
+  efeitoDaFalha
+}) {
   const nomeTR = FNM.resistencias[resistencia]?.nome ?? "à escolha do Narrador";
   const sys = item.system;
   const alvos = alvosMarcados();
@@ -176,16 +195,18 @@ export async function cartaResistencia({ ator, item, cd, resistencia, linhas = [
   const conteudo = await foundry.applications.handlebars.renderTemplate(TEMPLATE_RESISTENCIA, {
     nome: item.name,
     img: item.img,
-    subtitulo: `${sys.nivelLabel} · ${sys.custoEfetivo} PE · ${sys.conjuracao}`,
+    // O padrão é a linha de um Feitiço; uma Ação de Invocação manda a sua
+    subtitulo: subtitulo ?? `${sys.nivelLabel} · ${sys.custoEfetivo} PE · ${sys.conjuracao}`,
     resistenciaNome: nomeTR,
     cd,
     linhas,
     // Feitiço de nível 0 é tudo ou nada; do 1 em diante, o sucesso corta o dano
     // pela metade (p. 205)
     efeitoDaFalha:
-      sys.nivel === "0"
+      efeitoDaFalha ??
+      (sys.nivel === "0"
         ? "Um sucesso no teste anula o efeito."
-        : "Um sucesso no teste reduz o dano à metade.",
+        : "Um sucesso no teste reduz o dano à metade."),
     temDano: !!dano,
     dano,
     alvos: nomesDosAlvos(alvos),

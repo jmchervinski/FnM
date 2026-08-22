@@ -505,6 +505,12 @@
           <option value="resistencia" {{#if (eq system.resolucao "resistencia")}}selected{{/if}}>Teste de Resistência</option>
         </select>
       </label>
+      <label title="Decide o atributo da jogada (Força ou Destreza) e se o treinamento da Invocação entra (p. 261)">Jogada de ataque
+        <select name="system.linhaAtaque">
+          <option value="corpoACorpo" {{#if (eq system.linhaAtaque "corpoACorpo")}}selected{{/if}}>Corpo a Corpo</option>
+          <option value="distancia" {{#if (eq system.linhaAtaque "distancia")}}selected{{/if}}>A Distância</option>
+        </select>
+      </label>
       <label title="Integridade fica de fora (p. 263)">Resistência exigida
         <select name="system.resistencia">
           <option value="">—</option>

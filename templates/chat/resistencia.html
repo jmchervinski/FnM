@@ -22,7 +22,8 @@
   <p class="fnm-linhas">{{#each linhas as |l|}}{{{l}}}<br>{{/each}}</p>
   {{/if}}
 
-  <p class="fnm-aviso">{{efeitoDaFalha}}</p>
+  {{!-- Texto escrito pelo sistema, como as `linhas`: pode trazer marcação --}}
+  <p class="fnm-aviso">{{{efeitoDaFalha}}}</p>
 
   <div class="fnm-acoes">
     <button type="button" data-fnm-acao="tr">
