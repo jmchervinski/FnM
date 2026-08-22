@@ -154,6 +154,30 @@ export class FnmItem extends Item {
         linhas.push(...linhasFerramenta(sys));
         break;
       }
+      case "tecnicaMarcial": {
+        linhas.push(
+          `<b>${sys.nivelLabel}</b> · <b>${sys.custoEfetivo} Estamina</b> · ${sys.execucao}`
+        );
+        linhas.push(
+          `<b>Alcance:</b> ${sys.alcance || `${sys.alcancePadrao} metros`} · <b>Alvo:</b> ${sys.alvo}` +
+            (sys.area.formato ? ` · <b>Área:</b> ${sys.area.formato} de ${sys.area.tamanho} m` : "")
+        );
+        linhas.push(`<b>Duração:</b> ${sys.duracao}`);
+        if (sys.resolucao === "resistencia") {
+          const tr = FNM.resistencias[sys.resistencia]?.nome ?? "a definir";
+          const cd = this.actor?.system?.cdEspecializacao;
+          linhas.push(`<b>Teste de Resistência:</b> ${tr}${cd ? ` contra <b>CD ${cd}</b>` : ""}`);
+        } else if (sys.resolucao === "ataque") {
+          linhas.push("<b>Resolução:</b> jogada de ataque");
+        }
+        const danoMarcial = sys.dano || sys.danoPadrao;
+        if (danoMarcial) {
+          const tipo = FNM.tiposDano[sys.tipoDano]?.nome;
+          linhas.push(`<b>Dano:</b> ${danoMarcial}${tipo ? ` (${tipo})` : ""}`);
+        }
+        if (sys.requisito) linhas.push(`<b>Requisito:</b> ${sys.requisito}`);
+        break;
+      }
       case "acaoInvocacao": {
         const partes = [sys.tipo];
         if (sys.categoria) partes.push(sys.categoria);

@@ -1517,3 +1517,27 @@
     max-height: 50vh;
   }
 }
+
+/* Restringido: Dádivas do Céu e Arsenal Amaldiçoado (p. 114-126) */
+.fnm-sheet .dadivas-lista .dadiva {
+  grid-template-columns: 1fr auto;
+  align-items: start;
+}
+.fnm-sheet .dadivas-lista .dadiva .checkbox {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+.fnm-sheet .item-descricao.sempre-visivel {
+  display: block;
+}
+.fnm-sheet .arsenal-texto {
+  font-size: 0.85rem;
+  padding: 0.3rem 0.4rem;
+  background: rgba(31, 78, 121, 0.1);
+  border-left: 3px solid var(--fnm-azul);
+  border-radius: 2px;
+}
+.fnm-sheet .excedido {
+  color: var(--fnm-vermelho, #a33);
+}

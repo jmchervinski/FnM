@@ -15,7 +15,11 @@ import {
   estadoDaAlma,
   danoDesarmado,
   danoDesarmadoLutador,
-  feiticosAcessiveis
+  feiticosAcessiveis,
+  tecnicasMarciaisAcessiveis,
+  tecnicasMarciaisConhecidas,
+  dadivasRecebidas,
+  arsenalDoRestringido
 } from "./config.mjs";
 
 const { HTMLField, NumberField, SchemaField, StringField, BooleanField, ArrayField } =
@@ -514,6 +518,25 @@ export class CharacterDataModel extends BaseActorModel {
           descricao: new HTMLField({ required: true, blank: true })
         })
       }),
+      // Restringido (p. 114-126): o que substitui o Perfil Amaldiçoado de quem
+      // não tem energia. Fica fora de `jujutsu` de propósito — é o oposto dele.
+      restringido: new SchemaField({
+        // Fundamento do Estilo: o equivalente ao Funcionamento Básico (p. 124)
+        estiloNome: new StringField({ required: true, blank: true }),
+        fundamento: new HTMLField({ required: true, blank: true }),
+        // Dádivas do Céu escolhidas, por id (p. 126)
+        dadivas: new ArrayField(
+          new StringField({ required: true, blank: true, choices: ["", ...FNM.dadivasDoCeu.map(d => d.id)] }),
+          { required: true, initial: [] }
+        ),
+        // "Você pode escolher adicionar também seu modificador de Força ou de
+        // Constituição na sua Defesa" — Restrito pelos Céus (p. 114)
+        atributoDefesa: new StringField({
+          required: true,
+          blank: true,
+          choices: ["", "forca", "constituicao"]
+        })
+      }),
       // Fontes de PV extra listadas na ficha oficial (quadro "EXTRA")
       pvExtra: new SchemaField({
         kamo: new NumberField({ required: true, integer: true, initial: 0 }),
@@ -664,8 +687,18 @@ export class CharacterDataModel extends BaseActorModel {
     const totais = this._somarEspecializacoes();
     const aj = this.ajustesItens;
 
+    // As Dádivas do Céu precisam ser conhecidas ANTES dos máximos: Vigor
+    // Infindável mexe em PV e Estamina, e a Integridade máxima acompanha o PV
+    this.dadivasEscolhidas = this._dadivasEscolhidas();
+    const porDadiva = { pv: 0, estamina: 0 };
+    for (const d of this.dadivasEscolhidas) {
+      if (d.pvNivel) porDadiva.pv += this.nivel;
+      // "a cada 2 níveis, você recebe 1 ponto de estamina máximo adicional"
+      if (d.estaminaMetadeNivel) porDadiva.estamina += Math.floor(this.nivel / 2);
+    }
+
     // Quadro "EXTRA" da ficha: fontes avulsas de PV máximo
-    const extra = Object.values(this.pvExtra).reduce((n, v) => n + v, 0);
+    const extra = Object.values(this.pvExtra).reduce((n, v) => n + v, 0) + porDadiva.pv;
     this.pvExtraTotal = extra;
 
     // MÁXIMOS = derivado + extras + ajuste − PERDIDOS (coluna da ficha oficial)
@@ -679,7 +712,10 @@ export class CharacterDataModel extends BaseActorModel {
     );
     this.recursos.estamina.max = Math.max(
       0,
-      totais.estamina + this.recursos.estamina.ajuste - this.recursos.estamina.perdidos
+      totais.estamina +
+        porDadiva.estamina +
+        this.recursos.estamina.ajuste -
+        this.recursos.estamina.perdidos
     );
 
     this._prepararAlma();
@@ -709,6 +745,7 @@ export class CharacterDataModel extends BaseActorModel {
 
     this.danoDesarmado = this.ehLutador ? danoDesarmadoLutador(this.nivel) : danoDesarmado(this.nivel);
     this.niveisFeiticoDisponiveis = feiticosAcessiveis(this.nivel);
+    this._prepararRestringido();
 
     // Linhas de Ofício: mesmo cálculo das demais perícias (atributo Inteligência)
     this.oficiosView = (this.oficios ?? []).map((o, idx) => ({
@@ -737,6 +774,75 @@ export class CharacterDataModel extends BaseActorModel {
       (n, d) => n + Math.max(0, d.total - d.gastos),
       0
     );
+  }
+
+  /**
+   * Restringido (p. 114-126). Tudo aqui é derivado do nível: o acesso aos
+   * níveis de Técnica Marcial, quantas ele conhece, o Arsenal Amaldiçoado em
+   * vigor e quantas Dádivas do Céu já recebeu.
+   *
+   * As Dádivas escolhidas viram bônus reais nas rolagens — as que dão para
+   * automatizar. As que dependem de situação (pulo, terreno difícil) ou de
+   * escolha (em que perícia virar mestre) ficam como texto na ficha.
+   */
+  /**
+   * As Dádivas do Céu que valem para este personagem. Só um Restringido as
+   * recebe: um feiticeiro com o campo preenchido por engano não leva nada.
+   */
+  _dadivasEscolhidas() {
+    if (!this.ehRestringido) return [];
+    const ids = (this.restringido?.dadivas ?? []).filter(Boolean);
+    return FNM.dadivasDoCeu.filter(d => ids.includes(d.id));
+  }
+
+  _prepararRestringido() {
+    const nivel = this.nivel;
+    const escolhidas = (this.restringido?.dadivas ?? []).filter(Boolean);
+    const dadivas = this.dadivasEscolhidas ?? [];
+
+    this.restringidoView = {
+      niveisDisponiveis: tecnicasMarciaisAcessiveis(nivel),
+      conhecidas: tecnicasMarciaisConhecidas(nivel),
+      usadas: (this.parent?.items ?? []).filter(i => i.type === "tecnicaMarcial").length,
+      arsenal: arsenalDoRestringido(nivel),
+      dadivasTotal: dadivasRecebidas(nivel),
+      dadivasUsadas: escolhidas.length,
+      dadivas
+    };
+
+    if (!this.ehRestringido) return;
+
+    const metade = metadeNivel(nivel);
+    for (const d of dadivas) {
+      // +2 em testes de perícia e resistência do atributo da Dádiva
+      for (const [attr, valor] of Object.entries(d.bonusAtributo ?? {})) {
+        for (const [id, cfg] of Object.entries(FNM.pericias)) {
+          if (cfg.atributo === attr) this.pericias[id].total += valor;
+        }
+        for (const [id, cfg] of Object.entries(FNM.resistencias)) {
+          if (cfg.atributo === attr) this.resistencias[id].total += valor;
+        }
+      }
+      // Bônus em uma perícia nomeada, por cima do bônus de atributo
+      for (const [id, valor] of Object.entries(d.bonusPericia ?? {})) {
+        if (this.pericias[id]) this.pericias[id].total += valor;
+      }
+      if (d.rdMetadeNivel) {
+        this.combate.reducaoDanoTotal += metade;
+        for (const tipo of FNM.tiposComRD) this.combate.rdPorTipo[tipo] += metade;
+      }
+      if (d.atencaoMetadeNivel) this.combate.atencao += metade;
+      if (d.deslocamento) this.combate.deslocamentoAtual += d.deslocamento;
+      // PV e Estamina já entraram antes do cálculo dos máximos, porque a
+      // Integridade máxima acompanha o PV máximo
+    }
+
+    // Restrito pelos Céus: Força ou Constituição também entram na Defesa,
+    // limitado pelo nível (p. 114)
+    const attrDefesa = this.restringido?.atributoDefesa;
+    if (attrDefesa) {
+      this.combate.defesa += Math.min(this.atributos[attrDefesa]?.mod ?? 0, nivel);
+    }
   }
 
   getRollData() {
@@ -1553,6 +1659,87 @@ export class FeiticoDataModel extends BaseItemModel {
         : this.resolucao === "ataque"
           ? cfg.danoAtaque
           : cfg.danoTR;
+  }
+}
+
+/**
+ * Técnica Marcial: o Feitiço do Restringido (p. 124 e 248).
+ *
+ * A criação é a mesma dos Feitiços — mesmo capítulo, mesmas tabelas de alcance,
+ * dano e área por nível. O que muda é a moeda (Estamina, não PE) e o limite do
+ * físico: sem energia amaldiçoada, o dano fica nos tipos físicos, salvo acordo
+ * com o Narrador.
+ */
+export class TecnicaMarcialDataModel extends BaseItemModel {
+  static defineSchema() {
+    return {
+      ...super.defineSchema(),
+      nivel: new StringField({
+        required: true,
+        initial: "1",
+        choices: FNM.niveisTecnicaMarcial.map(n => n.id)
+      }),
+      // Deixe em -1 para usar o custo padrão do nível (p. 124)
+      custoEstamina: new NumberField({ required: true, integer: true, min: -1, initial: -1 }),
+      execucao: new StringField({ required: true, initial: "Ação Comum", choices: FNM.conjuracoes }),
+      alcance: new StringField({ required: true, blank: true }),
+      alvo: new StringField({ required: true, initial: "Criatura", choices: FNM.tiposAlvo }),
+      area: new SchemaField({
+        formato: new StringField({ required: true, blank: true, choices: ["", ...FNM.formatosArea] }),
+        tamanho: new NumberField({ required: true, min: 0, initial: 0 })
+      }),
+      duracao: new StringField({ required: true, initial: "Imediato", choices: FNM.duracoes }),
+      resolucao: new StringField({
+        required: true,
+        initial: "ataque",
+        choices: ["ataque", "resistencia", "nenhuma"]
+      }),
+      resistencia: new StringField({
+        required: true,
+        blank: true,
+        choices: ["", ...Object.keys(FNM.resistencias)]
+      }),
+      // A jogada é física: Força no corpo a corpo, Destreza a distância. Um
+      // Fundamento Marcial não pode trocar o atributo da jogada (p. 248).
+      linhaAtaque: new StringField({
+        required: true,
+        initial: "corpoACorpo",
+        choices: ["corpoACorpo", "distancia"]
+      }),
+      dano: new StringField({ required: true, blank: true }),
+      tipoDano: new StringField({
+        required: true,
+        blank: true,
+        initial: "impacto",
+        choices: ["", ...Object.keys(FNM.tiposDano)]
+      }),
+      requisito: new StringField({ required: true, blank: true }),
+      usos: usosSchema()
+    };
+  }
+
+  prepareDerivedData() {
+    super.prepareDerivedData();
+    const cfg =
+      FNM.niveisTecnicaMarcial.find(n => n.id === this.nivel) ?? FNM.niveisTecnicaMarcial[0];
+    this.custoEfetivo = this.custoEstamina >= 0 ? this.custoEstamina : cfg.custo;
+    this.nivelLabel = cfg.nome;
+
+    // Alcance, dano e área padrão vêm da tabela de Feitiços do mesmo nível: é
+    // o mesmo capítulo de criação (p. 248)
+    const tabela = FNM.niveisFeitico.find(n => n.id === this.nivel) ?? FNM.niveisFeitico[1];
+    this.alcancePadrao = tabela.alcance;
+    this.areaPadrao = tabela.area;
+    this.danoPadrao =
+      this.alvo === "Área"
+        ? tabela.danoArea
+        : this.resolucao === "ataque"
+          ? tabela.danoAtaque
+          : tabela.danoTR;
+
+    // Sem energia amaldiçoada, o dano fica nos tipos físicos (p. 248)
+    this.danoNaoFisico =
+      !!this.tipoDano && FNM.tiposDano[this.tipoDano]?.categoria !== "Físico";
   }
 }
 

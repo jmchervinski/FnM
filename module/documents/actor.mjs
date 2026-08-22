@@ -740,7 +740,9 @@ export class FnmActor extends Actor {
         ? this._perfilFeitico(item)
         : item.type === "acaoInvocacao"
           ? this._perfilAcaoInvocacao(item)
-          : this._perfilArma(item);
+          : item.type === "tecnicaMarcial"
+            ? this._perfilTecnicaMarcial(item)
+            : this._perfilArma(item);
     return this._rolarDano(perfil, opcoes);
   }
 
@@ -933,6 +935,153 @@ export class FnmActor extends Actor {
         ` → ${r.pe.value - doNormal}/${r.pe.max}` +
         (temporario - doTemporario > 0 ? ` + ${temporario - doTemporario} temp.` : "")
     ];
+  }
+
+  /* ------------------------------------------ */
+  /*  Restringido                               */
+  /* ------------------------------------------ */
+
+  /**
+   * Gasta Pontos de Estamina, a moeda do Restringido (p. 114). Devolve a linha
+   * de extrato para a carta, ou `null` se não houver Estamina suficiente.
+   */
+  async gastarEstamina(quantidade) {
+    const custo = Math.max(0, Math.floor(Number(quantidade) || 0));
+    if (!custo) return [];
+
+    const est = this.system.recursos.estamina;
+    if (custo > est.value) return null;
+
+    await this.update({ "system.recursos.estamina.value": est.value - custo });
+    return [`<b>Estamina:</b> -${custo} → ${est.value - custo}/${est.max}`];
+  }
+
+  /**
+   * Descreve uma Técnica Marcial para o caminho de ataque e dano das armas.
+   *
+   * A jogada é física: Força no corpo a corpo, Destreza a distância. Um
+   * Fundamento Marcial não pode trocar o atributo da jogada (p. 248), então a
+   * linha da ficha decide, e o Restringido é treinado em todas as armas.
+   */
+  _perfilTecnicaMarcial(item) {
+    const sys = item.system;
+    const linha = sys.linhaAtaque === "distancia" ? "distancia" : "corpoACorpo";
+    const cfg = FNM.tiposAtaque[linha];
+
+    return {
+      item,
+      nome: item.name,
+      img: item.img,
+      subtitulo: `Técnica Marcial de ${sys.nivelLabel} · ${sys.custoEfetivo} Estamina`,
+      tipo: linha === "distancia" ? "A Distância" : "Corpo a Corpo",
+      linhaAtaque: linha,
+      atributos: [this.system.ataques?.[linha]?.atributo || cfg.atributo],
+      // Restringido é treinado em todas as armas e escudos (p. 114)
+      treinado: true,
+      bonusAtaque: 0,
+      critico: 20,
+      dano: sys.dano || sys.danoPadrao || "",
+      danoVersatil: "",
+      tipoDano: sys.tipoDano,
+      bonusDano: 0,
+      grau: "",
+      grupo: "",
+      alcance: sys.alcance || `${sys.alcancePadrao} metros`,
+      propriedades: sys.alvo,
+      // O dano de uma Técnica Marcial é o da tabela do nível, como no Feitiço
+      somaAtributoNoDano: false
+    };
+  }
+
+  /**
+   * Usa uma Técnica Marcial (p. 124 e 248).
+   *
+   * É o `conjurarFeitico` do Restringido: mesma resolução, mesma carta, mesma
+   * criação — só que pago em Estamina, e sem energia amaldiçoada no meio.
+   */
+  async usarTecnicaMarcial(item) {
+    const sys = item.system;
+    const s = this.system;
+
+    if (!s.ehRestringido) {
+      return ui.notifications.warn(
+        `Técnicas Marciais são exclusivas do Restringido, e ${this.name} não é um (p. 114).`
+      );
+    }
+
+    const disponiveis = s.restringidoView?.niveisDisponiveis ?? ["1"];
+    if (!disponiveis.includes(sys.nivel)) {
+      const seguir = await foundry.applications.api.DialogV2.confirm({
+        window: { title: "Nível de Técnica Marcial acima do acesso" },
+        content: `<p><b>${this.name}</b> (nível ${s.nivel}) ainda não tem acesso a Técnicas
+          Marciais de ${sys.nivelLabel} (p. 124). Usar mesmo assim?</p>`,
+        rejectClose: false
+      });
+      if (!seguir) return null;
+    }
+
+    if (sys.usos.max > 0 && sys.usos.value <= 0) {
+      return ui.notifications.warn(`${item.name} não tem usos restantes.`);
+    }
+
+    const custo = sys.custoEfetivo;
+    if (custo > s.recursos.estamina.value) {
+      return ui.notifications.warn(
+        `Estamina insuficiente: ${item.name} custa ${custo} e ` +
+          `${this.name} tem ${s.recursos.estamina.value}.`
+      );
+    }
+
+    const perfil = this._perfilTecnicaMarcial(item);
+
+    // O diálogo do ataque é cancelável, e vem antes do gasto
+    let escolhas = null;
+    if (sys.resolucao === "ataque") {
+      escolhas = await this._dialogoAtaque(perfil);
+      if (!escolhas) return null;
+    }
+
+    const extrato = await this.gastarEstamina(custo);
+    if (!extrato) return ui.notifications.warn(`Estamina insuficiente para ${item.name}.`);
+
+    if (sys.usos.max > 0) {
+      await item.update({ "system.usos.value": sys.usos.value - 1 });
+    }
+
+    const linhas = [
+      `<b>${sys.nivelLabel}</b> · <b>Execução:</b> ${sys.execucao} · <b>Duração:</b> ${sys.duracao}`,
+      `<b>Alcance:</b> ${sys.alcance || `${sys.alcancePadrao} metros`} · <b>Alvo:</b> ${sys.alvo}` +
+        (sys.area.formato ? ` · <b>Área:</b> ${sys.area.formato} de ${sys.area.tamanho} m` : "")
+    ];
+    if (sys.requisito) linhas.push(`<b>Requisito:</b> ${sys.requisito}`);
+    if (sys.usos.max > 0) linhas.push(`<b>Usos:</b> ${sys.usos.value - 1}/${sys.usos.max}`);
+    linhas.push(...extrato);
+
+    if (sys.resolucao === "resistencia") {
+      await cartaResistencia({
+        ator: this,
+        item,
+        // A CD é a da especialização: o Restringido escolhe o atributo (p. 114)
+        cd: s.cdEspecializacao,
+        resistencia: sys.resistencia,
+        subtitulo: `Técnica Marcial de ${sys.nivelLabel} · ${sys.custoEfetivo} Estamina`,
+        linhas,
+        dano: sys.dano || sys.danoPadrao
+      });
+      return true;
+    }
+
+    await ChatMessage.create({
+      speaker: ChatMessage.getSpeaker({ actor: this }),
+      content:
+        `<div class="fnm-carta"><h3>${item.name}</h3>` +
+        `<p>${linhas.join("<br>")}</p>` +
+        (sys.description ? `<div class="fnm-carta-desc">${sys.description}</div>` : "") +
+        `</div>`
+    });
+
+    if (sys.resolucao === "ataque") await this._executarAtaque(perfil, escolhas);
+    return true;
   }
 
   /* ------------------------------------------ */

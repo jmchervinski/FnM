@@ -183,6 +183,132 @@ FNM.especializacoes = [
 ];
 
 /* -------------------------------------------- */
+/*  Restringido (p. 114-126)                    */
+/* -------------------------------------------- */
+
+/**
+ * Técnicas Marciais (p. 124 e 248). São "equivalentes aos Feitiços que um
+ * feiticeiro recebe": mesma criação, mesmos níveis de poder, mas pagas em
+ * Pontos de Estamina e limitadas ao físico — sem energia amaldiçoada no meio.
+ *
+ * Os custos são os do livro; alcance, dano e área saem da tabela de Feitiços do
+ * nível correspondente, porque é o mesmo capítulo de criação.
+ */
+FNM.niveisTecnicaMarcial = [
+  { id: "1", nome: "Nível 1", custo: 2 },
+  { id: "2", nome: "Nível 2", custo: 5 },
+  { id: "3", nome: "Nível 3", custo: 8 },
+  { id: "4", nome: "Nível 4", custo: 12 }
+];
+
+/** Acesso a níveis de Técnica Marcial por nível de Restringido (p. 124). */
+FNM.acessoTecnicaMarcial = [
+  { ate: 4, niveis: ["1"] },
+  { ate: 8, niveis: ["1", "2"] },
+  { ate: 14, niveis: ["1", "2", "3"] },
+  { ate: 20, niveis: ["1", "2", "3", "4"] }
+];
+
+/**
+ * Quantas Técnicas Marciais o Restringido conhece: começa com 2 e recebe mais
+ * uma em cada nível ímpar de 3 a 19 (p. 124).
+ */
+FNM.niveisGanhoTecnicaMarcial = [3, 5, 7, 9, 11, 13, 15, 17, 19];
+
+/**
+ * Arsenal Amaldiçoado (p. 125), indexado pelo Bônus de Treinamento. As
+ * ferramentas são ATUALIZADAS a cada degrau, e não acumuladas — só o +3
+ * acrescenta uma peça ao total.
+ */
+FNM.arsenalAmaldicoado = {
+  2: { texto: "Uma ferramenta de terceiro grau e duas de quarto grau.", pecas: { Terceiro: 1, Quarto: 2 } },
+  3: { texto: "Uma ferramenta de segundo grau e três de terceiro grau.", pecas: { Segundo: 1, Terceiro: 3 } },
+  4: { texto: "Duas ferramentas de primeiro grau e duas de segundo grau.", pecas: { Primeiro: 2, Segundo: 2 } },
+  5: { texto: "Uma ferramenta de grau especial e três de primeiro grau.", pecas: { Especial: 1, Primeiro: 3 } },
+  6: { texto: "Duas ferramentas de grau especial e duas de primeiro grau.", pecas: { Especial: 2, Primeiro: 2 } }
+};
+
+/**
+ * Dádivas do Céu (p. 126): uma a cada 4 níveis. `efeito` é o que a automação
+ * aplica sozinha; o resto do texto fica na ficha para o jogador consultar,
+ * porque depende de situação (pulo, empurrar, terreno difícil) ou de escolha
+ * (em que perícia virar mestre).
+ */
+FNM.dadivasDoCeu = [
+  {
+    id: "agilidade",
+    nome: "Agilidade Exímia",
+    resumo:
+      "+2 em testes de perícia e resistência de Destreza, +3 m de deslocamento e ignora terreno difícil.",
+    bonusAtributo: { destreza: 2 },
+    deslocamento: 3
+  },
+  {
+    id: "robusto",
+    nome: "Físico Robusto",
+    resumo:
+      "Redução de Dano contra todo tipo igual a metade do nível, e +2 em testes de Constituição.",
+    bonusAtributo: { constituicao: 2 },
+    rdMetadeNivel: true
+  },
+  {
+    id: "forca",
+    nome: "Força Devastadora",
+    resumo:
+      "+2 em perícias de Força. Pulos e saltos +3 m, e a ação Empurrar alcança +4,5 m.",
+    bonusAtributo: { forca: 2 }
+  },
+  {
+    id: "indulgente",
+    nome: "Indulgente a Feitiçaria",
+    resumo:
+      "RD contra dano de técnicas e aptidões igual a metade do nível, e +1 em TRs de Vontade contra elas " +
+      "(+2 no nível 10; a partir do 15 vale também para Fortitude e Reflexos).",
+    // A RD é condicional à fonte do dano, então não entra na grade automática
+    manual: true
+  },
+  {
+    id: "mente",
+    nome: "Mente Afiada",
+    resumo:
+      "Treinado em duas perícias adicionais, mestre em uma, e +2 em testes de Inteligência.",
+    bonusAtributo: { inteligencia: 2 }
+  },
+  {
+    id: "percepcao",
+    nome: "Percepção Aguçada",
+    resumo:
+      "Atenção aumenta em metade do nível, +3 em rolagens de Percepção e +2 em testes de Sabedoria.",
+    bonusAtributo: { sabedoria: 2 },
+    atencaoMetadeNivel: true,
+    bonusPericia: { percepcao: 3 }
+  },
+  {
+    id: "reposicao",
+    nome: "Reposição Sanguinária",
+    resumo:
+      "Ao matar um inimigo que você feriu, recupera 3 Pontos de Estamina — sem passar do que tinha no início do combate.",
+    manual: true
+  },
+  {
+    id: "semblante",
+    nome: "Semblante Cativante",
+    resumo:
+      "Em perícias de Presença, pode tratar um resultado abaixo da metade da Presença como essa metade. " +
+      "Mestre em uma perícia de Presença e +2 em testes de Presença.",
+    bonusAtributo: { presenca: 2 }
+  },
+  {
+    id: "vigor",
+    nome: "Vigor Infindável",
+    resumo:
+      "PV máximo aumenta em um valor igual ao nível, e a cada 2 níveis ganha +1 de Estamina máxima.",
+    pvNivel: true,
+    estaminaMetadeNivel: true
+  }
+];
+
+/* -------------------------------------------- */
 /*  Aptidões Amaldiçoadas (p. 172-173)          */
 /* -------------------------------------------- */
 
@@ -867,6 +993,34 @@ export function bonusProficiencia(nivel, { treinado = false, mestre = false } = 
 export function feiticosAcessiveis(nivel) {
   const faixa = FNM.acessoFeitico.find(f => nivel <= f.ate) ?? FNM.acessoFeitico.at(-1);
   return faixa.niveis;
+}
+
+/** Níveis de Técnica Marcial acessíveis em um dado nível de Restringido (p. 124). */
+export function tecnicasMarciaisAcessiveis(nivel) {
+  const faixa = FNM.acessoTecnicaMarcial.find(f => nivel <= f.ate) ?? FNM.acessoTecnicaMarcial.at(-1);
+  return faixa.niveis;
+}
+
+/**
+ * Quantas Técnicas Marciais o Restringido conhece: 2 no primeiro nível, mais
+ * uma em cada nível ímpar de 3 a 19 (p. 124).
+ */
+export function tecnicasMarciaisConhecidas(nivel) {
+  return 2 + FNM.niveisGanhoTecnicaMarcial.filter(n => nivel >= n).length;
+}
+
+/** Dádivas do Céu recebidas: uma a cada 4 níveis (p. 114). */
+export function dadivasRecebidas(nivel) {
+  return Math.floor(nivel / 4);
+}
+
+/**
+ * O Arsenal Amaldiçoado em vigor (p. 125). A tabela é indexada pelo Bônus de
+ * Treinamento, que satura em +6.
+ */
+export function arsenalDoRestringido(nivel) {
+  const bt = Math.min(6, bonusTreinamento(nivel));
+  return { bt, ...FNM.arsenalAmaldicoado[bt] };
 }
 
 /** Estado da Alma a partir da Integridade atual e máxima (p. 312). */

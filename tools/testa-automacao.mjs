@@ -646,7 +646,216 @@ const npcBase = sys => {
   confere("Invocador: sem mundo não quebra", nomes(invocacoesDe("gojo", null)), "");
 }
 
-/* -------- 11. O diálogo cabe na tela de quem está jogando -------- */
+/* -------- 11. Restringido: Estamina, Técnicas Marciais e Dádivas -------- */
+
+{
+  const {
+    tecnicasMarciaisAcessiveis,
+    tecnicasMarciaisConhecidas,
+    dadivasRecebidas,
+    arsenalDoRestringido
+  } = await import(new URL("../module/config.mjs", import.meta.url));
+
+  /* Acesso aos níveis de Técnica Marcial (p. 124): 1 no início, 2 no 5, 3 no 9, 4 no 15 */
+  const acesso = n => tecnicasMarciaisAcessiveis(n).join("");
+  confere("Restringido: nível 1 acessa só técnicas de nível 1", acesso(1), "1");
+  confere("Restringido: nível 4 ainda não abriu o 2", acesso(4), "1");
+  confere("Restringido: nível 5 abre o nível 2", acesso(5), "12");
+  confere("Restringido: nível 9 abre o nível 3", acesso(9), "123");
+  confere("Restringido: nível 14 ainda não abriu o 4", acesso(14), "123");
+  confere("Restringido: nível 15 abre o nível 4", acesso(15), "1234");
+
+  /* Quantas conhece: 2 e mais uma em cada ímpar de 3 a 19 */
+  confere("Restringido: começa com 2 Técnicas Marciais", tecnicasMarciaisConhecidas(1), 2);
+  confere("Restringido: o nível 3 dá a terceira", tecnicasMarciaisConhecidas(3), 3);
+  confere("Restringido: o nível 4 não dá nada novo", tecnicasMarciaisConhecidas(4), 3);
+  confere("Restringido: no nível 20 conhece 11", tecnicasMarciaisConhecidas(20), 11);
+
+  /* Dádivas: uma a cada 4 níveis */
+  confere("Dádiva: nenhuma antes do nível 4", dadivasRecebidas(3), 0);
+  confere("Dádiva: a primeira no nível 4", dadivasRecebidas(4), 1);
+  confere("Dádiva: cinco no nível 20", dadivasRecebidas(20), 5);
+
+  /* Arsenal: indexado pelo Bônus de Treinamento, que satura em +6 */
+  confere("Arsenal: nível 1 usa a linha do BT +2", arsenalDoRestringido(1).bt, 2);
+  confere("Arsenal: e é a linha com duas de quarto grau", arsenalDoRestringido(1).pecas.Quarto, 2);
+  confere("Arsenal: nível 20 satura no BT +6", arsenalDoRestringido(20).bt, 6);
+  confere("Arsenal: no topo são duas de grau especial", arsenalDoRestringido(20).pecas.Especial, 2);
+
+  /* Custo da Técnica Marcial: o padrão vem do nível, mas pode ser fechado */
+  const tec = (ajustar = () => {}) => prepararAtor(M.TecnicaMarcialDataModel, ajustar);
+  confere("Técnica Marcial: nível 1 custa 2 de Estamina", tec().custoEfetivo, 2);
+  confere("Técnica Marcial: nível 4 custa 12", tec(t => (t.nivel = "4")).custoEfetivo, 12);
+  confere(
+    "Técnica Marcial: um custo fechado vence o padrão",
+    tec(t => (t.custoEstamina = 3)).custoEfetivo,
+    3
+  );
+  // Custo 0 é legítimo e não pode cair no padrão do nível
+  confere(
+    "Técnica Marcial: custo zero é respeitado",
+    tec(t => (t.custoEstamina = 0)).custoEfetivo,
+    0
+  );
+  // Sem energia amaldiçoada, o dano fica no físico (p. 248)
+  confere("Técnica Marcial: impacto é físico", tec().danoNaoFisico, false);
+  confere(
+    "Técnica Marcial: queimante é sinalizado",
+    tec(t => (t.tipoDano = "queimante")).danoNaoFisico,
+    true
+  );
+  // As tabelas de criação são as dos Feitiços do mesmo nível
+  confere(
+    "Técnica Marcial: o dano padrão vem da tabela do Feitiço",
+    tec(t => {
+      t.nivel = "2";
+      t.resolucao = "ataque";
+    }).danoPadrao,
+    "8d8"
+  );
+
+  /* As Dádivas viram bônus reais na ficha — e só para um Restringido */
+  const restringidoBase = (sys, dadivas = []) => {
+    sys.detalhes.nivel = 10;
+    sys.restringido.dadivas = dadivas;
+    sys.recursos.integridade.value = 999;
+  };
+  // O item de especialização é o que torna o personagem um Restringido
+  const especRestringido = {
+    type: "especializacao",
+    system: { ajustes: {}, especializacao: "restringido", niveis: 10 }
+  };
+  const restringido = (dadivas, extra = () => {}) =>
+    prepararAtor(
+      M.CharacterDataModel,
+      sys => {
+        restringidoBase(sys, dadivas);
+        extra(sys);
+      },
+      [especRestringido]
+    );
+
+  const semDadiva = restringido([]);
+  confere("Restringido: o item de especialização o identifica", semDadiva.ehRestringido, true);
+  confere("Restringido: não tem PE", semDadiva.recursos.pe.max, 0);
+  confere("Restringido: recebe 4 de Estamina por nível", semDadiva.recursos.estamina.max, 40);
+
+  const comAgilidade = restringido(["agilidade"]);
+  confere(
+    "Dádiva: Agilidade Exímia dá +2 em perícia de Destreza",
+    comAgilidade.pericias.acrobacia.total - semDadiva.pericias.acrobacia.total,
+    2
+  );
+  confere(
+    "Dádiva: e +2 no TR de Reflexos",
+    comAgilidade.resistencias.reflexos.total - semDadiva.resistencias.reflexos.total,
+    2
+  );
+  confere(
+    "Dádiva: e +3 m de deslocamento",
+    comAgilidade.combate.deslocamentoAtual - semDadiva.combate.deslocamentoAtual,
+    3
+  );
+  confere(
+    "Dádiva: sem tocar em perícia de outro atributo",
+    comAgilidade.pericias.atletismo.total - semDadiva.pericias.atletismo.total,
+    0
+  );
+
+  // Vigor Infindável mexe em PV e Estamina, e a Integridade acompanha o PV
+  const comVigor = restringido(["vigor"]);
+  confere(
+    "Dádiva: Vigor Infindável soma o nível ao PV máximo",
+    comVigor.recursos.pv.max - semDadiva.recursos.pv.max,
+    10
+  );
+  confere(
+    "Dádiva: e 1 de Estamina a cada 2 níveis",
+    comVigor.recursos.estamina.max - semDadiva.recursos.estamina.max,
+    5
+  );
+  // O caso que quase escapou: a Integridade máxima acompanha o PV máximo, e a
+  // alma é derivada ANTES das Dádivas — o bônus tem de entrar cedo
+  confere(
+    "Dádiva: a Integridade máxima acompanha o PV aumentado",
+    comVigor.recursos.integridade.max,
+    comVigor.recursos.pv.max
+  );
+
+  // Físico Robusto dá RD contra todo tipo igual a metade do nível
+  const comRobusto = restringido(["robusto"]);
+  confere(
+    "Dádiva: Físico Robusto dá RD igual a metade do nível",
+    comRobusto.combate.reducaoDanoTotal - semDadiva.combate.reducaoDanoTotal,
+    5
+  );
+  confere(
+    "Dádiva: e a RD entra na grade por tipo",
+    comRobusto.combate.rdPorTipo.cortante - semDadiva.combate.rdPorTipo.cortante,
+    5
+  );
+
+  // Restrito pelos Céus: Força ou Constituição na Defesa, limitado pelo nível
+  const forte = sys => (sys.atributos.forca.value = 20); // modificador +5
+  confere(
+    "Restrito pelos Céus: a Força entra na Defesa",
+    restringido([], sys => {
+      forte(sys);
+      sys.restringido.atributoDefesa = "forca";
+    }).combate.defesa - restringido([], forte).combate.defesa,
+    5
+  );
+  // "limitado pelo seu nível": num nível 3 o teto é 3, não o modificador +5
+  const nivel3 = sys => {
+    forte(sys);
+    sys.detalhes.nivel = 3;
+  };
+  confere(
+    "Restrito pelos Céus: o bônus na Defesa é limitado pelo nível",
+    restringido([], sys => {
+      nivel3(sys);
+      sys.restringido.atributoDefesa = "forca";
+    }).combate.defesa - restringido([], nivel3).combate.defesa,
+    3
+  );
+
+  // Um feiticeiro comum com o campo preenchido não leva nada disso
+  const feiticeiro = prepararAtor(M.CharacterDataModel, sys => {
+    sys.detalhes.nivel = 10;
+    sys.restringido.dadivas = ["agilidade", "vigor"];
+    sys.restringido.atributoDefesa = "forca";
+    sys.recursos.integridade.value = 999;
+  });
+  const feiticeiroLimpo = prepararAtor(M.CharacterDataModel, sys => {
+    sys.detalhes.nivel = 10;
+    sys.recursos.integridade.value = 999;
+  });
+  confere("Dádiva: quem não é Restringido não recebe nada", feiticeiro.ehRestringido, false);
+  confere(
+    "Dádiva: e as perícias dele ficam intactas",
+    feiticeiro.pericias.acrobacia.total,
+    feiticeiroLimpo.pericias.acrobacia.total
+  );
+  confere(
+    "Dádiva: e a Defesa dele também",
+    feiticeiro.combate.defesa,
+    feiticeiroLimpo.combate.defesa
+  );
+  // PV e Estamina são somados ANTES do cálculo dos máximos, num bloco que não
+  // repete a guarda: quem protege é a lista vir vazia para quem não é Restringido
+  confere(
+    "Dádiva: e o PV máximo dele não sobe",
+    feiticeiro.recursos.pv.max,
+    feiticeiroLimpo.recursos.pv.max
+  );
+  confere(
+    "Dádiva: nem a Estamina máxima",
+    feiticeiro.recursos.estamina.max,
+    feiticeiroLimpo.recursos.estamina.max
+  );
+}
+
+/* -------- 12. O diálogo cabe na tela de quem está jogando -------- */
 
 {
   const { tamanhoDeDialogo } = await import(new URL("../module/dialogos.mjs", import.meta.url));

@@ -330,7 +330,8 @@ export class FnmBaseActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) 
       arma: "Nova Arma",
       equipamento: "Novo Equipamento",
       voto: "Novo Voto de Restrição",
-      acaoInvocacao: "Nova Ação"
+      acaoInvocacao: "Nova Ação",
+      tecnicaMarcial: "Nova Técnica Marcial"
     };
     const data = { name: nomes[type] ?? "Novo Item", type };
     if (target.dataset.nivel) data.system = { nivel: target.dataset.nivel };

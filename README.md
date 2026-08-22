@@ -116,6 +116,16 @@ Tudo abaixo é calculado ou executado pelo sistema, com a página do livro anota
   o treinamento saem da linha de ataque escolhida — Força no corpo a corpo, Destreza a distância, e
   o Bônus de Treinamento só entra na jogada em que a Invocação foi treinada. O dano e a cura somam
   o modificador desse atributo, **dobrado no Grau Especial**
+- **Restringido** (p. 114-126) com o que substitui o Perfil Amaldiçoado de quem não tem energia:
+  **Estilo Marcial** com Fundamento e **Técnicas Marciais** de nível 1 a 4, que são os Feitiços
+  do Restringido — mesma criação e mesmas tabelas de alcance, dano e área, mas pagas em
+  **Pontos de Estamina** e limitadas aos tipos de dano físico. O botão de usar gasta a Estamina e
+  resolve o acerto, por jogada de ataque ou pela carta de Teste de Resistência. A ficha mostra o
+  acesso por nível (1 no início, 2 no 5, 3 no 9, 4 no 15), quantas técnicas ele conhece, o
+  **Arsenal Amaldiçoado** em vigor pelo Bônus de Treinamento, e as **Dádivas do Céu** — uma a cada
+  4 níveis, com os efeitos automatizáveis entrando de fato nas perícias, TRs, RD, Atenção,
+  deslocamento, PV e Estamina. **Restrito pelos Céus** soma Força ou Constituição na Defesa,
+  limitado pelo nível
 - **Inimigos montados pelo Patamar** (Grimório, p. 8-22): a ficha de NPC mostra o orçamento do
   Patamar escolhido — pontos de atributo e o teto por atributo, perícias treinadas, imunidades,
   resistências, vulnerabilidades, imunidades a condição, características recomendadas e as ações

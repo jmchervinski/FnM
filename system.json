@@ -33,7 +33,7 @@
   ],
   "documentTypes": {
     "Actor": {
-      "character": { "htmlFields": ["biografia", "aspectos.dominioInato", "anotacoes"] },
+      "character": { "htmlFields": ["biografia", "aspectos.dominioInato", "anotacoes", "restringido.fundamento"] },
       "npc": { "htmlFields": ["biografia", "taticas"] },
       "invocacao": { "htmlFields": ["biografia"] }
     },
@@ -50,7 +50,8 @@
       "arma": { "htmlFields": ["description"] },
       "equipamento": { "htmlFields": ["description"] },
       "voto": { "htmlFields": ["description", "restricao"] },
-      "acaoInvocacao": { "htmlFields": ["description"] }
+      "acaoInvocacao": { "htmlFields": ["description"] },
+      "tecnicaMarcial": { "htmlFields": ["description"] }
     }
   },
   "packs": [

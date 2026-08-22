@@ -43,7 +43,8 @@ import {
   ArmaDataModel,
   EquipamentoDataModel,
   VotoDataModel,
-  AcaoInvocacaoDataModel
+  AcaoInvocacaoDataModel,
+  TecnicaMarcialDataModel
 } from "./data-models.mjs";
 
 Hooks.once("init", async function () {
@@ -90,7 +91,8 @@ Hooks.once("init", async function () {
     arma: ArmaDataModel,
     equipamento: EquipamentoDataModel,
     voto: VotoDataModel,
-    acaoInvocacao: AcaoInvocacaoDataModel
+    acaoInvocacao: AcaoInvocacaoDataModel,
+    tecnicaMarcial: TecnicaMarcialDataModel
   };
 
   // Barras de token e valores rastreáveis

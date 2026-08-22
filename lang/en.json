@@ -15,6 +15,7 @@
   "TYPES.Item.equipamento": "Equipment",
   "TYPES.Item.voto": "Binding Vow",
   "TYPES.Item.acaoInvocacao": "Summon Action",
+  "TYPES.Item.tecnicaMarcial": "Martial Technique",
 
   "FNM.SheetCharacter": "Character Sheet (F&M)",
   "FNM.SheetNpc": "NPC / Curse Sheet (F&M)",

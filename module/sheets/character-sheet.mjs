@@ -12,7 +12,9 @@ export class FnmCharacterSheet extends FnmBaseActorSheet {
       removerDadoVida: FnmCharacterSheet.onRemoverDadoVida,
       adicionarOficio: FnmCharacterSheet.onAdicionarOficio,
       removerOficio: FnmCharacterSheet.onRemoverOficio,
-      etapaTreinamento: FnmCharacterSheet.onEtapaTreinamento
+      etapaTreinamento: FnmCharacterSheet.onEtapaTreinamento,
+      usarTecnicaMarcial: FnmCharacterSheet.onUsarTecnicaMarcial,
+      alternarDadiva: FnmCharacterSheet.onAlternarDadiva
     }
   };
 
@@ -33,6 +35,10 @@ export class FnmCharacterSheet extends FnmBaseActorSheet {
     },
     feiticos: {
       template: "systems/fnm/templates/actors/parts/character-feiticos.html",
+      scrollable: [""]
+    },
+    restringido: {
+      template: "systems/fnm/templates/actors/parts/character-restringido.html",
       scrollable: [""]
     },
     registro: {
@@ -58,6 +64,7 @@ export class FnmCharacterSheet extends FnmBaseActorSheet {
         { id: "pericias", label: "Perícias" },
         { id: "jujutsu", label: "Perfil Amaldiçoado" },
         { id: "feiticos", label: "Feitiços" },
+        { id: "restringido", label: "Restringido" },
         { id: "registro", label: "Registro e Inventário" },
         { id: "progressao", label: "Progressão" },
         { id: "treinamentos", label: "Treinamentos" }
@@ -97,6 +104,22 @@ export class FnmCharacterSheet extends FnmBaseActorSheet {
         itens: (context.itens.aptidao ?? []).filter(a => a.system.categoria === cat)
       }))
       .filter(g => g.itens.length);
+
+    // Restringido (p. 114-126): Técnicas Marciais agrupadas por nível, como os
+    // Feitiços, e a lista de Dádivas com a marcação do que já foi escolhido
+    const rv = sys.restringidoView ?? {};
+    context.tecnicasPorNivel = FNM.niveisTecnicaMarcial.map(n => ({
+      ...n,
+      disponivel: (rv.niveisDisponiveis ?? []).includes(n.id),
+      itens: (context.itens.tecnicaMarcial ?? []).filter(t => t.system.nivel === n.id)
+    }));
+    const escolhidas = sys.restringido?.dadivas ?? [];
+    context.dadivasView = FNM.dadivasDoCeu.map(d => ({
+      ...d,
+      escolhida: escolhidas.includes(d.id)
+    }));
+    context.excedeuTecnicas = (rv.usadas ?? 0) > (rv.conhecidas ?? 0);
+    context.excedeuDadivas = (rv.dadivasUsadas ?? 0) > (rv.dadivasTotal ?? 0);
 
     // Carga vem do data model (p. 129); aqui só sobra o peso, que é informativo
     context.carga = sys.carga;
@@ -168,7 +191,29 @@ export class FnmCharacterSheet extends FnmBaseActorSheet {
         this.actor.system.jujutsu?.tecnicaMaxima?.descricao
       );
     }
+    if (partId === "restringido") {
+      context.enrichedFundamento = await enriquecer(this.actor.system.restringido?.fundamento);
+    }
     return context;
+  }
+
+  /** Usa uma Técnica Marcial: gasta Estamina e resolve o acerto (p. 124). */
+  static async onUsarTecnicaMarcial(event, target) {
+    const item = this.actor.items.get(target.closest("[data-item-id]")?.dataset.itemId);
+    if (item) await this.actor.usarTecnicaMarcial(item);
+  }
+
+  /**
+   * Marca ou desmarca uma Dádiva do Céu. A lista é gravada direto no ator: os
+   * checkboxes não têm `name=`, porque um campo fora do schema derrubaria o
+   * submit inteiro da ficha.
+   */
+  static async onAlternarDadiva(event, target) {
+    const id = target.dataset.dadiva;
+    if (!id) return;
+    const atuais = this.actor.system.restringido?.dadivas ?? [];
+    const novas = atuais.includes(id) ? atuais.filter(d => d !== id) : [...atuais, id];
+    await this.actor.update({ "system.restringido.dadivas": novas });
   }
 
   /** Sobe o nível de personagem e lembra o que precisa ser escolhido. */

@@ -76,7 +76,8 @@ const MODELOS = {
   arma: M.ArmaDataModel,
   equipamento: M.EquipamentoDataModel,
   voto: M.VotoDataModel,
-  acaoInvocacao: M.AcaoInvocacaoDataModel
+  acaoInvocacao: M.AcaoInvocacaoDataModel,
+  tecnicaMarcial: M.TecnicaMarcialDataModel
 };
 
 const esquemas = Object.fromEntries(
@@ -90,6 +91,7 @@ const USO = {
   "character-pericias.html": ["character", "npc", "invocacao"],
   "character-jujutsu.html": ["character"],
   "character-feiticos.html": ["character"],
+  "character-restringido.html": ["character"],
   "character-registro.html": ["character"],
   "character-progressao.html": ["character"],
   "character-treinamentos.html": ["character"],
@@ -115,7 +117,7 @@ const USO = {
 const FICHAS = {
   Personagem: [
     "character-header", "character-principal", "character-pericias", "character-jujutsu",
-    "character-feiticos", "character-registro", "character-progressao",
+    "character-feiticos", "character-restringido", "character-registro", "character-progressao",
     "character-treinamentos", "actor-footer"
   ],
   NPC: [

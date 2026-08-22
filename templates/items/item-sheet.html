@@ -474,6 +474,101 @@
     {{/if}}
     {{/if}}
 
+    {{#if (eq item.type "tecnicaMarcial")}}
+    <div class="campos-grid">
+      <label>Nível
+        <select name="system.nivel">
+          {{#each config.niveisTecnicaMarcial as |n|}}
+          <option value="{{n.id}}" {{#if (eq n.id ../system.nivel)}}selected{{/if}}>{{n.nome}} ({{n.custo}} Estamina)</option>
+          {{/each}}
+        </select>
+      </label>
+      <label title="Deixe em -1 para usar o custo padrão do nível (p. 124)">Custo em Estamina
+        <input type="number" name="system.custoEstamina" value="{{system.custoEstamina}}" min="-1" />
+      </label>
+      <label>Execução
+        <select name="system.execucao">
+          {{#each config.conjuracoes as |c|}}
+          <option value="{{c}}" {{#if (eq c ../system.execucao)}}selected{{/if}}>{{c}}</option>
+          {{/each}}
+        </select>
+      </label>
+      <label>Duração
+        <select name="system.duracao">
+          {{#each config.duracoes as |d|}}
+          <option value="{{d}}" {{#if (eq d ../system.duracao)}}selected{{/if}}>{{d}}</option>
+          {{/each}}
+        </select>
+      </label>
+      <label>Resolução
+        <select name="system.resolucao">
+          <option value="ataque" {{#if (eq system.resolucao "ataque")}}selected{{/if}}>Jogada de Ataque</option>
+          <option value="resistencia" {{#if (eq system.resolucao "resistencia")}}selected{{/if}}>Teste de Resistência</option>
+          <option value="nenhuma" {{#if (eq system.resolucao "nenhuma")}}selected{{/if}}>Nenhuma</option>
+        </select>
+      </label>
+      <label title="Um Fundamento Marcial não pode trocar o atributo da jogada (p. 248)">Jogada de ataque
+        <select name="system.linhaAtaque">
+          <option value="corpoACorpo" {{#if (eq system.linhaAtaque "corpoACorpo")}}selected{{/if}}>Corpo a Corpo (Força)</option>
+          <option value="distancia" {{#if (eq system.linhaAtaque "distancia")}}selected{{/if}}>A Distância (Destreza)</option>
+        </select>
+      </label>
+      <label>Resistência exigida
+        <select name="system.resistencia">
+          <option value="">—</option>
+          {{#each resistencias as |r|}}
+          <option value="{{r.id}}" {{#if (eq r.id ../system.resistencia)}}selected{{/if}}>{{r.nome}}</option>
+          {{/each}}
+        </select>
+      </label>
+      <label>Alvo
+        <select name="system.alvo">
+          {{#each config.tiposAlvo as |a|}}
+          <option value="{{a}}" {{#if (eq a ../system.alvo)}}selected{{/if}}>{{a}}</option>
+          {{/each}}
+        </select>
+      </label>
+      <label>Alcance
+        <input type="text" name="system.alcance" value="{{system.alcance}}" placeholder="{{system.alcancePadrao}} metros" />
+      </label>
+      <label>Formato da área
+        <select name="system.area.formato">
+          <option value="">—</option>
+          {{#each config.formatosArea as |f|}}
+          <option value="{{f}}" {{#if (eq f ../system.area.formato)}}selected{{/if}}>{{f}}</option>
+          {{/each}}
+        </select>
+      </label>
+      <label>Área (m)
+        <input type="number" name="system.area.tamanho" value="{{system.area.tamanho}}" min="0" step="1.5" />
+      </label>
+      <label>Dano
+        <input type="text" name="system.dano" value="{{system.dano}}" placeholder="{{system.danoPadrao}}" />
+      </label>
+      <label title="Sem energia amaldiçoada o dano fica nos tipos físicos (p. 248)">Tipo de dano
+        <select name="system.tipoDano">
+          <option value="">—</option>
+          {{#each tiposDano as |t|}}
+          <option value="{{t.id}}" {{#if (eq t.id ../system.tipoDano)}}selected{{/if}}>{{t.nome}} ({{t.categoria}})</option>
+          {{/each}}
+        </select>
+      </label>
+      <label class="largo">Requisito
+        <input type="text" name="system.requisito" value="{{system.requisito}}" />
+      </label>
+      <label title="Usos restantes">Usos — Atual <input type="number" name="system.usos.value" value="{{system.usos.value}}" min="0" /></label>
+      <label title="0 = uso ilimitado">Usos — Máx. <input type="number" name="system.usos.max" value="{{system.usos.max}}" min="0" /></label>
+    </div>
+    <p class="dica">Técnicas Marciais são os Feitiços do Restringido: mesma criação e mesmas
+      tabelas de alcance, dano e área do nível correspondente, pagas em Estamina (p. 248).
+      Padrões deste nível: alcance <b>{{system.alcancePadrao}} m</b>, dano <b>{{system.danoPadrao}}</b>{{#if system.areaPadrao}},
+      área <b>{{numero system.areaPadrao}} m</b>{{/if}}.</p>
+    {{#if system.danoNaoFisico}}
+    <p class="dica aviso">Um Fundamento Marcial não pode causar dano além dos tipos físicos
+      (Cortante, Impacto e Perfurante), salvo acordo com o Narrador (p. 248).</p>
+    {{/if}}
+    {{/if}}
+
     {{#if (eq item.type "acaoInvocacao")}}
     <div class="campos-grid">
       <label title="Ações Simples são a ação bônus da Invocação e não causam dano nem curam (p. 262)">Tipo

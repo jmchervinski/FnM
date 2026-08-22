@@ -1,0 +1,113 @@
+{{!-- Restringido (p. 114-126): o que substitui o Perfil Amaldiçoado de quem não
+      tem energia. Estilo Marcial, Técnicas Marciais, Arsenal e Dádivas do Céu. --}}
+<div class="tab restringido {{tab.cssClass}}" data-group="primary" data-tab="restringido">
+
+  {{#unless system.ehRestringido}}
+  <p class="aviso">Esta aba vale para personagens da especialização <b>Restringido</b>.
+    {{actor.name}} não tem um item de especialização Restringido, então nada aqui concede
+    benefício — os campos ficam disponíveis para preparo.</p>
+  {{/unless}}
+
+  <fieldset class="bloco">
+    <legend>Estilo Marcial</legend>
+    <p class="dica">O Estilo Marcial é o equivalente da técnica amaldiçoada para o Restringido:
+      o <b>Fundamento</b> faz o papel do Funcionamento Básico, e as <b>Técnicas Marciais</b>
+      o aplicam (p. 124).</p>
+    <label class="campo-largo">Nome do estilo
+      <input type="text" name="system.restringido.estiloNome" value="{{system.restringido.estiloNome}}"
+             placeholder="Estilo de combate dos Zenin, boxe sujo…" />
+    </label>
+    <label class="campo-largo">Fundamento do Estilo</label>
+    <prose-mirror name="system.restringido.fundamento" toggled value="{{source.restringido.fundamento}}"
+                  {{#unless editable}}disabled{{/unless}}>{{{enrichedFundamento}}}</prose-mirror>
+    <label title="Restrito pelos Céus: você pode somar Força ou Constituição na Defesa, limitado pelo nível (p. 114)">
+      Atributo somado na Defesa
+      <select name="system.restringido.atributoDefesa">
+        <option value="">Nenhum</option>
+        <option value="forca" {{#if (eq system.restringido.atributoDefesa "forca")}}selected{{/if}}>Força</option>
+        <option value="constituicao" {{#if (eq system.restringido.atributoDefesa "constituicao")}}selected{{/if}}>Constituição</option>
+      </select>
+    </label>
+  </fieldset>
+
+  <fieldset class="bloco">
+    <legend>Técnicas Marciais</legend>
+    <p class="dica">Começa com 2 e recebe mais uma em cada nível ímpar de 3 a 19 (p. 124).
+      Conhecidas: <b class="{{#if excedeuTecnicas}}excedido{{/if}}">{{system.restringidoView.usadas}} /
+      {{system.restringidoView.conhecidas}}</b>. Níveis liberados agora:
+      <b>{{#each system.restringidoView.niveisDisponiveis as |n|}}{{n}} {{/each}}</b>.</p>
+
+    {{#each tecnicasPorNivel as |grupo|}}
+    <details class="grupo-colapsavel nivel-feitico {{#unless grupo.disponivel}}indisponivel{{/unless}}"
+             data-colapso="marcial-{{grupo.id}}" open>
+      <summary>
+        {{grupo.nome}}
+        <span class="contador">{{grupo.itens.length}}</span>
+        <span class="nivel-info">custo {{grupo.custo}} Estamina</span>
+        {{#unless grupo.disponivel}}<span class="aviso">fora do seu acesso</span>{{/unless}}
+        <button type="button" class="mini-btn" data-action="itemCreate" data-type="tecnicaMarcial"
+                data-nivel="{{grupo.id}}" title="Criar uma Técnica Marcial deste nível"><i class="fas fa-plus"></i></button>
+      </summary>
+
+      <ol class="item-list">
+        {{#each grupo.itens as |item|}}
+        <li class="item feitico-item" data-item-id="{{item.id}}">
+          <img class="item-img" src="{{item.img}}" width="24" height="24" />
+          <a class="item-nome" data-action="itemExpand">{{item.name}}</a>
+          <span class="item-tag">
+            {{item.system.custoEfetivo}} Estamina · {{item.system.execucao}}
+            {{#if item.system.dano}} · {{item.system.dano}}{{/if}}
+          </span>
+          <div class="item-controls">
+            <a data-action="usarTecnicaMarcial" title="Usar (gasta Estamina)"><i class="fas fa-hand-fist"></i></a>
+            <a data-action="itemChat" title="Enviar ao chat"><i class="fas fa-comment"></i></a>
+            <a data-action="itemEdit" title="Editar"><i class="fas fa-edit"></i></a>
+            <a data-action="itemDelete" title="Excluir"><i class="fas fa-trash"></i></a>
+          </div>
+          <div class="item-descricao">
+            {{#if item.system.danoNaoFisico}}
+            <p class="dica aviso">Sem energia amaldiçoada, o dano de uma Técnica Marcial fica nos
+              tipos físicos, salvo acordo com o Narrador (p. 248).</p>
+            {{/if}}
+            {{{item.system.description}}}
+          </div>
+        </li>
+        {{/each}}
+      </ol>
+    </details>
+    {{/each}}
+  </fieldset>
+
+  <fieldset class="bloco">
+    <legend>Arsenal Amaldiçoado</legend>
+    <p class="dica">As ferramentas do Restringido são <b>atualizadas</b> conforme o Bônus de
+      Treinamento sobe, e não acumuladas (p. 125). Com BT <b>+{{system.restringidoView.arsenal.bt}}</b>:</p>
+    <p class="arsenal-texto"><b>{{system.restringidoView.arsenal.texto}}</b></p>
+    <p class="dica">A ferramenta da habilidade base conta para o arsenal. Podem ser armas, escudos
+      ou uniformes, de custo 1 ou 2 — as de custo superior a partir do nível 5. O Restringido
+      alterna livremente entre as armas do arsenal durante o turno, inclusive na ação de ataque.</p>
+  </fieldset>
+
+  <fieldset class="bloco">
+    <legend>Dádivas do Céu</legend>
+    <p class="dica">Uma a cada 4 níveis (p. 126). Escolhidas:
+      <b class="{{#if excedeuDadivas}}excedido{{/if}}">{{system.restringidoView.dadivasUsadas}} /
+      {{system.restringidoView.dadivasTotal}}</b>.</p>
+    <ol class="item-list dadivas-lista">
+      {{#each dadivasView as |d|}}
+      <li class="item dadiva {{#if d.escolhida}}equipado{{/if}}">
+        {{!-- Sem name=: um campo fora do schema invalidaria o submit inteiro da
+              ficha. O handler grava a lista direto no ator. --}}
+        <label class="checkbox">
+          <input type="checkbox" data-action="alternarDadiva" data-dadiva="{{d.id}}"
+                 {{#if d.escolhida}}checked{{/if}} />
+          <b>{{d.nome}}</b>
+        </label>
+        <span class="item-tag">{{#if d.manual}}efeito manual{{else}}automatizada{{/if}}</span>
+        <div class="item-descricao sempre-visivel">{{d.resumo}}</div>
+      </li>
+      {{/each}}
+    </ol>
+  </fieldset>
+
+</div>
