@@ -806,10 +806,9 @@ export class FnmActor extends Actor {
 
     // Estados da Alma aumentam o custo de todas as habilidades (p. 312)
     const custo = sys.custoEfetivo + (s.alma?.custoExtra ?? 0);
-    const pe = s.recursos.pe;
-    if (custo > pe.value) {
+    if (custo > this.peDisponivel) {
       return ui.notifications.warn(
-        `PE insuficiente: ${item.name} custa ${custo} PE e ${this.name} tem ${pe.value}.`
+        `PE insuficiente: ${item.name} custa ${custo} PE e ${this.name} tem ${this.peDisponivel}.`
       );
     }
 
@@ -824,15 +823,18 @@ export class FnmActor extends Actor {
     ];
     if (sys.requisito) linhas.push(`<b>Requisito:</b> ${sys.requisito}`);
 
-    let custoTotal = custo;
     if (s.alma?.custoExtra) {
       linhas.push(
         `<b>Alma ${s.alma.estado}:</b> +${s.alma.custoExtra} PE no custo (p. 312).`
       );
     }
 
-    await this.update({ "system.recursos.pe.value": pe.value - custoTotal });
-    linhas.push(`<b>PE:</b> -${custoTotal} → ${pe.value - custoTotal}/${pe.max}`);
+    // A conferência de PE já passou acima; isto protege quem mexer na ordem
+    const extrato = await this.gastarPE(custo);
+    if (!extrato) {
+      return ui.notifications.warn(`PE insuficiente para conjurar ${item.name}.`);
+    }
+    linhas.push(...extrato);
 
     // Resolução por TR: a carta não resolve nada sozinha. Quem rola o teste é o
     // alvo, e o dano só sai depois — então os dois viram botões, em vez de o
@@ -867,6 +869,57 @@ export class FnmActor extends Actor {
     }
 
     return true;
+  }
+
+  /* ------------------------------------------ */
+  /*  Energia Amaldiçoada                       */
+  /* ------------------------------------------ */
+
+  /**
+   * Quanta Energia Amaldiçoada este ator tem para gastar agora.
+   *
+   * O PE temporário entra na conta junto do normal: é energia que o
+   * personagem tem, e a ficha oficial lhe dá uma caixa própria justamente
+   * para ser gasta. Sem isto, uma habilidade que o personagem podia pagar
+   * era recusada por caber só no temporário.
+   */
+  get peDisponivel() {
+    const r = this.system.recursos;
+    return (r.pe?.value ?? 0) + (r.peTemporario ?? 0);
+  }
+
+  /**
+   * Gasta PE, consumindo primeiro o temporário — a mesma ordem em que o PV
+   * temporário absorve dano antes do PV normal (p. 311).
+   *
+   * Devolve a linha de extrato para a carta, ou `null` se não houver energia
+   * suficiente. Quem chama já deve ter conferido `peDisponivel`.
+   */
+  async gastarPE(quantidade) {
+    const custo = Math.max(0, Math.floor(Number(quantidade) || 0));
+    if (!custo) return [];
+
+    const r = this.system.recursos;
+    const temporario = r.peTemporario ?? 0;
+    if (custo > this.peDisponivel) return null;
+
+    // O temporário sai primeiro; o que sobrar vem do PE normal
+    const doTemporario = Math.min(temporario, custo);
+    const doNormal = custo - doTemporario;
+
+    const atualizacoes = {};
+    if (doTemporario) atualizacoes["system.recursos.peTemporario"] = temporario - doTemporario;
+    if (doNormal) atualizacoes["system.recursos.pe.value"] = r.pe.value - doNormal;
+    await this.update(atualizacoes);
+
+    const partes = [];
+    if (doTemporario) partes.push(`${doTemporario} do temporário`);
+    if (doNormal) partes.push(`${doNormal} do normal`);
+    return [
+      `<b>PE:</b> -${custo}${partes.length > 1 ? ` (${partes.join(" + ")})` : ""}` +
+        ` → ${r.pe.value - doNormal}/${r.pe.max}` +
+        (temporario - doTemporario > 0 ? ` + ${temporario - doTemporario} temp.` : "")
+    ];
   }
 
   /* ------------------------------------------ */
@@ -920,18 +973,16 @@ export class FnmActor extends Actor {
       return seguir ? [`<b>Custo:</b> ${custo} PE (sem invocador para pagar)`] : null;
     }
 
-    const pe = invocador.system.recursos.pe;
-    if (custo > pe.value) {
+    if (custo > invocador.peDisponivel) {
       ui.notifications.warn(
-        `PE insuficiente: ${item.name} custa ${custo} PE e ${invocador.name} tem ${pe.value}.`
+        `PE insuficiente: ${item.name} custa ${custo} PE e ` +
+          `${invocador.name} tem ${invocador.peDisponivel}.`
       );
       return null;
     }
 
-    await invocador.update({ "system.recursos.pe.value": pe.value - custo });
-    return [
-      `<b>PE de ${invocador.name}:</b> -${custo} → ${pe.value - custo}/${pe.max}`
-    ];
+    const extrato = await invocador.gastarPE(custo);
+    return extrato.map(l => l.replace("<b>PE:</b>", `<b>PE de ${invocador.name}:</b>`));
   }
 
   /**
@@ -1306,7 +1357,7 @@ export class FnmActor extends Actor {
     const s = this.system;
     const pool = foundry.utils.deepClone(s.dadosVida ?? []).map(d => ({ ...d, gastos: 0 }));
 
-    await this.update({
+    const atualizacoes = {
       "system.recursos.pv.value": s.recursos.pv.max,
       "system.recursos.pe.value": s.recursos.pe.max,
       "system.recursos.estamina.value": s.recursos.estamina.max,
@@ -1314,13 +1365,35 @@ export class FnmActor extends Actor {
       "system.exaustao": Math.max(0, s.exaustao - 1),
       "system.morte.sucessos": 0,
       "system.morte.falhas": 0
-    });
+    };
+
+    // Os contadores de uso do Grimório são do NPC, e não de um item (p. 18-19)
+    for (const chave of ["guardaInabalavel", "resistenciaParcial", "resistenciaTotal"]) {
+      const contador = s.inimigo?.[chave];
+      if (contador?.max > 0) atualizacoes[`system.inimigo.${chave}.value`] = contador.max;
+    }
+
+    await this.update(atualizacoes);
+
+    // Habilidades, Talentos, Aptidões, Técnicas e Ações voltam com os usos
+    // cheios: é justamente no descanso longo que elas se recuperam (p. 335).
+    // Sem isto o contador da ficha só subia clicando no "+", um uso por vez.
+    const recuperados = this.items.filter(
+      i => i.system?.usos?.max > 0 && i.system.usos.value < i.system.usos.max
+    );
+    if (recuperados.length) {
+      await this.updateEmbeddedDocuments(
+        "Item",
+        recuperados.map(i => ({ _id: i.id, "system.usos.value": i.system.usos.max }))
+      );
+    }
 
     return ChatMessage.create({
       speaker: ChatMessage.getSpeaker({ actor: this }),
       content:
         `<b>${this.name}</b> realiza um <b>Descanso Longo</b>: PV, PE e Dados de Vida ` +
         `restaurados; falhas nas Portas da Morte removidas` +
+        (recuperados.length ? `; ${recuperados.length} item(ns) com usos restaurados` : "") +
         (s.exaustao > 0 ? `; exaustão ${s.exaustao} → ${s.exaustao - 1}` : "") +
         `.`
     });

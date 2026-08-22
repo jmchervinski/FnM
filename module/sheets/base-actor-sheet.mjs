@@ -293,8 +293,8 @@ export class FnmBaseActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) 
   static async onDescansoLongo() {
     const confirmado = await foundry.applications.api.DialogV2.confirm({
       window: { title: `Descanso Longo — ${this.actor.name}` },
-      content: `<p>Recupera todos os PV, PE e Dados de Vida, remove as falhas nas Portas da Morte
-        e recupera um nível de exaustão (p. 335). Continuar?</p>`,
+      content: `<p>Recupera todos os PV, PE e Dados de Vida, restaura os usos das habilidades,
+        remove as falhas nas Portas da Morte e recupera um nível de exaustão (p. 335). Continuar?</p>`,
       rejectClose: false
     });
     if (confirmado) await this.actor.descansoLongo();

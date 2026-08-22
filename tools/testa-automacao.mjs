@@ -484,7 +484,132 @@ const npcBase = sys => {
   }
 }
 
-/* -------- 8. O diálogo cabe na tela de quem está jogando -------- */
+/* -------- 8. O PE temporário é gasto antes do normal -------- */
+
+{
+  globalThis.Actor ??= class {};
+  const { FnmActor } = await import(new URL("../module/documents/actor.mjs", import.meta.url));
+
+  // Um ator de mentira que só sabe guardar recursos e registrar o update
+  const ator = (value, temporario, max = 20) => {
+    const alvo = {
+      system: { recursos: { pe: { value, max }, peTemporario: temporario } },
+      updates: {},
+      async update(dados) {
+        Object.assign(this.updates, dados);
+      }
+    };
+    Object.defineProperty(alvo, "peDisponivel", {
+      get: Object.getOwnPropertyDescriptor(FnmActor.prototype, "peDisponivel").get
+    });
+    alvo.gastarPE = FnmActor.prototype.gastarPE;
+    return alvo;
+  };
+
+  confere("PE: o disponível soma o temporário", ator(5, 3).peDisponivel, 8);
+
+  // O caso que estava quebrado: o custo cabia no temporário e era recusado
+  const soTemporario = ator(0, 6);
+  const extrato = await soTemporario.gastarPE(4);
+  confere("PE: gasta do temporário quando o normal está zerado", extrato === null, false);
+  confere(
+    "PE: e desconta só do temporário",
+    soTemporario.updates["system.recursos.peTemporario"],
+    2
+  );
+  confere(
+    "PE: sem tocar no normal",
+    soTemporario.updates["system.recursos.pe.value"],
+    undefined
+  );
+
+  // O temporário sai primeiro, e o resto vem do normal
+  const misto = ator(10, 3);
+  await misto.gastarPE(5);
+  confere("PE: o temporário é consumido primeiro", misto.updates["system.recursos.peTemporario"], 0);
+  confere("PE: o resto sai do normal", misto.updates["system.recursos.pe.value"], 8);
+
+  // Sem temporário nenhum, o comportamento antigo continua valendo
+  const semTemp = ator(10, 0);
+  await semTemp.gastarPE(4);
+  confere("PE: sem temporário desconta do normal", semTemp.updates["system.recursos.pe.value"], 6);
+  confere(
+    "PE: e não escreve no temporário à toa",
+    semTemp.updates["system.recursos.peTemporario"],
+    undefined
+  );
+
+  // Mais caro que tudo que existe: não gasta nada e avisa quem chamou
+  const pobre = ator(2, 1);
+  confere("PE: acima do disponível não gasta", await pobre.gastarPE(5), null);
+  confere("PE: e não escreve update nenhum", Object.keys(pobre.updates).length, 0);
+}
+
+/* -------- 9. O Descanso Longo devolve os usos das habilidades -------- */
+
+{
+  globalThis.Actor ??= class {};
+  globalThis.ChatMessage = { create: async () => null, getSpeaker: () => ({}) };
+  globalThis.foundry.utils.deepClone = o => JSON.parse(JSON.stringify(o));
+  const { FnmActor } = await import(new URL("../module/documents/actor.mjs", import.meta.url));
+
+  const item = (id, value, max) => ({ id, system: { usos: { value, max } } });
+  const itens = [
+    item("gasta", 0, 3), // habilidade esgotada: tem de voltar cheia
+    item("meia", 1, 2), // parcialmente gasta: idem
+    item("cheia", 2, 2), // já cheia: não precisa de update
+    item("semUsos", 0, 0) // sem contador: não é da conta do descanso
+  ];
+
+  const ator = {
+    name: "Yuji",
+    items: itens,
+    system: {
+      recursos: {
+        pv: { value: 1, max: 30 },
+        pe: { value: 0, max: 10 },
+        estamina: { value: 0, max: 0 }
+      },
+      dadosVida: [{ dado: "d8", total: 3, gastos: 2 }],
+      exaustao: 2,
+      inimigo: { guardaInabalavel: { value: 0, max: 2 }, resistenciaParcial: { value: 0, max: 0 } }
+    },
+    updates: {},
+    embutidos: [],
+    async update(dados) {
+      Object.assign(this.updates, dados);
+    },
+    async updateEmbeddedDocuments(tipo, lista) {
+      this.embutidos.push(...lista);
+    }
+  };
+  ator.descansoLongo = FnmActor.prototype.descansoLongo;
+  await ator.descansoLongo();
+
+  const tocados = ator.embutidos.map(u => u._id).sort().join(",");
+  confere("Descanso: devolve os usos dos itens gastos", tocados, "gasta,meia");
+  confere(
+    "Descanso: e devolve até o máximo de cada um",
+    ator.embutidos.map(u => u["system.usos.value"]).join(","),
+    "3,2"
+  );
+  // Os contadores próprios do NPC vêm do Grimório, e não de um item
+  confere(
+    "Descanso: o contador do NPC também volta",
+    ator.updates["system.inimigo.guardaInabalavel.value"],
+    2
+  );
+  confere(
+    "Descanso: um contador zerado não é inventado",
+    ator.updates["system.inimigo.resistenciaParcial.value"],
+    undefined
+  );
+  // O que já funcionava continua funcionando
+  confere("Descanso: PV voltam ao máximo", ator.updates["system.recursos.pv.value"], 30);
+  confere("Descanso: a exaustão cai um nível", ator.updates["system.exaustao"], 1);
+}
+
+/* -------- 10. O diálogo cabe na tela de quem está jogando -------- */
 
 {
   const { tamanhoDeDialogo } = await import(new URL("../module/dialogos.mjs", import.meta.url));
