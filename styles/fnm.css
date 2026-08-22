@@ -1493,3 +1493,27 @@
   font-style: italic;
   opacity: 0.6;
 }
+
+/* -------------------------------------------- */
+/*  Diálogos                                    */
+/* -------------------------------------------- */
+
+/* Um DialogV2 cresce com o conteúdo e não se limita à tela: num monitor baixo
+   o resumo da importação empurrava os botões para fora da área visível, e o
+   diálogo é modal — não dava nem para fugir dele. A altura passa a ser uma
+   fração da tela de quem joga, e o excedente rola por dentro, deixando o
+   rodapé de botões sempre alcançável. */
+.fnm-dialogo-rolagem {
+  max-height: 60vh;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding-right: 0.4rem;
+}
+
+/* Telas baixas (notebooks 768p e menos) sobra menos altura para o conteúdo,
+   porque a moldura e o rodapé do diálogo custam o mesmo em qualquer tela. */
+@media (max-height: 800px) {
+  .fnm-dialogo-rolagem {
+    max-height: 50vh;
+  }
+}

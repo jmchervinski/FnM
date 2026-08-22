@@ -9,6 +9,7 @@
  */
 import { FNM, custoSustento } from "../config.mjs";
 import { cartaAtaque, cartaDano, cartaResistencia } from "../chat.mjs";
+import { comRolagem, opcoesDeDialogo } from "../dialogos.mjs";
 
 /** Constrói a fórmula do d20 conforme vantagem/desvantagem (p. 282). */
 function formulaD20(vantagem = 0) {
@@ -522,10 +523,12 @@ export class FnmActor extends Actor {
     );
 
     return foundry.applications.api.DialogV2.prompt({
-      window: { title: `${perfil.nome} — ${this.name}` },
+      window: { title: `${perfil.nome} — ${this.name}`, resizable: true },
       classes: ["fnm-dialogo"],
-      position: { width: 440 },
-      content: conteudo,
+      // Largura relativa à janela, e não fixa: o diálogo lista um modificador
+      // por linha e precisa caber em telas de qualquer tamanho
+      ...opcoesDeDialogo({ fracao: 0.34, minimo: 400, maximo: 520 }),
+      content: comRolagem(conteudo),
       rejectClose: false,
       // O total ao vivo é um extra: se o callback mudar de forma entre versões
       // do Foundry, o diálogo continua funcionando com os valores estáticos

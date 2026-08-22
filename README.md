@@ -222,6 +222,11 @@ por ND e não da soma atributo + metade do nível + proficiência. Um campo vazi
 manuais" devolve tudo para as fórmulas sem apagar os números importados**. A penalidade de
 Exaustão e de Estado da Alma continua entrando por cima do total, como em qualquer ficha.
 
+Os diálogos da importação e o de ataque abrem com **largura relativa à janela** e seguram o
+conteúdo em uma fração da altura da tela, rolando o excedente: um `DialogV2` cresce junto com o
+conteúdo e, num monitor baixo, o resumo empurrava os botões de confirmar para fora da área
+visível — e o diálogo é modal, então não dava nem para fugir dele. Todos são redimensionáveis.
+
 Para macros, a API está em `game.fnm.importar` (`lerArquivo`, `mapearInimigo`, `aplicarNoAtor`,
 `importarDeArquivo`). `mapearInimigo` é uma função pura, e `npm run check` roda ela contra todo
 `tools/dados/exemplo-inimigo*.json` conferindo cada caminho que ela produz contra o schema do

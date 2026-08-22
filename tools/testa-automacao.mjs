@@ -320,6 +320,43 @@ const npcBase = sys => {
   );
 }
 
+/* -------- 7. O diálogo cabe na tela de quem está jogando -------- */
+
+{
+  const { tamanhoDeDialogo } = await import(new URL("../module/dialogos.mjs", import.meta.url));
+
+  // Da janela espremida ao 4K. O que não pode acontecer é o diálogo nascer mais
+  // largo que a tela: aí a moldura sai da área visível e os botões do rodapé
+  // ficam inalcançáveis, que é o defeito que isto conserta.
+  const larguras = [400, 800, 1024, 1280, 1366, 1600, 1920, 2560, 3840];
+  const medidas = [
+    { rotulo: "confirmação da importação", opcoes: { fracao: 0.5, maximo: 860 } },
+    { rotulo: "diálogo de ataque", opcoes: { fracao: 0.34, minimo: 400, maximo: 520 } }
+  ];
+
+  const largacoOriginal = globalThis.innerWidth;
+  for (const { rotulo, opcoes } of medidas) {
+    for (const tela of larguras) {
+      globalThis.innerWidth = tela;
+      const { width } = tamanhoDeDialogo(opcoes);
+      const teto = Math.max(280, tela - 40);
+      if (width > teto) {
+        confere(`${rotulo} em ${tela}px: cabe na tela`, `${width}px`, `até ${teto}px`);
+      }
+    }
+  }
+  globalThis.innerWidth = largacoOriginal;
+
+  // Sem janela (fora do navegador) ainda sai um número utilizável
+  delete globalThis.innerWidth;
+  confere(
+    "diálogo sem window: cai num padrão utilizável",
+    Number.isFinite(tamanhoDeDialogo().width),
+    true
+  );
+  globalThis.innerWidth = largacoOriginal;
+}
+
 if (problemas) {
   console.log(`\n${problemas} problema(s) de automação encontrado(s).`);
   process.exit(1);

@@ -17,6 +17,7 @@
  * o Foundry.
  */
 import { FNM, bonusTreinamentoND } from "./config.mjs";
+import { comRolagem, opcoesDeDialogo } from "./dialogos.mjs";
 
 /* -------------------------------------------- */
 /*  Tradução dos vocabulários                   */
@@ -716,8 +717,9 @@ export async function importarDeArquivo(ator) {
   }
 
   const escolha = await dialogo().wait({
-    window: { title: `Importar ficha de inimigo — ${ator.name}` },
-    content: `
+    ...opcoesDeDialogo(),
+    window: { title: `Importar ficha de inimigo — ${ator.name}`, resizable: true },
+    content: comRolagem(`
       <p>Escolha um JSON exportado por um construtor de criaturas de Feiticeiros &amp;
       Maldições 2.5.</p>
       <p><input type="file" name="arquivo" accept=".json,application/json" /></p>
@@ -726,7 +728,7 @@ export async function importarDeArquivo(ator) {
         Apagar os Dotes e Características que já estão na ficha
       </label>
       <p class="hint">Sem marcar, os poderes do arquivo são somados aos que já existem.
-      O resto da ficha nunca é apagado: o que o arquivo não trouxer fica como está.</p>`,
+      O resto da ficha nunca é apagado: o que o arquivo não trouxer fica como está.</p>`),
     buttons: [
       {
         action: "importar",
@@ -802,9 +804,12 @@ async function escolherCriatura(criaturas) {
     .join("");
 
   const indice = await dialogo().wait({
-    window: { title: "Qual criatura importar?" },
-    content: `<p>O arquivo tem ${criaturas.length} criaturas.</p>
-      <p><select name="indice" style="width:100%">${opcoes}</select></p>`,
+    ...opcoesDeDialogo(),
+    window: { title: "Qual criatura importar?", resizable: true },
+    content: comRolagem(
+      `<p>O arquivo tem ${criaturas.length} criaturas.</p>
+       <p><select name="indice" style="width:100%">${opcoes}</select></p>`
+    ),
     buttons: [
       {
         action: "escolher",
@@ -834,8 +839,11 @@ async function confirmarResumo(ator, mapeado, substituir) {
     : "";
 
   const confirmado = await dialogo().confirm({
-    window: { title: "Confirmar importação" },
-    content: `
+    // Este é o diálogo comprido: o resumo cresce com o tamanho da ficha e os
+    // avisos, e sem limite de altura ele empurra os botões para fora da tela.
+    ...opcoesDeDialogo({ fracao: 0.5, maximo: 860 }),
+    window: { title: "Confirmar importação", resizable: true },
+    content: comRolagem(`
       <p>Vai ser escrito em <b>${esc(ator.name)}</b>:</p>
       <ul>
         ${linha("Nome", mapeado.nome || undefined)}
@@ -856,7 +864,7 @@ async function confirmarResumo(ator, mapeado, substituir) {
       <p class="hint">A importação liga <b>Valores manuais</b>, porque o construtor exporta os
       totais já fechados. Desligar essa opção na ficha devolve tudo para as fórmulas do livro,
       sem perder os números importados.</p>
-      ${avisos}`,
+      ${avisos}`),
     rejectClose: false,
     modal: true
   });
