@@ -21,6 +21,12 @@ import {
   dadivasRecebidas,
   arsenalDoRestringido
 } from "./config.mjs";
+import {
+  SEM_CONDICOES,
+  agregarCondicoes,
+  deslocamentoComCondicoes,
+  resolverCondicoes
+} from "./condicoes.mjs";
 
 const { HTMLField, NumberField, SchemaField, StringField, BooleanField, ArrayField } =
   foundry.data.fields;
@@ -129,6 +135,25 @@ const treinamentosSchema = () => {
   }
   return new SchemaField(campos);
 };
+
+/**
+ * Condições que um item aplica (p. 207). Cada linha aponta uma condição do
+ * catálogo; o resto é o que o livro deixa em aberto:
+ *
+ *   nivel    só para o Sangramento, que é variável e define a perda de vida
+ *   rodadas  0 usa a duração padrão da tabela da p. 208; -1 é a cena inteira
+ *   formula  perda de vida ou dano contínuo próprio, no lugar do padrão
+ */
+const condicoesSchema = () =>
+  new ArrayField(
+    new SchemaField({
+      id: new StringField({ required: true, blank: true }),
+      nivel: new StringField({ required: true, blank: true }),
+      rodadas: new NumberField({ required: true, integer: true, min: -1, initial: 0 }),
+      formula: new StringField({ required: true, blank: true })
+    }),
+    { required: true, initial: [] }
+  );
 
 /** Níveis de Aptidão (AU, CL, BAR, DOM, ER), de 0 a 5. */
 const aptidoesSchema = () => {
@@ -291,7 +316,8 @@ class BaseActorModel extends foundry.abstract.TypeDataModel {
         p.outros +
         this.penalidadeGlobal +
         // Uniformes e escudos pesam só nas perícias de Destreza (p. 140-141)
-        (cfg.atributo === "destreza" ? this.penalidadeDestreza : 0);
+        (cfg.atributo === "destreza" ? this.penalidadeDestreza : 0) +
+        this._condicaoNaPericia(id);
       // Perícias que exigem treino ficam inutilizáveis sem ele (salvo exceções da mesa)
       p.bloqueada = p.exigeTreino && !p.treinado && !p.mestre;
     }
@@ -305,8 +331,22 @@ class BaseActorModel extends foundry.abstract.TypeDataModel {
         metade +
         bonusProficiencia(nivel, r) +
         r.outros +
-        this.penalidadeGlobal;
+        this.penalidadeGlobal +
+        // Reflexos tem penalidade própria (Desprevenido); as duas não se
+        // acumulam, vale a mais severa (p. 317)
+        (id === "reflexos" ? this.condicoes.totalReflexos : this.condicoes.totalResistencias);
     }
+  }
+
+  /**
+   * O que as condições tiram de uma perícia. Percepção e Furtividade têm
+   * modificadores próprios (Cego e Invisível), e o resto usa a penalidade geral.
+   */
+  _condicaoNaPericia(id) {
+    const c = this.condicoes;
+    if (id === "percepcao") return c.totalPercepcao;
+    if (id === "furtividade") return c.totalFurtividade;
+    return c.totalPericias;
   }
 
   /** Defesa, Atenção, Iniciativa e Deslocamento (p. 19-20, 282). */
@@ -316,6 +356,8 @@ class BaseActorModel extends foundry.abstract.TypeDataModel {
     const itens = this.ajustesItens ?? { defesa: 0, deslocamento: 0, reducaoDano: 0 };
     const sobrecarga = this.carga?.sobrecarregado === true;
 
+    const cond = this.condicoes;
+
     c.defesa =
       10 +
       this.atributos.destreza.mod +
@@ -324,27 +366,40 @@ class BaseActorModel extends foundry.abstract.TypeDataModel {
       c.defesaOutros +
       itens.defesa +
       this.penalidadeGlobal +
-      (sobrecarga ? FNM.carga.defesaSobrecarga : 0);
+      (sobrecarga ? FNM.carga.defesaSobrecarga : 0) +
+      cond.totalDefesa;
+
+    // Caído troca de Defesa conforme quem ataca: -3 no corpo a corpo e +3 a
+    // distância (p. 318). A Defesa da ficha é a geral; estas duas são o que a
+    // mesa consulta quando o ataque tem lado
+    c.defesaCorpoACorpo = c.defesa - cond.totalDefesa + cond.totalDefesaCorpoACorpo;
+    c.defesaDistancia = c.defesa - cond.totalDefesa + cond.totalDefesaDistancia;
 
     // Atenção é uma percepção passiva: 10 + bônus de Percepção (p. 19)
     c.atencao = 10 + (this.pericias.percepcao?.total ?? 0) + c.atencaoOutros;
 
-    c.iniciativa = this.atributos.destreza.mod + c.iniciativaOutros + this.penalidadeGlobal;
+    c.iniciativa =
+      this.atributos.destreza.mod + c.iniciativaOutros + this.penalidadeGlobal + cond.iniciativa;
 
-    // RD geral (somando equipamentos) e a grade por tipo de dano
-    c.reducaoDanoTotal = c.rd.geral + itens.reducaoDano;
+    // RD geral (somando equipamentos) e a grade por tipo de dano. Fragilizado
+    // zera a Redução de Dano e anula as resistências (p. 319)
+    c.reducaoDanoTotal = cond.semRD ? 0 : c.rd.geral + itens.reducaoDano;
     c.rdPorTipo = {};
     for (const tipo of FNM.tiposComRD) {
-      c.rdPorTipo[tipo] = c.reducaoDanoTotal + (c.rd[tipo] ?? 0);
+      c.rdPorTipo[tipo] = cond.semRD ? 0 : c.reducaoDanoTotal + (c.rd[tipo] ?? 0);
     }
 
-    // Cada nível de exaustão reduz 1,5 m de deslocamento (p. 324)
-    c.deslocamentoAtual = Math.max(
-      0,
-      c.deslocamento +
-        itens.deslocamento -
-        this.exaustao * 1.5 +
-        (sobrecarga ? FNM.carga.deslocamentoSobrecarga : 0)
+    // Cada nível de exaustão reduz 1,5 m de deslocamento (p. 324); as condições
+    // de movimento entram depois, com o teto e a metade da p. 318
+    c.deslocamentoAtual = deslocamentoComCondicoes(
+      Math.max(
+        0,
+        c.deslocamento +
+          itens.deslocamento -
+          this.exaustao * 1.5 +
+          (sobrecarga ? FNM.carga.deslocamentoSobrecarga : 0)
+      ),
+      cond
     );
   }
 
@@ -365,7 +420,16 @@ class BaseActorModel extends foundry.abstract.TypeDataModel {
       const mod = this.atributos[chave]?.mod ?? 0;
       a.nome = cfg.nome;
       a.modAtributo = mod;
-      a.total = mod + metade + (a.treinado ? bt : 0) + a.outros + this.penalidadeGlobal;
+      a.total =
+        mod +
+        metade +
+        (a.treinado ? bt : 0) +
+        a.outros +
+        this.penalidadeGlobal +
+        // Caído pesa só no corpo a corpo; Abalado e afins, em toda jogada
+        (id === "corpoACorpo"
+          ? this.condicoes.totalAtaqueCorpoACorpo
+          : this.condicoes.totalAtaque);
       this.ataquesView[id] = a;
     }
   }
@@ -389,6 +453,18 @@ class BaseActorModel extends foundry.abstract.TypeDataModel {
       custoExtra: estado.custoExtra,
       condicoes: estado.condicoes
     };
+  }
+
+  /**
+   * Lê as condições ligadas no ator e agrega o efeito mecânico delas.
+   *
+   * Roda antes de qualquer fórmula: Defesa, perícias, resistências, jogadas de
+   * ataque e deslocamento consultam `this.condicoes`. Quando chega aqui o
+   * Foundry já aplicou os Active Effects, então `statuses` traz tanto o que foi
+   * ligado no HUD do token quanto o que foi arrastado de uma carta.
+   */
+  _prepararCondicoes() {
+    this.condicoes = agregarCondicoes([...(this.parent?.statuses ?? [])]);
   }
 
   /** Penalidade acumulada de Exaustão e Estado da Alma, aplicada às rolagens. */
@@ -423,10 +499,12 @@ class BaseActorModel extends foundry.abstract.TypeDataModel {
     this.penalidadeDestreza = 0;
     this.carga = { ocupados: 0, limite: 0, maximo: 0, sobrecarregado: false, excedido: false };
     this.alma = { estado: "Estável", penalidade: 0, custoExtra: 0, condicoes: [] };
+    this.condicoes = SEM_CONDICOES;
   }
 
   prepareDerivedData() {
     super.prepareDerivedData();
+    this._prepararCondicoes();
     this.ajustesItens = this._ajustesDeItens();
     this._prepararModificadores();
     // Carga depende do modificador de Força e pesa na Defesa e no Deslocamento
@@ -679,6 +757,7 @@ export class CharacterDataModel extends BaseActorModel {
 
   prepareDerivedData() {
     // Ordem importa: PV/PE dependem dos itens; Integridade depende do PV.
+    this._prepararCondicoes();
     this.ajustesItens = this._ajustesDeItens();
     this._prepararModificadores();
     // Carga depende do modificador de Força e pesa na Defesa e no Deslocamento
@@ -1016,38 +1095,55 @@ export class NpcDataModel extends BaseActorModel {
    * ficar vazio continua saindo do cálculo normal.
    *
    * A penalidade global (Exaustão e Estado da Alma) continua entrando depois:
-   * ela é uma condição do momento, não parte do valor de ficha.
+   * ela é uma condição do momento, não parte do valor de ficha. O mesmo vale
+   * para as condições — um inimigo Envenenado do Grimório rola o acerto
+   * fechado dele com o -2, e não sem.
    */
   _aplicarValoresManuais() {
     if (!this.detalhes.valoresManuais) return;
     const m = this.manuais;
+    const cond = this.condicoes;
 
     if (this.combate.defesaManual > 0) {
-      this.combate.defesa = this.combate.defesaManual + this.penalidadeGlobal;
+      this.combate.defesa = this.combate.defesaManual + this.penalidadeGlobal + cond.totalDefesa;
+      this.combate.defesaCorpoACorpo =
+        this.combate.defesa - cond.totalDefesa + cond.totalDefesaCorpoACorpo;
+      this.combate.defesaDistancia =
+        this.combate.defesa - cond.totalDefesa + cond.totalDefesaDistancia;
     }
     if (m.atencao !== null) this.combate.atencao = m.atencao;
-    if (m.iniciativa !== null) this.combate.iniciativa = m.iniciativa + this.penalidadeGlobal;
+    if (m.iniciativa !== null) {
+      this.combate.iniciativa = m.iniciativa + this.penalidadeGlobal + cond.iniciativa;
+    }
 
     if (m.cd !== null) {
       this.cdAmaldicoada = m.cd + this.penalidadeGlobal;
       this.cdEspecializacao = this.cdAmaldicoada;
     }
     if (m.acerto !== null) {
-      this.ataqueAmaldicoado = m.acerto + this.penalidadeGlobal;
+      this.ataqueAmaldicoado = m.acerto + this.penalidadeGlobal + cond.totalAtaque;
       // As três linhas de Jogada de Ataque da ficha passam a valer o mesmo:
       // uma ficha de inimigo traz um acerto só, não um por tipo de ataque.
-      for (const a of Object.values(this.ataquesView ?? {})) {
-        a.total = m.acerto + this.penalidadeGlobal;
+      for (const [id, a] of Object.entries(this.ataquesView ?? {})) {
+        a.total =
+          m.acerto +
+          this.penalidadeGlobal +
+          (id === "corpoACorpo" ? cond.totalAtaqueCorpoACorpo : cond.totalAtaque);
       }
     }
 
     for (const id of Object.keys(FNM.resistencias)) {
       const valor = m.resistencias[id];
-      if (valor !== null) this.resistencias[id].total = valor + this.penalidadeGlobal;
+      if (valor === null) continue;
+      this.resistencias[id].total =
+        valor +
+        this.penalidadeGlobal +
+        (id === "reflexos" ? cond.totalReflexos : cond.totalResistencias);
     }
     for (const id of Object.keys(FNM.pericias)) {
       const valor = m.pericias[id];
-      if (valor !== null) this.pericias[id].total = valor + this.penalidadeGlobal;
+      if (valor === null) continue;
+      this.pericias[id].total = valor + this.penalidadeGlobal + this._condicaoNaPericia(id);
     }
 
     // A Atenção é 10 + Percepção; se a Percepção virou total fechado e a
@@ -1270,7 +1366,12 @@ export class InvocacaoDataModel extends BaseActorModel {
       p.exigeTreino = cfg.exigeTreino === true;
       p.complementar = cfg.complementar === true;
       p.temSubcategoria = cfg.subcategoria === true;
-      p.total = this.atributos[cfg.atributo].mod + metade + (p.treinado ? bt : 0) + p.outros;
+      p.total =
+        this.atributos[cfg.atributo].mod +
+        metade +
+        (p.treinado ? bt : 0) +
+        p.outros +
+        this._condicaoNaPericia(id);
       // Sem treino, a Invocação só usa a perícia dentro de uma ação comandada
       p.bloqueada = !p.treinado && !p.mestre;
     }
@@ -1280,7 +1381,12 @@ export class InvocacaoDataModel extends BaseActorModel {
       r.nome = cfg.nome;
       r.atributo = cfg.atributo;
       const treinado = this.detalhes.resistenciaTreinada === id;
-      r.total = this.atributos[cfg.atributo].mod + metade + (treinado ? bt : 0) + r.outros;
+      r.total =
+        this.atributos[cfg.atributo].mod +
+        metade +
+        (treinado ? bt : 0) +
+        r.outros +
+        (id === "reflexos" ? this.condicoes.totalReflexos : this.condicoes.totalResistencias);
     }
   }
 
@@ -1330,6 +1436,7 @@ export class InvocacaoDataModel extends BaseActorModel {
     this.nivelUsuario = usuario?.system?.nivel ?? 1;
     this.bonusTreinamentoUsuario = bonusTreinamento(this.nivelUsuario);
 
+    this._prepararCondicoes();
     this.ajustesItens = this._ajustesDeItens();
     this._prepararModificadores();
     this._prepararCarga();
@@ -1362,7 +1469,15 @@ export class InvocacaoDataModel extends BaseActorModel {
       this.bonusTreinamentoUsuario +
       this.combate.defesaOutros +
       this.extras.defesa +
-      this.ajustesItens.defesa;
+      this.ajustesItens.defesa +
+      this.condicoes.totalDefesa;
+
+    // A fórmula do grau substituiu a Defesa inteira: as duas leituras do Caído
+    // precisam ser refeitas em cima do número novo (p. 318)
+    this.combate.defesaCorpoACorpo =
+      this.combate.defesa - this.condicoes.totalDefesa + this.condicoes.totalDefesaCorpoACorpo;
+    this.combate.defesaDistancia =
+      this.combate.defesa - this.condicoes.totalDefesa + this.condicoes.totalDefesaDistancia;
 
     // A Invocação é treinada em UMA jogada de ataque (p. 261), escolhida na
     // ficha. As três linhas existem no schema base, mas quem manda aqui é a
@@ -1407,8 +1522,29 @@ class BaseItemModel extends foundry.abstract.TypeDataModel {
         defesa: new NumberField({ required: true, integer: true, initial: 0 }),
         deslocamento: new NumberField({ required: true, initial: 0 }),
         reducaoDano: new NumberField({ required: true, integer: true, initial: 0 })
-      })
+      }),
+      // Condições que o item inflige quando é usado (p. 207)
+      condicoes: condicoesSchema(),
+      // Feitiço focado em condições: não causa dano, alcança um nível acima e
+      // estende a duração em uma rodada (p. 208)
+      focoEmCondicoes: new BooleanField({ required: true, initial: false })
     };
+  }
+
+  /**
+   * Resolve as condições declaradas para o que a ficha e a carta mostram:
+   * nível efetivo, duração pela tabela do nível e a perda de vida do
+   * Sangramento. Só os itens que têm nível de Feitiço ou de Técnica Marcial
+   * ganham duração automática — nos demais ela fica a cargo de quem preenche.
+   */
+  prepareDerivedData() {
+    super.prepareDerivedData();
+    this.condicoesView = resolverCondicoes(this.condicoes, {
+      nivelItem: this.nivel ?? "",
+      foco: this.focoEmCondicoes === true
+    });
+    // Quanto dano em dados as condições custam ao Feitiço (p. 207)
+    this.reducaoDadosCondicoes = this.condicoesView.reduce((n, c) => n + c.reducaoDados, 0);
   }
 }
 

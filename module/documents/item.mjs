@@ -3,6 +3,8 @@
  * Envia o item ao chat com um resumo das suas informações mecânicas.
  */
 import { FNM, custoSustento } from "../config.mjs";
+import { alvosMarcados } from "../chat.mjs";
+import { avisosDeAplicacao, blocoDeCondicoes, resolverCondicoes } from "../condicoes.mjs";
 
 /**
  * Resumo do grau de uma Ferramenta Amaldiçoada (p. 154), comum a armas,
@@ -230,13 +232,42 @@ export class FnmItem extends Item {
     return linhas;
   }
 
+  /**
+   * As condições que este item aplica, resolvidas contra a CD de quem o usa.
+   * Um item na mochila, sem ator, ainda mostra a lista — só sem CD nenhuma.
+   */
+  condicoesAplicadas() {
+    const lista = this.system.condicoes ?? [];
+    if (!lista.length) return [];
+    const s = this.actor?.system;
+    const cd =
+      this.type === "feitico"
+        ? (s?.cdAmaldicoada ?? null)
+        : this.type === "acaoInvocacao"
+          ? (this.actor?.cdDaAcaoInvocacao?.(this) ?? null)
+          : (s?.cdEspecializacao ?? null);
+
+    return resolverCondicoes(lista, {
+      nivelItem: this.system.nivel ?? "",
+      foco: this.system.focoEmCondicoes === true,
+      cd,
+      resistencia: this.system.resistencia ?? ""
+    });
+  }
+
   /** Envia o item ao chat com o resumo mecânico e a descrição. */
   async roll() {
     const linhas = this._resumo();
+    const condicoes = this.condicoesAplicadas();
+    linhas.push(
+      ...avisosDeAplicacao(condicoes, this.system.nivel ?? "", this.system.focoEmCondicoes === true)
+    );
+
     const descricao = await foundry.applications.ux.TextEditor.implementation.enrichHTML(
       this.system.description ?? "",
       { rollData: this.getRollData(), relativeTo: this }
     );
+    const bloco = await blocoDeCondicoes(condicoes);
 
     return ChatMessage.create({
       speaker: ChatMessage.getSpeaker({ actor: this.actor }),
@@ -245,7 +276,18 @@ export class FnmItem extends Item {
         `<h3><img src="${this.img}" width="28" height="28" /> ${this.name}</h3>` +
         (linhas.length ? `<p>${linhas.join("<br>")}</p>` : "") +
         (descricao ? `<div class="fnm-carta-desc">${descricao}</div>` : "") +
-        `</div>`
+        `</div>` +
+        bloco,
+      flags: {
+        fnm: {
+          tipo: "efeito",
+          atorId: this.actor?.id ?? null,
+          itemId: this.id,
+          alvos: alvosMarcados(),
+          origemNome: this.name,
+          condicoes
+        }
+      }
     });
   }
 }

@@ -1541,3 +1541,191 @@
 .fnm-sheet .excedido {
   color: var(--fnm-vermelho, #a33);
 }
+
+/* -------------------------------------------- */
+/*  Condições                                   */
+/* -------------------------------------------- */
+
+/* Faixa de Condições da ficha */
+.fnm-sheet .condicoes-bloco legend {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+.fnm-sheet .condicao-adicionar {
+  width: 1.4rem;
+  height: 1.4rem;
+  line-height: 1;
+  padding: 0;
+  border: 1px solid var(--fnm-azul);
+  border-radius: 3px;
+  background: var(--fnm-tinta);
+  color: var(--fnm-osso);
+  cursor: pointer;
+}
+.fnm-sheet .condicao-adicionar:hover {
+  background: var(--fnm-azul);
+}
+
+.fnm-sheet .condicoes-lista {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.3rem;
+}
+.fnm-sheet .condicao-ficha {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.15rem 0.35rem;
+  border: 1px solid var(--fnm-sangue);
+  border-left-width: 4px;
+  border-radius: 3px;
+  background: rgba(163, 22, 43, 0.08);
+  font-size: 0.72rem;
+}
+.fnm-sheet .condicao-ficha img {
+  border: none;
+  flex: 0 0 auto;
+}
+.fnm-sheet .condicao-nome {
+  font-weight: bold;
+}
+.fnm-sheet .condicao-detalhe,
+.fnm-sheet .condicao-origem {
+  color: var(--fnm-cinza);
+  font-size: 0.66rem;
+}
+/* A condição que veio por consequência de outra não tem botão: ela sai junto
+   com a de origem, e um X aqui prometeria um controle que não existe */
+.fnm-sheet .condicao-implicada {
+  border-color: var(--fnm-cinza);
+  border-left-style: dashed;
+  background: rgba(95, 107, 122, 0.1);
+  opacity: 0.85;
+}
+.fnm-sheet .condicao-remover {
+  width: 1.2rem;
+  height: 1.2rem;
+  line-height: 1;
+  padding: 0;
+  border: none;
+  background: none;
+  color: var(--fnm-sangue);
+  cursor: pointer;
+}
+.fnm-sheet .condicao-remover:hover {
+  color: var(--fnm-tinta);
+}
+.fnm-sheet .condicoes-avisos {
+  margin: 0.35rem 0 0;
+  padding-left: 1.1rem;
+  font-size: 0.68rem;
+  line-height: 1.4;
+  color: var(--fnm-tinta);
+}
+.fnm-sheet .condicoes-resumo {
+  margin-top: 0.3rem;
+}
+
+/* Editor de condições da ficha de item */
+.fnm-sheet .condicoes-linhas {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+.fnm-sheet .condicao-linha {
+  display: grid;
+  grid-template-columns: 2fr 1fr 0.8fr 1fr auto;
+  gap: 0.3rem;
+  align-items: end;
+}
+.fnm-sheet .condicoes-previa {
+  margin: 0.4rem 0 0;
+  padding-left: 1.1rem;
+  font-size: 0.7rem;
+  line-height: 1.5;
+}
+.fnm-sheet .condicoes-previa img {
+  border: none;
+  vertical-align: -3px;
+}
+.fnm-sheet .condicao-foco {
+  margin-top: 0.4rem;
+  font-size: 0.72rem;
+}
+
+/* Chips das cartas de chat: clicáveis e arrastáveis */
+.fnm-condicoes {
+  margin-top: 0.45rem;
+  padding-top: 0.35rem;
+  border-top: 1px dashed var(--fnm-osso-escuro);
+}
+.fnm-condicoes-titulo {
+  margin: 0 0 0.25rem;
+  font-size: 0.72rem;
+  font-weight: bold;
+  color: var(--fnm-sangue);
+}
+.fnm-condicoes-lista {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.3rem;
+}
+.fnm-condicoes .fnm-condicao {
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 0.15rem 0.4rem;
+  border: 1px solid var(--fnm-sangue);
+  border-radius: 3px;
+  background: rgba(163, 22, 43, 0.1);
+  color: var(--fnm-tinta);
+  font-size: 0.72rem;
+  cursor: grab;
+  text-decoration: none;
+}
+.fnm-condicoes .fnm-condicao:hover {
+  background: var(--fnm-sangue);
+  color: var(--fnm-osso);
+  box-shadow: 0 0 6px rgba(163, 22, 43, 0.5);
+}
+.fnm-condicoes .fnm-condicao:active {
+  cursor: grabbing;
+}
+.fnm-condicoes .fnm-condicao img {
+  border: none;
+  flex: 0 0 auto;
+}
+.fnm-condicoes .fnm-condicao-nome {
+  font-weight: bold;
+}
+.fnm-condicoes .fnm-condicao-detalhe {
+  font-size: 0.64rem;
+  opacity: 0.85;
+}
+.fnm-condicoes-dica {
+  margin: 0.3rem 0 0;
+  font-size: 0.64rem;
+  font-style: italic;
+  color: var(--fnm-cinza);
+}
+
+/* Condições do alvo, no diálogo de ataque: o jogador não vê a Defesa, mas
+   precisa saber que o Exposto e o Caído já entraram na conta */
+.fnm-dialogo-ataque .fnm-condicoes-alvo {
+  margin: 0.3rem 0;
+  padding: 0.2rem 0.4rem;
+  font-size: 0.7rem;
+  border-left: 3px solid var(--fnm-sangue);
+  background: rgba(163, 22, 43, 0.1);
+}
+
+/* O chip de uma condição aplicada abre o ajuste de duração e CD; o de uma
+   condição que veio por consequência de outra não abre nada */
+.fnm-sheet .condicao-ficha[data-action] {
+  cursor: pointer;
+}
+.fnm-sheet .condicao-ficha[data-action]:hover {
+  background: rgba(163, 22, 43, 0.18);
+  box-shadow: 0 0 5px rgba(163, 22, 43, 0.4);
+}

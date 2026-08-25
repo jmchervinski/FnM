@@ -1,0 +1,25 @@
+{{!-- Condições que o efeito aplica (p. 207-210).
+
+      A carta não aplica nada sozinha: quem infligiu a condição decide quando
+      ela pega, e o alvo ainda tem o Teste de Resistência do capítulo. Então
+      cada condição vira um chip clicável — e arrastável para um token ou para
+      uma ficha, que é como a mesa costuma preferir. --}}
+<div class="fnm-condicoes">
+  <p class="fnm-condicoes-titulo"><i class="fas fa-skull-crossbones"></i> {{titulo}}</p>
+
+  <div class="fnm-condicoes-lista">
+    {{#each condicoes as |c|}}
+    <a class="fnm-condicao fnm-condicao-{{c.grupo}}" draggable="true"
+       data-fnm-condicao="{{c.id}}" data-fnm-indice="{{@index}}"
+       data-tooltip="{{c.efeito}}" title="{{c.efeito}}">
+      <img src="{{c.icone}}" width="18" height="18" alt="" />
+      <span class="fnm-condicao-nome">{{c.nome}}</span>
+      <span class="fnm-condicao-detalhe">
+        {{c.nivelAplicado}} · {{c.duracaoLabel}}{{#if c.formula}} · {{c.formula}}{{/if}}
+      </span>
+    </a>
+    {{/each}}
+  </div>
+
+  <p class="fnm-condicoes-dica">{{{dica}}}</p>
+</div>

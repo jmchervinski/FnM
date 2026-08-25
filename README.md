@@ -134,7 +134,92 @@ Tudo abaixo é calculado ou executado pelo sistema, com a página do livro anota
   resistências, vulnerabilidades, imunidades a condição, características recomendadas e as ações
   do turno — e destaca o que passou do limite. O **Bônus de Treinamento por ND** satura em +6
 - **Descanso Curto e Longo**
-- As **28 condições** do livro registradas como efeitos de status do Foundry
+- **Condições** (p. 207-210 e 317-319) — veja a seção própria abaixo
+
+### Condições
+
+As 28 condições do capítulo 12 são efeitos de verdade, não lembretes: cada uma tem ícone no token,
+entra nos números da ficha sozinha e sai do mesmo jeito.
+
+**De onde vem uma condição**
+
+- do **HUD do token**, como qualquer efeito de status do Foundry;
+- do botão **+** da faixa de Condições na ficha, que pergunta duração, CD e Teste de Resistência;
+- de uma **carta do chat**: todo Feitiço, Técnica Marcial, arma, habilidade ou ação que declare
+  condições publica um chip por condição. **Clique** aplica nos alvos que a carta guardou,
+  **Shift+clique** aplica nos tokens selecionados, e o chip pode ser **arrastado** até um token no
+  mapa ou até uma ficha aberta.
+
+Para um efeito oferecer condições, preencha o quadro **Condições aplicadas** na ficha do item. Cada
+linha escolhe a condição e, se quiser, sobrescreve o nível (só o Sangramento é variável), a duração
+em rodadas e a fórmula de perda de vida. Deixando as rodadas em 0, a duração sai da tabela do nível
+do efeito (p. 208); `-1` dura a cena.
+
+**O que a automação calcula**
+
+Enquanto a condição estiver ligada, a ficha já entrega os números descontados:
+
+| O que a condição faz | Onde entra |
+| --- | --- |
+| Penalidade em ataque | as três linhas de Jogada de Ataque e o detalhamento da carta |
+| Penalidade em perícias | todas as perícias, com Percepção e Furtividade tendo linha própria |
+| Penalidade em Testes de Resistência | os cinco TRs, com Reflexos tendo linha própria |
+| Penalidade ou bônus de Defesa | a Defesa da ficha, e as leituras separadas para corpo a corpo e distância |
+| Iniciativa | o valor derivado e o botão de rolar |
+| Deslocamento | metros descontados, teto de quem rasteja e a metade de Lento e Enredado |
+| Redução de Dano | Fragilizado zera a RD geral e a grade por tipo |
+| Custo em PE | Condenado soma 1 ao custo de toda habilidade, junto do acréscimo do Estado da Alma |
+
+Duas regras do capítulo moram na agregação e valem para tudo acima:
+
+- **Condições com os mesmos efeitos não se acumulam**: vale a mais severa (p. 317). Enredado (−2 de
+  Defesa) com Caído (−3 contra corpo a corpo) dá −3, não −5 — o exemplo é do próprio livro.
+- **Condições que aplicam outras** entram junto: Agarrado traz Desprevenido e Imóvel, Cego traz
+  Surpreso e Lento (e o Desprevenido de dentro do Surpreso), Indefeso traz Imóvel e Atordoado. Elas
+  aparecem apagadas na faixa da ficha, sem botão de remover, porque saem sozinhas com a condição de
+  origem.
+
+O que depende do contexto não é calculado, e sim mostrado: para que lado o Confuso anda, contra quem
+o Enfeitiçado tem −2, quais testes o Cego falha por depender da visão. Esses avisos ficam na faixa de
+Condições e no verbete do efeito.
+
+**O que acontece sozinho no combate**
+
+- **Exposto** soma +4 na jogada de quem ataca o alvo marcado, e a carta lembra do dano adicional
+  igual ao nível do atacante.
+- **Inconsciente** faz todo ataque contra a criatura acertar e ser crítico; **Paralisado** faz todo
+  golpe de corpo a corpo que acerte virar crítico. A carta explica por quê.
+- **Paralisado** e **Inconsciente** falham automaticamente em TR de Reflexos: o botão publica a falha
+  em vez de rolar.
+- **Caído** dá duas Defesas ao alvo, e o diálogo de ataque já preenche a que vale para aquele ataque.
+- No **início do turno**, o Sangramento rola a perda de vida e a aplica — sem passar por Redução de
+  Dano nem por resistências (p. 316).
+- No **fim do turno**, toda condição que chegou com CD publica a carta do novo Teste de Resistência
+  (p. 208); um sucesso apaga a condição. Sangramento Extremo exige sucesso crítico (p. 210).
+  Durações em rodadas se esgotam, e o Desorientado acaba junto com o turno.
+
+A virada de turno é resolvida uma vez só, pelo Narrador conectado — sem isso, cada cliente aberto
+cobraria o próprio Sangramento.
+
+**Mexendo na duração**
+
+A contagem só corre dentro de um combate, porque é o combate que tem rodadas: fora dele a condição
+fica até alguém removê-la. A faixa da ficha mostra quantas rodadas ainda restam, e **clicar na
+condição** abre o ajuste — duração e CD, já preenchidos com o que resta agora. Ali o valor digitado
+vale mesmo que encurte, e o relógio recomeça: `0` tira o prazo, `-1` deixa a condição durar a cena.
+
+Aplicar a mesma condição de novo (outro Feitiço, outro chip) segue a regra oposta: **vale a duração
+mais longa**, comparada contra o que ainda resta. Uma condição de 5 rodadas com 1 pela frente é
+esticada por uma nova de 3; com 4 pela frente, a nova de 3 não a encurta. Uma aplicação sem prazo
+vence qualquer contagem.
+
+**Na criação do efeito**
+
+O quadro do item também faz as contas do capítulo de criação: quantos **dados de dano** as condições
+custam ao Feitiço (1 para Fraca, 3 para Média, 5 para Forte, 8 para Extrema), a duração padrão pelo
+nível, e a marca **focado em condições**, que troca o dano por um nível de condição a mais e uma
+rodada a mais de duração. A carta avisa quando o efeito passa do que o nível dele permite — sem
+impedir nada, porque a mesa pode ter combinado outra coisa.
 
 ### Campos vindos do Modelo de Ficha oficial v2.5
 
@@ -169,7 +254,7 @@ A ficha do sistema segue o layout do arquivo oficial, campo a campo:
 | **Dotes de Inimigo** | Os 65 Dotes do Grimório das Maldições em 8 pastas: 22 Gerais, 29 Amaldiçoados (por categoria, incluindo a de **Anatomia**, que não existe no livro básico) e os 14 Treinamentos do Passo 4 |
 | **Características de Inimigo** | As 47 Características do Grimório em duas pastas: 13 Gerais e 34 Especiais, com as tabelas de Efeitos de Aura, Efeitos de Marca e Dano de Terreno junto do verbete a que pertencem |
 | **Guia de Criação de Inimigos** | Diário do Narrador com os quatro passos da criação, os graus e Patamares, as origens de inimigo, o preenchimento da ficha e as regras de ações, condições e alma |
-| **Referência de Regras** | Diário com testes e CDs, ações em combate, condições, tipos de dano, tabelas de criação de Feitiços, equipamentos e carregamento, ferramentas amaldiçoadas, invocações, alma, morte, exaustão e descansos |
+| **Referência de Regras** | Diário com testes e CDs, ações em combate, o catálogo de condições e as tabelas de aplicação delas, tipos de dano, tabelas de criação de Feitiços, equipamentos e carregamento, ferramentas amaldiçoadas, invocações, alma, morte, exaustão e descansos |
 | **Macros** | Teste rápido, iniciativa do grupo, aplicar dano em massa, descanso longo do grupo |
 
 ---
@@ -312,8 +397,10 @@ e o próprio texto aponta a Enciclopédia como a lista maior. Por isso o sistema
 de criação, e não um catálogo de invocações prontas.
 
 Também vale registrar **até onde vai a automação**. Habilidades, talentos, origens, aptidões,
-Dotes e Características entram na ficha como texto: o sistema não usa Active Effects, e as
-condições não são aplicadas automaticamente pelas rolagens.
+Dotes e Características entram na ficha como texto: o efeito escrito no verbete não vira regra
+sozinho. A exceção são as **condições**, que são Active Effects de verdade e entram nos números da
+ficha — mas quem diz que um poder aplica uma condição continua sendo você, no quadro **Condições
+aplicadas** da ficha do item.
 
 O que um item **consegue** mexer sozinho é o bloco **Ajustes no dono**, que toda ficha de item
 tem: PV máximo, PE máximo, Defesa, Deslocamento e Redução de Dano. Enquanto o dono possuir o
@@ -446,6 +533,7 @@ module/
   config.mjs         toda a tabela de regras (atributos, perícias, feitiços, condições…)
   data-models.mjs    schemas e derivações de atores e itens
   chat.mjs           cartas de ataque e de dano, e os botões delas
+  condicoes.mjs      catálogo, agregação e automação de turno das condições
   importar-inimigo.mjs  leitura do JSON de construtores externos para a ficha de NPC
   documents/         Actor e Item: execução das rolagens
   sheets/            fichas ApplicationV2
@@ -474,8 +562,20 @@ ator.rolarPericia("feiticaria");
 ator.rolarResistencia("vontade");
 ator.conjurarFeitico(item);
 ator.aplicarDano(30, { tipo: "alma" });
+ator.aplicarDano(12, { perdaDeVida: true });  // ignora RD e PV temporários
 ator.rolarTesteDeMorte();
 ator.descansoLongo();
+
+// Condições
+ator.temCondicao("desprevenido");     // conta as que vêm por consequência de outra
+ator.condicoesAtivas;                  // só as aplicadas diretamente
+ator.system.condicoes.totalDefesa;     // o que já foi descontado da Defesa
+ator.aplicarCondicao("sangramento", { nivelAplicado: "Forte", formula: "4d10", cd: 19, resistencia: "fortitude" });
+ator.removerCondicao("sangramento");
+
+game.fnm.condicoes.catalogo                        // as 28 condições, com a mecânica de cada uma
+game.fnm.condicoes.duracaoPadrao("3", "Forte");     // 1 rodada (p. 208)
+game.fnm.condicoes.agregar(["enredado", "caido"]);  // o efeito somado, sem acumular iguais
 ```
 
 ## Licença

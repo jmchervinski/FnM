@@ -501,42 +501,387 @@ FNM.treinamentos = [
 /*  Condições (p. 317-319)                      */
 /* -------------------------------------------- */
 
+/**
+ * O catálogo de condições, com a parte que a automação sabe aplicar sozinha.
+ *
+ * `efeito` é o texto do livro, e continua sendo a palavra final na mesa.
+ * `mecanica` é só o pedaço aritmético dele — o que dá para somar em uma ficha
+ * sem interpretar nada. O que depende do contexto (de quem enfeitiçou, se o
+ * teste envolve visão, para que lado o Confuso anda) fica em `avisos`, que a
+ * ficha e as cartas mostram sem tentar decidir por ninguém.
+ *
+ * Campos de `mecanica`, todos opcionais:
+ *   ataque, pericias, resistencias   penalidade nas rolagens correspondentes
+ *   ataqueCorpoACorpo                penalidade só na linha de corpo a corpo
+ *   defesa                           penalidade na Defesa, em qualquer ataque
+ *   defesaCorpoACorpo                ajuste só contra ataques corpo a corpo
+ *   defesaDistancia                  ajuste só contra ataques a distância
+ *   reflexos                         penalidade extra no TR de Reflexos
+ *   iniciativa, percepcao, furtividade
+ *   deslocamentoMenos                metros descontados do deslocamento
+ *   deslocamentoTeto                 teto absoluto em metros (Caído rasteja)
+ *   deslocamentoMetade               reduz toda forma de movimento à metade
+ *   custoPE                          soma ao custo de toda habilidade
+ *   ataquesContra                    bônus de quem ataca esta criatura
+ *
+ * Os sinalizadores booleanos descrevem o que a automação não calcula, mas
+ * precisa saber: `semAcoes`, `semReacoes`, `falhaReflexos`, `semRD`,
+ * `criticoCorpoACorpo`, `sempreAcertado`, `mudo`, `semConversaoDeAcoes`.
+ *
+ * `implica` são as condições que esta aplica junto (p. 317): ser imune a uma
+ * não torna ninguém imune às outras, então elas entram como efeitos próprios.
+ */
 FNM.condicoes = [
   // Físicas
-  { id: "condenado", nome: "Condenado", grupo: "Física", nivel: "Média", icone: "icons/svg/skull.svg", efeito: "O custo em PE de todas as suas habilidades aumenta em 1." },
-  { id: "engasgando", nome: "Engasgando", grupo: "Física", nivel: "Média", icone: "icons/svg/silenced.svg", efeito: "Fica mudo e precisa segurar o ar." },
-  { id: "enjoado", nome: "Enjoado", grupo: "Física", nivel: "Média", icone: "icons/svg/acid.svg", efeito: "Não pode converter ações dentro da Hierarquia de Ações." },
-  { id: "envenenado", nome: "Envenenado", grupo: "Física", nivel: "Média", icone: "icons/svg/poison.svg", efeito: "-2 em jogadas de ataque, testes de resistência e testes de perícia." },
-  { id: "sangramento", nome: "Sangramento", grupo: "Física", nivel: "Variável", icone: "icons/svg/blood.svg", efeito: "Perda de vida no início do turno; TR de Fortitude no fim do turno encerra a condição em um sucesso." },
-  { id: "sofrendo", nome: "Sofrendo", grupo: "Física", nivel: "Leve", icone: "icons/svg/degen.svg", efeito: "-5 em testes de concentração e de Prestidigitação para rituais; perde 3 metros de movimento." },
+  {
+    id: "condenado",
+    nome: "Condenado",
+    grupo: "Física",
+    nivel: "Média",
+    icone: "icons/svg/skull.svg",
+    efeito: "O custo em PE de todas as suas habilidades aumenta em 1.",
+    mecanica: { custoPE: 1 }
+  },
+  {
+    id: "engasgando",
+    nome: "Engasgando",
+    grupo: "Física",
+    nivel: "Média",
+    icone: "icons/svg/silenced.svg",
+    efeito: "Fica mudo e precisa segurar o ar.",
+    mecanica: { mudo: true },
+    avisos: ["Sem voz: nada de encantações, e o personagem está segurando o ar."]
+  },
+  {
+    id: "enjoado",
+    nome: "Enjoado",
+    grupo: "Física",
+    nivel: "Média",
+    icone: "icons/svg/acid.svg",
+    efeito: "Não pode converter ações dentro da Hierarquia de Ações.",
+    mecanica: { semConversaoDeAcoes: true }
+  },
+  {
+    id: "envenenado",
+    nome: "Envenenado",
+    grupo: "Física",
+    nivel: "Média",
+    icone: "icons/svg/poison.svg",
+    efeito: "-2 em jogadas de ataque, testes de resistência e testes de perícia.",
+    mecanica: { ataque: -2, resistencias: -2, pericias: -2 }
+  },
+  {
+    id: "sangramento",
+    nome: "Sangramento",
+    grupo: "Física",
+    nivel: "Variável",
+    icone: "icons/svg/blood.svg",
+    efeito:
+      "Perda de vida no início do turno; TR de Fortitude no fim do turno encerra a condição em um sucesso.",
+    // A perda de vida vem do nível escolhido para o sangramento (p. 210)
+    perdaDeVida: true,
+    resistenciaPadrao: "fortitude",
+    duracao: "tr",
+    avisos: ["Perda de vida ignora Redução de Dano e resistências (p. 316)."]
+  },
+  {
+    id: "sofrendo",
+    nome: "Sofrendo",
+    grupo: "Física",
+    nivel: "Fraca",
+    icone: "icons/svg/degen.svg",
+    efeito:
+      "-5 em testes de concentração e de Prestidigitação para rituais; perde 3 metros de movimento.",
+    mecanica: { deslocamentoMenos: 3 },
+    avisos: ["-5 em testes de concentração e em Prestidigitação para conjurar em ritual."]
+  },
   // Incapacitação
-  { id: "atordoado", nome: "Atordoado", grupo: "Incapacitação", nivel: "Extrema", icone: "icons/svg/daze.svg", efeito: "Fica desprevenido e não pode realizar ações ou reações." },
-  { id: "inconsciente", nome: "Inconsciente", grupo: "Incapacitação", nivel: "Extrema", icone: "icons/svg/unconscious.svg", efeito: "Não age nem reage, fica caído, larga o que segura. Falha automaticamente em TR de Reflexos; todo ataque contra ela acerta e é crítico." },
-  { id: "paralisado", nome: "Paralisado", grupo: "Incapacitação", nivel: "Extrema", icone: "icons/svg/paralysis.svg", efeito: "Só age mentalmente. -10 de Defesa, falha automaticamente em TR de Reflexos e todo ataque corpo a corpo que acerte é crítico." },
-  { id: "indefeso", nome: "Indefeso", grupo: "Incapacitação", nivel: "Especial", icone: "icons/svg/net.svg", efeito: "Fica Imóvel e Atordoado. Pode ser morta ou receber um Ferimento Complexo com uma ação completa em alcance de toque." },
+  {
+    id: "atordoado",
+    nome: "Atordoado",
+    grupo: "Incapacitação",
+    nivel: "Extrema",
+    icone: "icons/svg/daze.svg",
+    efeito: "Fica desprevenido e não pode realizar ações ou reações.",
+    implica: ["desprevenido"],
+    mecanica: { semAcoes: true, semReacoes: true }
+  },
+  {
+    id: "inconsciente",
+    nome: "Inconsciente",
+    grupo: "Incapacitação",
+    nivel: "Extrema",
+    icone: "icons/svg/unconscious.svg",
+    efeito:
+      "Não age nem reage, fica caído, larga o que segura. Falha automaticamente em TR de Reflexos; todo ataque contra ela acerta e é crítico.",
+    implica: ["caido"],
+    mecanica: { semAcoes: true, semReacoes: true, falhaReflexos: true, sempreAcertado: true },
+    avisos: [
+      "Uma criatura inconsciente fora das Portas da Morte acorda ao tomar dano, ou se alguém gastar uma ação comum para chacoalhá-la."
+    ]
+  },
+  {
+    id: "paralisado",
+    nome: "Paralisado",
+    grupo: "Incapacitação",
+    nivel: "Extrema",
+    icone: "icons/svg/paralysis.svg",
+    efeito:
+      "Só age mentalmente. -10 de Defesa, falha automaticamente em TR de Reflexos e todo ataque corpo a corpo que acerte é crítico.",
+    mecanica: { defesa: -10, falhaReflexos: true, criticoCorpoACorpo: true, semReacoes: true },
+    avisos: ["Restam apenas as ações completamente mentais."]
+  },
+  {
+    id: "indefeso",
+    nome: "Indefeso",
+    grupo: "Incapacitação",
+    nivel: "Especial",
+    icone: "icons/svg/net.svg",
+    efeito:
+      "Fica Imóvel e Atordoado. Pode ser morta ou receber um Ferimento Complexo com uma ação completa em alcance de toque.",
+    implica: ["imovel", "atordoado"]
+  },
   // Mentais
-  { id: "abalado", nome: "Abalado", grupo: "Mental", nivel: "Fraca", icone: "icons/svg/terror.svg", efeito: "-1 em jogadas de ataque e testes de perícia." },
-  { id: "amedrontado", nome: "Amedrontado", grupo: "Mental", nivel: "Média", icone: "icons/svg/terror.svg", efeito: "-3 em jogadas de ataque e testes de perícia (evolução de Abalado; não acumulam)." },
-  { id: "aterrorizado", nome: "Aterrorizado", grupo: "Mental", nivel: "Forte", icone: "icons/svg/terror.svg", efeito: "Não pode se aproximar voluntariamente da criatura que infligiu a condição." },
-  { id: "confuso", nome: "Confuso", grupo: "Mental", nivel: "Média", icone: "icons/svg/stoned.svg", efeito: "Comporta-se aleatoriamente. -4 em Fortitude e Atletismo para se manter de pé; move-se em direção aleatória a cada 1,5 m." },
-  { id: "enfeiticado", nome: "Enfeitiçado", grupo: "Mental", nivel: "Média", icone: "icons/svg/eye.svg", efeito: "-2 em todos os testes contra quem a enfeitiçou." },
+  {
+    id: "abalado",
+    nome: "Abalado",
+    grupo: "Mental",
+    nivel: "Fraca",
+    icone: "icons/svg/terror.svg",
+    efeito: "-1 em jogadas de ataque e testes de perícia.",
+    mecanica: { ataque: -1, pericias: -1 }
+  },
+  {
+    id: "amedrontado",
+    nome: "Amedrontado",
+    grupo: "Mental",
+    nivel: "Média",
+    icone: "icons/svg/terror.svg",
+    efeito: "-3 em jogadas de ataque e testes de perícia (evolução de Abalado; não acumulam).",
+    mecanica: { ataque: -3, pericias: -3 }
+  },
+  {
+    id: "aterrorizado",
+    nome: "Aterrorizado",
+    grupo: "Mental",
+    nivel: "Forte",
+    icone: "icons/svg/terror.svg",
+    efeito: "Não pode se aproximar voluntariamente da criatura que infligiu a condição.",
+    avisos: ["Nenhuma aproximação voluntária de quem infligiu a condição."]
+  },
+  {
+    id: "confuso",
+    nome: "Confuso",
+    grupo: "Mental",
+    nivel: "Média",
+    icone: "icons/svg/stoned.svg",
+    efeito:
+      "Comporta-se aleatoriamente. -4 em Fortitude e Atletismo para se manter de pé; move-se em direção aleatória a cada 1,5 m.",
+    avisos: [
+      "-4 em Fortitude e Atletismo para se manter de pé.",
+      "A cada 1,5 m de movimento voluntário, role 1d4 (1 frente, 2 trás, 3 direita, 4 esquerda) e ande 3 m nessa direção — 1d6 se puder subir ou descer."
+    ]
+  },
+  {
+    id: "enfeiticado",
+    nome: "Enfeitiçado",
+    grupo: "Mental",
+    nivel: "Média",
+    icone: "icons/svg/eye.svg",
+    efeito: "-2 em todos os testes contra quem a enfeitiçou.",
+    avisos: ["-2 em todo teste feito contra quem enfeitiçou — só contra essa criatura."]
+  },
   // Movimento
-  { id: "agarrado", nome: "Agarrado", grupo: "Movimento", nivel: "Média", icone: "icons/svg/net.svg", efeito: "Fica Desprevenido e Imóvel. Ataques a distância contra o agarrão têm 50% de chance de acertar o alvo errado." },
-  { id: "caido", nome: "Caído", grupo: "Movimento", nivel: "Fraca", icone: "icons/svg/falling.svg", efeito: "-3 em ataques corpo a corpo, move-se só 4,5 m rastejando. -3 de Defesa contra corpo a corpo e +3 contra ataques a distância." },
-  { id: "enredado", nome: "Enredado", grupo: "Movimento", nivel: "Média", icone: "icons/svg/net.svg", efeito: "Deslocamento reduzido à metade; -2 na Defesa e em rolagens de ataque." },
-  { id: "imovel", nome: "Imóvel", grupo: "Movimento", nivel: "Forte", icone: "icons/svg/paralysis.svg", efeito: "Não pode usar Andar, Esgueirar, Levantar nem Pular, e não pode receber Deslocamento de nenhuma fonte." },
-  { id: "lento", nome: "Lento", grupo: "Movimento", nivel: "Média", icone: "icons/svg/downgrade.svg", efeito: "Toda forma de movimento é reduzida pela metade." },
+  {
+    id: "agarrado",
+    nome: "Agarrado",
+    grupo: "Movimento",
+    nivel: "Média",
+    icone: "icons/svg/net.svg",
+    efeito:
+      "Fica Desprevenido e Imóvel. Ataques a distância contra o agarrão têm 50% de chance de acertar o alvo errado.",
+    implica: ["desprevenido", "imovel"],
+    avisos: [
+      "Ataque a distância contra quem está no agarrão: 1 a 5 em 1d10 acerta o alvo errado.",
+      "Se quem agarra se mover, a criatura agarrada acompanha."
+    ]
+  },
+  {
+    id: "caido",
+    nome: "Caído",
+    grupo: "Movimento",
+    nivel: "Fraca",
+    icone: "icons/svg/falling.svg",
+    efeito:
+      "-3 em ataques corpo a corpo, move-se só 4,5 m rastejando. -3 de Defesa contra corpo a corpo e +3 contra ataques a distância.",
+    // O -3 de Defesa do Caído é só contra corpo a corpo; contra ataques a
+    // distância o livro dá +3, então os dois ficam em campos separados
+    mecanica: {
+      ataqueCorpoACorpo: -3,
+      defesaCorpoACorpo: -3,
+      defesaDistancia: 3,
+      deslocamentoTeto: 4.5
+    },
+    duracao: "acao",
+    avisos: [
+      "Levantar custa uma ação de movimento.",
+      "Quem estava voando perde o deslocamento de voo até ficar de pé."
+    ]
+  },
+  {
+    id: "enredado",
+    nome: "Enredado",
+    grupo: "Movimento",
+    nivel: "Média",
+    icone: "icons/svg/net.svg",
+    efeito: "Deslocamento reduzido à metade; -2 na Defesa e em rolagens de ataque.",
+    mecanica: { defesa: -2, ataque: -2, deslocamentoMetade: true }
+  },
+  {
+    id: "imovel",
+    nome: "Imóvel",
+    grupo: "Movimento",
+    nivel: "Forte",
+    icone: "icons/svg/paralysis.svg",
+    efeito:
+      "Não pode usar Andar, Esgueirar, Levantar nem Pular, e não pode receber Deslocamento de nenhuma fonte.",
+    mecanica: { deslocamentoTeto: 0 },
+    avisos: ["Sacar e ações que gastem o movimento sem sair do lugar continuam valendo."]
+  },
+  {
+    id: "lento",
+    nome: "Lento",
+    grupo: "Movimento",
+    nivel: "Média",
+    icone: "icons/svg/downgrade.svg",
+    efeito: "Toda forma de movimento é reduzida pela metade.",
+    mecanica: { deslocamentoMetade: true }
+  },
   // Sensoriais
-  { id: "cego", nome: "Cego", grupo: "Sensorial", nivel: "Forte", icone: "icons/svg/blind.svg", efeito: "Fica Surpreso e Lento, falha em testes de visão e sofre -5 em Percepção. Seus alvos recebem Camuflagem Total." },
-  { id: "desorientado", nome: "Desorientado", grupo: "Sensorial", nivel: "Fraca", icone: "icons/svg/daze.svg", efeito: "Não pode usar reações contra a próxima ação ofensiva contra você nem ataques de oportunidade." },
-  { id: "desprevenido", nome: "Desprevenido", grupo: "Sensorial", nivel: "Fraca", icone: "icons/svg/downgrade.svg", efeito: "-3 na Defesa e em Testes de Resistência de Reflexos." },
-  { id: "invisivel", nome: "Invisível", grupo: "Sensorial", nivel: "Especial", icone: "icons/svg/invisible.svg", efeito: "Não pode ser visto, +10 em Furtividade e pode usar Esconder como Ação Livre." },
-  { id: "surdo", nome: "Surdo", grupo: "Sensorial", nivel: "Média", icone: "icons/svg/deaf.svg", efeito: "Falha em testes de audição e sofre -5 em Iniciativa (também no valor atual, se já em combate)." },
-  { id: "surpreso", nome: "Surpreso", grupo: "Sensorial", nivel: "Especial", icone: "icons/svg/eye.svg", efeito: "Fica Desprevenido e não pode reagir contra a criatura que o surpreendeu." },
+  {
+    id: "cego",
+    nome: "Cego",
+    grupo: "Sensorial",
+    nivel: "Forte",
+    icone: "icons/svg/blind.svg",
+    efeito:
+      "Fica Surpreso e Lento, falha em testes de visão e sofre -5 em Percepção. Seus alvos recebem Camuflagem Total.",
+    implica: ["surpreso", "lento"],
+    mecanica: { percepcao: -5 },
+    avisos: [
+      "Falha automática em qualquer teste que dependa da visão.",
+      "Todos os seus alvos têm Camuflagem Total: 50% de chance de o ataque errar sozinho."
+    ]
+  },
+  {
+    id: "desorientado",
+    nome: "Desorientado",
+    grupo: "Sensorial",
+    nivel: "Fraca",
+    icone: "icons/svg/daze.svg",
+    efeito:
+      "Não pode usar reações contra a próxima ação ofensiva contra você nem ataques de oportunidade.",
+    mecanica: { semReacoes: true },
+    duracao: "efeito"
+  },
+  {
+    id: "desprevenido",
+    nome: "Desprevenido",
+    grupo: "Sensorial",
+    nivel: "Fraca",
+    icone: "icons/svg/downgrade.svg",
+    efeito: "-3 na Defesa e em Testes de Resistência de Reflexos.",
+    mecanica: { defesa: -3, reflexos: -3 }
+  },
+  {
+    id: "invisivel",
+    nome: "Invisível",
+    grupo: "Sensorial",
+    nivel: "Especial",
+    icone: "icons/svg/invisible.svg",
+    efeito: "Não pode ser visto, +10 em Furtividade e pode usar Esconder como Ação Livre.",
+    mecanica: { furtividade: 10 },
+    beneficio: true,
+    avisos: ["Invisível na rolagem de Iniciativa: ela é feita com vantagem."]
+  },
+  {
+    id: "surdo",
+    nome: "Surdo",
+    grupo: "Sensorial",
+    nivel: "Média",
+    icone: "icons/svg/deaf.svg",
+    efeito:
+      "Falha em testes de audição e sofre -5 em Iniciativa (também no valor atual, se já em combate).",
+    mecanica: { iniciativa: -5 },
+    avisos: ["Já em combate, o valor atual de Iniciativa também cai 5 e a ordem dos turnos muda."]
+  },
+  {
+    id: "surpreso",
+    nome: "Surpreso",
+    grupo: "Sensorial",
+    nivel: "Especial",
+    icone: "icons/svg/eye.svg",
+    efeito: "Fica Desprevenido e não pode reagir contra a criatura que o surpreendeu.",
+    implica: ["desprevenido"],
+    avisos: ["Sem reações contra quem o surpreendeu."]
+  },
   // Vulnerabilidade
-  { id: "exposto", nome: "Exposto", grupo: "Vulnerabilidade", nivel: "Forte", icone: "icons/svg/target.svg", efeito: "Ataques contra a criatura recebem +4 e causam dano adicional igual ao nível do atacante." },
-  { id: "fragilizado", nome: "Fragilizado", grupo: "Vulnerabilidade", nivel: "Forte", icone: "icons/svg/degen.svg", efeito: "Redução de Dano zerada e resistências anuladas (imunidades permanecem)." }
+  {
+    id: "exposto",
+    nome: "Exposto",
+    grupo: "Vulnerabilidade",
+    nivel: "Forte",
+    icone: "icons/svg/target.svg",
+    efeito:
+      "Ataques contra a criatura recebem +4 e causam dano adicional igual ao nível do atacante.",
+    // Age sobre quem ataca, não sobre a ficha de quem sofre: é o diálogo de
+    // ataque que soma o +4 quando o alvo marcado está Exposto
+    mecanica: { ataquesContra: 4, danoExtraPorNivel: true }
+  },
+  {
+    id: "fragilizado",
+    nome: "Fragilizado",
+    grupo: "Vulnerabilidade",
+    nivel: "Forte",
+    icone: "icons/svg/degen.svg",
+    efeito: "Redução de Dano zerada e resistências anuladas (imunidades permanecem).",
+    mecanica: { semRD: true },
+    avisos: [
+      "Enquanto durar, a Redução de Dano não pode ser aumentada nem a criatura ficar resistente a nada."
+    ]
+  }
 ];
+
+/** Índice por id, para as buscas que a automação faz a todo momento. */
+FNM.condicoesPorId = Object.fromEntries(FNM.condicoes.map(c => [c.id, c]));
+
+/* -------------------------------------------- */
+/*  Aplicando Condições (p. 207-210)            */
+/* -------------------------------------------- */
+
+/** Níveis de condição na ordem de poder, como o capítulo de criação os usa. */
+FNM.niveisCondicao = ["Fraca", "Média", "Forte", "Extrema"];
+
+/** Dados de dano que cada nível de condição custa em um Feitiço de Dano (p. 207). */
+FNM.reducaoDadosPorCondicao = { Fraca: 1, Média: 3, Forte: 5, Extrema: 8 };
+
+/**
+ * Duração padrão em rodadas, por nível do Feitiço e nível da condição (p. 208).
+ * `0` quer dizer que aquele nível de Feitiço não alcança aquele nível de
+ * condição; `-1` é a duração de cena da Técnica Máxima, que só termina quando
+ * o alvo passa na CD.
+ */
+FNM.duracaoCondicao = {
+  "1": { Fraca: 1, Média: 0, Forte: 0, Extrema: 0 },
+  "2": { Fraca: 2, Média: 1, Forte: 0, Extrema: 0 },
+  "3": { Fraca: 3, Média: 2, Forte: 1, Extrema: 0 },
+  "4": { Fraca: 4, Média: 3, Forte: 2, Extrema: 1 },
+  "5": { Fraca: 5, Média: 4, Forte: 3, Extrema: 1 },
+  max: { Fraca: -1, Média: 5, Forte: 4, Extrema: 1 }
+};
+
+/** Perda de vida do Sangramento, conforme o nível escolhido para ele (p. 210). */
+FNM.sangramentoPorNivel = { Fraca: "2d6", Média: "3d8", Forte: "4d10", Extrema: "6d10" };
 
 /* -------------------------------------------- */
 /*  Exaustão (p. 324)                           */

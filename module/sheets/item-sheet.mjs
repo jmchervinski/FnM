@@ -12,7 +12,9 @@ export class FnmItemSheet extends HandlebarsApplicationMixin(ItemSheetV2) {
     form: { submitOnChange: true },
     actions: {
       editImage: FnmItemSheet.onEditImage,
-      aplicarPadroes: FnmItemSheet.onAplicarPadroes
+      aplicarPadroes: FnmItemSheet.onAplicarPadroes,
+      adicionarCondicaoItem: FnmItemSheet.onAdicionarCondicao,
+      removerCondicaoItem: FnmItemSheet.onRemoverCondicao
     }
   };
 
@@ -51,6 +53,11 @@ export class FnmItemSheet extends HandlebarsApplicationMixin(ItemSheetV2) {
     context.tiposDanoAcao = context.tiposDano.filter(
       t => !["energiaReversa", "alma"].includes(t.id)
     );
+
+    // Catálogo de condições para os <select>, e o aviso de foco só onde ele
+    // existe: nível de Feitiço ou de Técnica Marcial (p. 208)
+    context.catalogoCondicoes = FNM.condicoes;
+    context.temNivelDeCriacao = ["feitico", "tecnicaMarcial"].includes(this.item.type);
 
     context.enrichedDescription =
       await foundry.applications.ux.TextEditor.implementation.enrichHTML(sys.description ?? "", {
@@ -99,6 +106,26 @@ export class FnmItemSheet extends HandlebarsApplicationMixin(ItemSheetV2) {
     ui.notifications.info(
       `Valores padrão de ${cfg.nome} aplicados: alcance ${cfg.alcance} m, dano ${dano}.`
     );
+  }
+
+  /**
+   * Adiciona uma linha em branco na lista de condições.
+   *
+   * A gravação é do array inteiro: um ArrayField no Foundry é substituído, não
+   * remendado, então tanto adicionar quanto remover reescrevem a lista toda.
+   */
+  static async onAdicionarCondicao() {
+    const lista = this.item.toObject().system.condicoes ?? [];
+    await this.item.update({
+      "system.condicoes": [...lista, { id: "", nivel: "", rodadas: 0, formula: "" }]
+    });
+  }
+
+  static async onRemoverCondicao(event, target) {
+    const idx = Number(target.dataset.idx);
+    const lista = this.item.toObject().system.condicoes ?? [];
+    if (!Number.isInteger(idx) || idx < 0 || idx >= lista.length) return;
+    await this.item.update({ "system.condicoes": lista.filter((_, i) => i !== idx) });
   }
 
   /** Abre o FilePicker para trocar a imagem do item. */

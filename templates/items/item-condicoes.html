@@ -1,0 +1,83 @@
+{{!-- Condições que o item aplica (p. 207-210).
+
+      A duração sai da tabela do nível quando o campo fica em 0, então o caso
+      comum é escolher a condição e não preencher mais nada. O nível só importa
+      para o Sangramento, que é variável e define a perda de vida. --}}
+<fieldset class="bloco condicoes-item">
+  <legend>
+    Condições aplicadas
+    <button type="button" class="condicao-adicionar" data-action="adicionarCondicaoItem"
+            title="Adicionar uma condição a este efeito"><i class="fas fa-plus"></i></button>
+  </legend>
+
+  {{#if system.condicoes.length}}
+  <div class="condicoes-linhas">
+    {{#each source.condicoes as |linha idx|}}
+    <div class="condicao-linha" data-idx="{{idx}}">
+      <label class="condicao-campo-id">Condição
+        <select name="system.condicoes.{{idx}}.id">
+          <option value="">—</option>
+          {{#each ../catalogoCondicoes as |c|}}
+          <option value="{{c.id}}" {{#if (eq c.id linha.id)}}selected{{/if}}>
+            {{c.nome}} ({{c.nivel}})
+          </option>
+          {{/each}}
+        </select>
+      </label>
+
+      <label title="Só para o Sangramento, que é variável: define a perda de vida (p. 210)">Nível
+        <select name="system.condicoes.{{idx}}.nivel">
+          <option value="">padrão</option>
+          {{#each ../config.niveisCondicao as |n|}}
+          <option value="{{n}}" {{#if (eq n linha.nivel)}}selected{{/if}}>{{n}}</option>
+          {{/each}}
+        </select>
+      </label>
+
+      <label title="0 usa a duração da tabela do nível; -1 dura a cena inteira (p. 208)">Rodadas
+        <input type="number" name="system.condicoes.{{idx}}.rodadas" value="{{linha.rodadas}}"
+               min="-1" step="1" />
+      </label>
+
+      <label title="Perda de vida ou dano contínuo próprio, no lugar do padrão">Fórmula
+        <input type="text" name="system.condicoes.{{idx}}.formula" value="{{linha.formula}}"
+               placeholder="ex.: 3d8" />
+      </label>
+
+      <button type="button" class="condicao-remover" data-action="removerCondicaoItem"
+              data-idx="{{idx}}" title="Remover esta linha"><i class="fas fa-times"></i></button>
+    </div>
+    {{/each}}
+  </div>
+
+  {{#if system.condicoesView.length}}
+  <ul class="condicoes-previa">
+    {{#each system.condicoesView as |c|}}
+    <li>
+      <img src="{{c.icone}}" width="16" height="16" alt="" />
+      <b>{{c.nome}}</b> — {{c.nivelAplicado}}
+      {{#if c.rodadas}}· {{c.duracaoLabel}}{{else}}· <i>sem duração padrão neste nível</i>{{/if}}
+      {{#if c.formula}}· perda de vida {{c.formula}}{{/if}}
+      {{#if c.reducaoDados}}· custa {{c.reducaoDados}} dado(s) de dano{{/if}}
+      {{#if c.implicadas.length}}· aplica junto: {{#each c.implicadas}}{{this}}{{#unless @last}}, {{/unless}}{{/each}}{{/if}}
+    </li>
+    {{/each}}
+  </ul>
+  {{/if}}
+
+  {{#if system.reducaoDadosCondicoes}}
+  <p class="dica">Total: <b>-{{system.reducaoDadosCondicoes}} dado(s) de dano</b> pelas condições (p. 207).
+    Um efeito aplica no máximo tantas condições quanto o próprio nível.</p>
+  {{/if}}
+  {{else}}
+  <p class="dica">Nenhuma condição. Use o <i class="fas fa-plus"></i> para o efeito passar a oferecer
+    condições na carta do chat, prontas para clicar ou arrastar até um token.</p>
+  {{/if}}
+
+  {{#if temNivelDeCriacao}}
+  <label class="checkbox condicao-foco" title="Feitiço focado em condições (p. 208)">
+    <input type="checkbox" name="system.focoEmCondicoes" {{#if system.focoEmCondicoes}}checked{{/if}} />
+    Focado em condições: não causa dano, alcança um nível de condição acima e dura uma rodada a mais
+  </label>
+  {{/if}}
+</fieldset>

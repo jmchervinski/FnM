@@ -8,8 +8,32 @@
  * (p. 335).
  */
 import { FNM, custoSustento } from "../config.mjs";
-import { cartaAtaque, cartaDano, cartaResistencia } from "../chat.mjs";
+import { alvosMarcados, cartaAtaque, cartaDano, cartaResistencia } from "../chat.mjs";
 import { comRolagem, opcoesDeDialogo } from "../dialogos.mjs";
+import {
+  ajustarCondicao,
+  alternarCondicao,
+  aplicarCondicao,
+  avisosDeAplicacao,
+  aplicarCondicoes,
+  blocoDeCondicoes,
+  condicoesDoAtor,
+  condicoesParaFicha,
+  efeitoDaCondicao,
+  removerCondicao,
+  resolverCondicoes
+} from "../condicoes.mjs";
+
+/** Os nomes das condições ativas que mexem num campo, para rotular a linha. */
+function nomesDeCondicoes(ativas = [], campo = null) {
+  const nomes = ativas
+    .filter(id => {
+      const m = FNM.condicoesPorId[id]?.mecanica;
+      return campo ? m?.[campo] : m;
+    })
+    .map(id => FNM.condicoesPorId[id].nome);
+  return nomes.join(", ") || "condições";
+}
 
 /** Um número com o sinal sempre visível, para as linhas das cartas. */
 function sinalDe(valor) {
@@ -106,6 +130,59 @@ export class FnmActor extends Actor {
   }
 
   /* ------------------------------------------ */
+  /*  Condições (p. 317)                        */
+  /* ------------------------------------------ */
+
+  /** Os ids das condições ligadas nesta ficha, sem as que vêm por consequência. */
+  get condicoesAtivas() {
+    return condicoesDoAtor(this);
+  }
+
+  /** A criatura está sob esta condição, direta ou por consequência de outra? */
+  temCondicao(id) {
+    return (this.system.condicoes?.ativas ?? []).includes(id);
+  }
+
+  /** As condições no formato que a faixa da ficha desenha. */
+  get condicoesDaFicha() {
+    return condicoesParaFicha(this);
+  }
+
+  /** Aplica uma condição, com a duração e a CD de quem a infligiu. */
+  async aplicarCondicao(id, opcoes = {}) {
+    return aplicarCondicao(this, id, opcoes);
+  }
+
+  /** Aplica de uma vez a lista de condições de um efeito. */
+  async aplicarCondicoes(condicoes, opcoes = {}) {
+    return aplicarCondicoes(this, condicoes, opcoes);
+  }
+
+  /**
+   * Reescreve a duração e a CD de uma condição já ativa. Ao contrário de
+   * `aplicarCondicao`, aqui o valor dado vale mesmo que encurte o prazo: é a
+   * correção à mão, não uma nova aplicação do efeito.
+   */
+  async ajustarCondicao(id, opcoes = {}) {
+    return ajustarCondicao(this, id, opcoes);
+  }
+
+  /** Remove uma condição. */
+  async removerCondicao(id) {
+    return removerCondicao(this, id);
+  }
+
+  /** Liga ou desliga uma condição, para os cliques da ficha e do HUD. */
+  async alternarCondicao(id, opcoes = {}) {
+    return alternarCondicao(this, id, opcoes);
+  }
+
+  /** O Active Effect de uma condição, quando ela está ligada. */
+  efeitoDaCondicao(id) {
+    return efeitoDaCondicao(this, id);
+  }
+
+  /* ------------------------------------------ */
   /*  Diálogo padrão de teste                   */
   /* ------------------------------------------ */
 
@@ -169,11 +246,13 @@ export class FnmActor extends Actor {
     const natural = roll.dice[0]?.total ?? 0;
     const linhas = [];
     let veredito = "";
+    let sucesso = null;
+    let critico = false;
 
     if (cd !== null) {
-      let sucesso = roll.total >= cd;
+      sucesso = roll.total >= cd;
       // Sucesso crítico só existe se você for mestre no teste (p. 281)
-      let critico = ehResistencia && mestre && sucesso && roll.total >= cd + 10;
+      critico = ehResistencia && mestre && sucesso && roll.total >= cd + 10;
 
       if (ehResistencia && natural === 20) {
         if (!sucesso) {
@@ -204,7 +283,9 @@ export class FnmActor extends Actor {
         (linhas.length ? `<br>${linhas.join("<br>")}` : "")
     });
 
-    return { roll, total: roll.total, natural };
+    // `sucesso` é `null` quando não havia CD para comparar: quem chamou precisa
+    // saber que o teste não decidiu nada, e não que ele falhou
+    return { roll, total: roll.total, natural, sucesso, critico };
   }
 
   /* ------------------------------------------ */
@@ -268,6 +349,18 @@ export class FnmActor extends Actor {
     const resistencia = this.system.resistencias?.[id];
     if (!resistencia) return ui.notifications.error(`Resistência desconhecida: ${id}`);
 
+    // Paralisado e Inconsciente falham automaticamente em Reflexos (p. 317):
+    // não há rolagem que resolva, então a carta sai direto com a falha
+    if (id === "reflexos" && this.system.condicoes?.falhaReflexos) {
+      await ChatMessage.create({
+        speaker: ChatMessage.getSpeaker({ actor: this }),
+        content:
+          `<div class="fnm-carta"><b>${this.name}</b> falha automaticamente no ` +
+          `<b>TR de Reflexos</b> — ${this._condicoesQueFalhamReflexos()} (p. 317).</div>`
+      });
+      return { roll: null, total: -Infinity, natural: 0, sucesso: false, critico: false };
+    }
+
     // Vindo do botão de uma carta, a CD já é conhecida e chega preenchida
     const dados = await this._dialogoTeste(
       `TR de ${resistencia.nome}`,
@@ -282,6 +375,14 @@ export class FnmActor extends Actor {
       mestre: resistencia.mestre,
       ...dados
     });
+  }
+
+  /** Quais condições ativas estão causando a falha automática em Reflexos. */
+  _condicoesQueFalhamReflexos() {
+    const nomes = (this.system.condicoes?.ativas ?? [])
+      .filter(id => FNM.condicoesPorId[id]?.mecanica?.falhaReflexos)
+      .map(id => FNM.condicoesPorId[id].nome);
+    return nomes.length ? nomes.join(" e ") : "condição de incapacitação";
   }
 
   /** Teste de atributo puro, para situações fora das perícias. */
@@ -307,6 +408,23 @@ export class FnmActor extends Actor {
   /* ------------------------------------------ */
   /*  Ataques                                   */
   /* ------------------------------------------ */
+
+  /**
+   * As condições que um item aplica, já resolvidas para a carta: nível
+   * efetivo, duração pela tabela do nível (p. 208) e a CD contra a qual o alvo
+   * vai testar. A CD é a do efeito que aplicou — a Amaldiçoada de um Feitiço, a
+   * de Especialização de uma arma ou Técnica Marcial.
+   */
+  _condicoesDoItem(item, { cd = null, resistencia = "" } = {}) {
+    const lista = item?.system?.condicoes ?? [];
+    if (!lista.length) return [];
+    return resolverCondicoes(lista, {
+      nivelItem: item.system.nivel ?? "",
+      foco: item.system.focoEmCondicoes === true,
+      cd,
+      resistencia
+    });
+  }
 
   /**
    * Descreve um ataque com arma para o diálogo e para a carta do chat.
@@ -350,7 +468,11 @@ export class FnmActor extends Actor {
       grupo: sys.grupo,
       alcance: sys.alcance,
       propriedades: sys.propriedades,
-      somaAtributoNoDano: true
+      somaAtributoNoDano: true,
+      // Condições que a arma inflige — o efeito de crítico do grupo usa a CD
+      // de Especialização (p. 308)
+      condicoes: this._condicoesDoItem(item, { cd: this.system.cdEspecializacao }),
+      cdCondicoes: this.system.cdEspecializacao ?? null
     };
   }
 
@@ -447,7 +569,14 @@ export class FnmActor extends Actor {
       grupo: "",
       alcance: sys.alcance || `${sys.alcancePadrao} metros`,
       propriedades: "",
-      somaAtributoNoDano: false
+      somaAtributoNoDano: false,
+      // Feitiço de Teste de Ataque: o alvo faz o TR ao ser acertado (p. 207)
+      condicoes: this._condicoesDoItem(item, {
+        cd: this.system.cdAmaldicoada,
+        resistencia: sys.resistencia
+      }),
+      cdCondicoes: this.system.cdAmaldicoada ?? null,
+      resistenciaCondicoes: sys.resistencia
     };
   }
 
@@ -479,6 +608,12 @@ export class FnmActor extends Actor {
     }
     if (sys.custoPE) propriedades.push(`${sys.custoPE} PE`);
 
+    // A CD do TR forçado pela ação (p. 263). É montada aqui, e não por
+    // `cdDaAcaoInvocacao`, porque aquele método monta o perfil para chegar
+    // nela — chamá-lo daqui seria uma volta sem fim
+    const atributoDaAcao = s.ataques?.[linha]?.atributo || cfg.atributo;
+    const cdDaAcao = (s.cdAcao ?? 10) + (s.atributos[atributoDaAcao]?.mod ?? 0);
+
     return {
       item,
       nome: item.name,
@@ -486,7 +621,7 @@ export class FnmActor extends Actor {
       subtitulo: partes.join(" · "),
       tipo: linha === "distancia" ? "A Distância" : "Corpo a Corpo",
       linhaAtaque: linha,
-      atributos: [s.ataques?.[linha]?.atributo || cfg.atributo],
+      atributos: [atributoDaAcao],
       // A Invocação só é treinada na jogada que escolheu na criação (p. 261)
       treinado: s.detalhes?.ataqueTreinado === linha,
       bonusAtaque: sys.bonusAtaque,
@@ -503,7 +638,13 @@ export class FnmActor extends Actor {
       // O bônus de dano de uma Ação é o modificador do atributo (p. 263) e no
       // Grau Especial ele conta dobrado
       somaAtributoNoDano: true,
-      multiplicadorAtributoNoDano: grau.dobraModificador ? 2 : 1
+      multiplicadorAtributoNoDano: grau.dobraModificador ? 2 : 1,
+      condicoes: this._condicoesDoItem(item, {
+        cd: cdDaAcao,
+        resistencia: sys.resistencia
+      }),
+      cdCondicoes: cdDaAcao,
+      resistenciaCondicoes: sys.resistencia
     };
   }
 
@@ -513,7 +654,7 @@ export class FnmActor extends Actor {
    * A mesma lista alimenta o diálogo e o detalhamento da carta: o jogador vê
    * de onde sai cada ponto antes de rolar e depois de rolar.
    */
-  _modificadoresAtaque(perfil, atributo) {
+  _modificadoresAtaque(perfil, atributo, alvo = null) {
     const s = this.system;
     const linha = s.ataques?.[perfil.linhaAtaque];
     const mods = [
@@ -550,6 +691,28 @@ export class FnmActor extends Actor {
       mods.push({ rotulo: `Alma ${s.alma.estado}`, valor: s.penalidadeAlma });
     }
 
+    // Caído pesa só no corpo a corpo; Abalado, Envenenado e afins, em tudo
+    const proprias =
+      perfil.linhaAtaque === "corpoACorpo"
+        ? s.condicoes.totalAtaqueCorpoACorpo
+        : s.condicoes.totalAtaque;
+    if (proprias) {
+      mods.push({
+        rotulo: `Condições (${nomesDeCondicoes(s.condicoes.ativas)})`,
+        valor: proprias
+      });
+    }
+
+    // Exposto: quem ataca a criatura recebe +4 (p. 319). A conta é de quem
+    // ataca, então ela só entra quando há um alvo marcado para consultar
+    const doAlvo = alvo?.system?.condicoes;
+    if (doAlvo?.ataquesContra) {
+      mods.push({
+        rotulo: `Alvo ${nomesDeCondicoes(doAlvo.ativas, "ataquesContra")}`,
+        valor: doAlvo.ataquesContra
+      });
+    }
+
     return mods;
   }
 
@@ -570,19 +733,28 @@ export class FnmActor extends Actor {
     const s = this.system;
     // A Defesa já vem preenchida quando há um token alvejado
     const alvo = game.user.targets.first()?.actor;
+    const distanciaOuArremesso = perfil.tipo === "A Distância" || perfil.tipo === "De Arremesso";
+    // O Caído tem duas Defesas, uma para cada lado do ataque (p. 318): o campo
+    // já nasce com a que vale para ESTE ataque
+    const defesaDoAlvo = alvo?.system?.combate
+      ? (distanciaOuArremesso ? alvo.system.combate.defesaDistancia : alvo.system.combate.defesaCorpoACorpo) ??
+        alvo.system.combate.defesa
+      : 15;
     const padrao = this._melhorAtributo(perfil.atributos);
     // A primeira linha é sempre o atributo, e é a única que o diálogo refaz
-    const mods = this._modificadoresAtaque(perfil, padrao);
+    const mods = this._modificadoresAtaque(perfil, padrao, alvo);
 
     const conteudo = await foundry.applications.handlebars.renderTemplate(
       "systems/fnm/templates/chat/ataque-dialogo.html",
       {
         perfil,
         // A faixa de alcance é regra de arma (p. 305); Feitiço tem alcance próprio
-        distancia: perfil.tipo === "A Distância" || perfil.tipo === "De Arremesso",
+        distancia: distanciaOuArremesso,
         escolheAtributo: perfil.atributos.length > 1,
         alvo: alvo?.name ?? "",
-        defesa: alvo?.system?.combate?.defesa ?? 15,
+        defesa: defesaDoAlvo,
+        // Condições do alvo que a mesa precisa ver antes de rolar
+        condicoesDoAlvo: (alvo?.system?.condicoes?.ativas ?? []).map(id => FNM.condicoesPorId[id]?.nome).filter(Boolean),
         // Com um alvo marcado, só o Narrador vê o número: o jogador precisa
         // saber se acertou, não contra quanto. Sem alvo, o campo continua
         // aberto — não há o que esconder e alguém tem que informar a Defesa.
@@ -603,7 +775,7 @@ export class FnmActor extends Actor {
       }
     );
 
-    return foundry.applications.api.DialogV2.prompt({
+    const escolhas = await foundry.applications.api.DialogV2.prompt({
       window: { title: `${perfil.nome} — ${this.name}`, resizable: true },
       classes: ["fnm-dialogo"],
       // Largura relativa à janela, e não fixa: o diálogo lista um modificador
@@ -634,6 +806,10 @@ export class FnmActor extends Actor {
         }
       }
     });
+
+    // Quem estava marcado AGORA é quem a carta vai considerar: o Exposto do
+    // alvo e a Defesa dele não podem mudar entre o diálogo e a rolagem
+    return escolhas ? { ...escolhas, alvoUuid: alvo?.uuid ?? null } : escolhas;
   }
 
   /**
@@ -660,7 +836,8 @@ export class FnmActor extends Actor {
       return null;
     }
 
-    const mods = this._modificadoresAtaque(perfil, escolhas.atributo);
+    const alvo = escolhas.alvoUuid ? fromUuidSync(escolhas.alvoUuid)?.actor : null;
+    const mods = this._modificadoresAtaque(perfil, escolhas.atributo, alvo);
     const bonus = mods.reduce((n, m) => n + m.valor, 0) + escolhas.situacional;
 
     // Vantagem e desvantagem de fontes diferentes se anulam (p. 282): as fontes
@@ -679,13 +856,44 @@ export class FnmActor extends Actor {
     }
 
     const defesaAlvo = escolhas.defesa ? escolhas.defesa + cobertura.defesa : 0;
-    const resultado = vereditoAtaque({
+    let resultado = vereditoAtaque({
       natural,
       total: roll.total,
       defesa: defesaAlvo,
       limiarCritico: perfil.critico,
       falhouCamuflagem: d10 !== null && d10 <= camuflagem.falha
     });
+
+    // Condições do alvo que decidem o acerto sozinhas (p. 317). Elas entram
+    // depois do veredito porque não dependem do d20: o Inconsciente é acertado
+    // criticamente qualquer que tenha sido a rolagem, e o Paralisado, sempre
+    // que o golpe de corpo a corpo tiver passado.
+    const notasDoAlvo = [];
+    const condAlvo = alvo?.system?.condicoes;
+    const errouPorCamuflagem = resultado === "camuflagem";
+    if (condAlvo?.sempreAcertado && !errouPorCamuflagem) {
+      resultado = "critico";
+      notasDoAlvo.push(
+        `<b>${alvo.name}</b> está ${nomesDeCondicoes(condAlvo.ativas, "sempreAcertado")}: ` +
+          "todo ataque contra a criatura acerta e é crítico (p. 317)."
+      );
+    } else if (
+      condAlvo?.criticoCorpoACorpo &&
+      resultado === "acerto" &&
+      perfil.linhaAtaque === "corpoACorpo"
+    ) {
+      resultado = "critico";
+      notasDoAlvo.push(
+        `<b>${alvo.name}</b> está ${nomesDeCondicoes(condAlvo.ativas, "criticoCorpoACorpo")}: ` +
+          "todo ataque corpo a corpo que acerte é crítico (p. 317)."
+      );
+    }
+    if (condAlvo?.danoExtraPorNivel && (resultado === "acerto" || resultado === "critico")) {
+      notasDoAlvo.push(
+        `<b>Exposto:</b> o dano recebe ${this.system.nivel ?? 1} pontos a mais, o nível do atacante, ` +
+          "em cada rolagem de dano (p. 319)."
+      );
+    }
 
     await cartaAtaque({
       ator: this,
@@ -702,7 +910,12 @@ export class FnmActor extends Actor {
       camuflagem,
       d10,
       atributo: escolhas.atributo,
-      versatil: escolhas.versatil
+      versatil: escolhas.versatil,
+      notasExtras: notasDoAlvo,
+      // Condições que o efeito aplica ao acertar: o alvo ainda faz o TR (p. 207)
+      condicoes: perfil.condicoes ?? [],
+      cdCondicoes: perfil.cdCondicoes ?? null,
+      resistenciaCondicoes: perfil.resistenciaCondicoes ?? ""
     });
 
     return {
@@ -826,8 +1039,10 @@ export class FnmActor extends Actor {
       if (!seguir) return null;
     }
 
-    // Estados da Alma aumentam o custo de todas as habilidades (p. 312)
-    const custo = sys.custoEfetivo + (s.alma?.custoExtra ?? 0);
+    // Estados da Alma aumentam o custo de todas as habilidades (p. 312), e a
+    // condição Condenado soma mais 1 em cima (p. 317)
+    const custoExtraCondicao = s.condicoes?.custoPE ?? 0;
+    const custo = sys.custoEfetivo + (s.alma?.custoExtra ?? 0) + custoExtraCondicao;
     if (custo > this.peDisponivel) {
       return ui.notifications.warn(
         `PE insuficiente: ${item.name} custa ${custo} PE e ${this.name} tem ${this.peDisponivel}.`
@@ -850,6 +1065,9 @@ export class FnmActor extends Actor {
         `<b>Alma ${s.alma.estado}:</b> +${s.alma.custoExtra} PE no custo (p. 312).`
       );
     }
+    if (custoExtraCondicao) {
+      linhas.push(`<b>Condenado:</b> +${custoExtraCondicao} PE no custo (p. 317).`);
+    }
 
     // A conferência de PE já passou acima; isto protege quem mexer na ordem
     const extrato = await this.gastarPE(custo);
@@ -857,6 +1075,12 @@ export class FnmActor extends Actor {
       return ui.notifications.warn(`PE insuficiente para conjurar ${item.name}.`);
     }
     linhas.push(...extrato);
+
+    const condicoes = this._condicoesDoItem(item, {
+      cd: s.cdAmaldicoada,
+      resistencia: sys.resistencia
+    });
+    linhas.push(...avisosDeAplicacao(condicoes, sys.nivel, sys.focoEmCondicoes));
 
     // Resolução por TR: a carta não resolve nada sozinha. Quem rola o teste é o
     // alvo, e o dano só sai depois — então os dois viram botões, em vez de o
@@ -868,19 +1092,15 @@ export class FnmActor extends Actor {
         cd: s.cdAmaldicoada,
         resistencia: sys.resistencia,
         linhas,
-        dano: sys.dano || sys.danoPadrao
+        dano: sys.dano || sys.danoPadrao,
+        condicoes
       });
       return true;
     }
 
-    await ChatMessage.create({
-      speaker: ChatMessage.getSpeaker({ actor: this }),
-      content:
-        `<div class="fnm-carta"><h3>${item.name}</h3>` +
-        `<p>${linhas.join("<br>")}</p>` +
-        (sys.description ? `<div class="fnm-carta-desc">${sys.description}</div>` : "") +
-        `</div>`
-    });
+    // Com resolução por ataque as condições viajam na carta do ataque, que sabe
+    // se o golpe acertou: repeti-las aqui daria dois lugares para clicar
+    await this._cartaDeEfeito(item, linhas, sys.resolucao === "ataque" ? [] : condicoes);
 
     // O Ataque Amaldiçoado é uma das três Jogadas de Ataque (p. 279), então usa
     // o mesmo diálogo e a mesma carta das armas — com botão de dano no fim
@@ -891,6 +1111,33 @@ export class FnmActor extends Actor {
     }
 
     return true;
+  }
+
+  /**
+   * A carta simples de um efeito que não resolve nada sozinho: o resumo
+   * mecânico e, quando houver, os chips das condições que ele aplica.
+   */
+  async _cartaDeEfeito(item, linhas, condicoes = []) {
+    const bloco = await blocoDeCondicoes(condicoes);
+    return ChatMessage.create({
+      speaker: ChatMessage.getSpeaker({ actor: this }),
+      content:
+        `<div class="fnm-carta"><h3>${item.name}</h3>` +
+        `<p>${linhas.join("<br>")}</p>` +
+        (item.system.description ? `<div class="fnm-carta-desc">${item.system.description}</div>` : "") +
+        `</div>` +
+        bloco,
+      flags: {
+        fnm: {
+          tipo: "efeito",
+          atorId: this.id,
+          itemId: item.id,
+          alvos: alvosMarcados(),
+          origemNome: item.name,
+          condicoes
+        }
+      }
+    });
   }
 
   /* ------------------------------------------ */
@@ -997,7 +1244,14 @@ export class FnmActor extends Actor {
       alcance: sys.alcance || `${sys.alcancePadrao} metros`,
       propriedades: sys.alvo,
       // O dano de uma Técnica Marcial é o da tabela do nível, como no Feitiço
-      somaAtributoNoDano: false
+      somaAtributoNoDano: false,
+      // A CD é a de Especialização: o Restringido escolhe o atributo (p. 114)
+      condicoes: this._condicoesDoItem(item, {
+        cd: this.system.cdEspecializacao,
+        resistencia: sys.resistencia
+      }),
+      cdCondicoes: this.system.cdEspecializacao ?? null,
+      resistenciaCondicoes: sys.resistencia
     };
   }
 
@@ -1065,6 +1319,9 @@ export class FnmActor extends Actor {
     if (sys.usos.max > 0) linhas.push(`<b>Usos:</b> ${sys.usos.value - 1}/${sys.usos.max}`);
     linhas.push(...extrato);
 
+    const condicoes = perfil.condicoes ?? [];
+    linhas.push(...avisosDeAplicacao(condicoes, sys.nivel, sys.focoEmCondicoes));
+
     if (sys.resolucao === "resistencia") {
       await cartaResistencia({
         ator: this,
@@ -1074,19 +1331,13 @@ export class FnmActor extends Actor {
         resistencia: sys.resistencia,
         subtitulo: `Técnica Marcial de ${sys.nivelLabel} · ${sys.custoEfetivo} Estamina`,
         linhas,
-        dano: sys.dano || sys.danoPadrao
+        dano: sys.dano || sys.danoPadrao,
+        condicoes
       });
       return true;
     }
 
-    await ChatMessage.create({
-      speaker: ChatMessage.getSpeaker({ actor: this }),
-      content:
-        `<div class="fnm-carta"><h3>${item.name}</h3>` +
-        `<p>${linhas.join("<br>")}</p>` +
-        (sys.description ? `<div class="fnm-carta-desc">${sys.description}</div>` : "") +
-        `</div>`
-    });
+    await this._cartaDeEfeito(item, linhas, sys.resolucao === "ataque" ? [] : condicoes);
 
     if (sys.resolucao === "ataque") await this._executarAtaque(perfil, escolhas);
     return true;
@@ -1129,10 +1380,14 @@ export class FnmActor extends Actor {
    * Devolve `null` quando o uso deve ser abortado.
    */
   async _cobrarCustoAcao(item) {
-    const custo = item.system.custoPE;
-    if (!custo) return [];
+    const base = item.system.custoPE;
+    if (!base) return [];
 
     const invocador = this.system.invocador;
+    // Condenado encarece toda habilidade em 1 PE (p. 317), e quem paga aqui é o
+    // invocador: a condição que importa é a dele, não a da Invocação
+    const extraCondicao = invocador?.system?.condicoes?.custoPE ?? 0;
+    const custo = base + extraCondicao;
     if (!invocador) {
       const seguir = await foundry.applications.api.DialogV2.confirm({
         window: { title: "Sem invocador escolhido" },
@@ -1152,7 +1407,11 @@ export class FnmActor extends Actor {
     }
 
     const extrato = await invocador.gastarPE(custo);
-    return extrato.map(l => l.replace("<b>PE:</b>", `<b>PE de ${invocador.name}:</b>`));
+    const linhas = extrato.map(l => l.replace("<b>PE:</b>", `<b>PE de ${invocador.name}:</b>`));
+    if (extraCondicao) {
+      linhas.push(`<b>Condenado:</b> +${extraCondicao} PE no custo de ${invocador.name} (p. 317).`);
+    }
+    return linhas;
   }
 
   /**
@@ -1213,6 +1472,9 @@ export class FnmActor extends Actor {
     }
     linhas.push(...linhasCusto);
 
+    const condicoes = perfil.condicoes ?? [];
+    linhas.push(...avisosDeAplicacao(condicoes));
+
     // Resolução por TR: quem rola é o alvo, então a carta sai só com os botões
     // do teste e do dano — o mesmo caminho de um Feitiço (p. 263)
     if (sys.ehResistencia) {
@@ -1235,19 +1497,13 @@ export class FnmActor extends Actor {
           "Um sucesso no teste reduz o dano à metade — use o botão <b>Metade</b> na carta de dano. " +
           "Se na sua mesa o sucesso anula o efeito, não aplique nada.",
         linhas,
-        dano: sys.dano
+        dano: sys.dano,
+        condicoes
       });
       return true;
     }
 
-    await ChatMessage.create({
-      speaker: ChatMessage.getSpeaker({ actor: this }),
-      content:
-        `<div class="fnm-carta"><h3>${item.name}</h3>` +
-        `<p>${linhas.join("<br>")}</p>` +
-        (sys.description ? `<div class="fnm-carta-desc">${sys.description}</div>` : "") +
-        `</div>`
-    });
+    await this._cartaDeEfeito(item, linhas, sys.ehAtaque ? [] : condicoes);
 
     if (sys.ehAtaque) {
       await this._executarAtaque(perfil, escolhas);
@@ -1300,16 +1556,22 @@ export class FnmActor extends Actor {
    * Aplica dano respeitando PV temporários e Redução de Dano. Dano na Alma
    * atravessa tudo e reduz também a vida máxima (p. 311).
    */
-  async aplicarDano(quantidade, { tipo = "", ignorarRD = false } = {}) {
+  async aplicarDano(quantidade, { tipo = "", ignorarRD = false, perdaDeVida = false } = {}) {
     const s = this.system;
     let dano = Math.max(0, Math.floor(Number(quantidade) || 0));
     const linhas = [];
     const naAlma = tipo === "alma";
 
+    // Perda de vida não é dano: reduz os PV atuais sem passar por Redução de
+    // Dano nem por resistências (p. 316). É como o Sangramento cobra o turno.
+    if (perdaDeVida) {
+      linhas.push("<b>Perda de vida:</b> não é afetada por Redução de Dano nem por resistências (p. 316).");
+    }
+
     // A ficha tem RD geral e RD por tipo de dano; usa-se a do tipo, se houver
     const rdAplicavel = tipo ? (s.combate.rdPorTipo?.[tipo] ?? s.combate.reducaoDanoTotal)
                              : s.combate.reducaoDanoTotal;
-    if (!naAlma && !ignorarRD && rdAplicavel > 0) {
+    if (!naAlma && !perdaDeVida && !ignorarRD && rdAplicavel > 0) {
       const rd = Math.min(dano, rdAplicavel);
       dano -= rd;
       linhas.push(
@@ -1322,7 +1584,7 @@ export class FnmActor extends Actor {
     const atualizacoes = {};
     let restante = dano;
 
-    if (!naAlma && s.recursos.pvTemporario > 0) {
+    if (!naAlma && !perdaDeVida && s.recursos.pvTemporario > 0) {
       const absorvido = Math.min(s.recursos.pvTemporario, restante);
       atualizacoes["system.recursos.pvTemporario"] = s.recursos.pvTemporario - absorvido;
       restante -= absorvido;
@@ -1366,8 +1628,9 @@ export class FnmActor extends Actor {
     await ChatMessage.create({
       speaker: ChatMessage.getSpeaker({ actor: this }),
       content:
-        `<b>${this.name}</b> sofre <b>${dano}</b> de dano` +
-        (tipo ? ` (${FNM.tiposDano[tipo]?.nome ?? tipo})` : "") +
+        `<b>${this.name}</b> ${perdaDeVida ? "perde" : "sofre"} <b>${dano}</b> ` +
+        (perdaDeVida ? "de vida" : "de dano") +
+        (tipo && !perdaDeVida ? ` (${FNM.tiposDano[tipo]?.nome ?? tipo})` : "") +
         ` → ${novoPV}/${s.recursos.pv.max} PV.` +
         (linhas.length ? `<br>${linhas.join("<br>")}` : "")
     });

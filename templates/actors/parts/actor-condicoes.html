@@ -1,0 +1,57 @@
+{{!-- Faixa de Condições da ficha (p. 317).
+
+      As condições aplicadas ficam à vista com a duração que resta e a CD do
+      efeito que as causou; as que vêm por consequência de outra aparecem
+      apagadas e sem botão — elas somem sozinhas quando a de origem sair. --}}
+<fieldset class="bloco condicoes-bloco">
+  <legend>
+    Condições
+    <button type="button" class="condicao-adicionar" data-action="adicionarCondicao"
+            title="Escolher uma condição do catálogo (p. 317)">
+      <i class="fas fa-plus"></i>
+    </button>
+  </legend>
+
+  {{#if condicoesView.length}}
+  <div class="condicoes-lista">
+    {{#each condicoesView as |c|}}
+    <div class="condicao-ficha {{#if c.implicada}}condicao-implicada{{/if}}"
+         data-condicao="{{c.id}}"
+         {{#unless c.implicada}}data-action="ajustarCondicao"{{/unless}}
+         data-tooltip="{{c.efeito}}"
+         title="{{c.efeito}}{{#unless c.implicada}}&#10;&#10;Clique para ajustar a duração e a CD.{{/unless}}">
+      <img src="{{c.icone}}" width="20" height="20" alt="" />
+      <span class="condicao-nome">{{c.nome}}</span>
+      <span class="condicao-detalhe">
+        {{c.grupo}} · {{c.nivel}}{{#if c.duracaoLabel}} · {{c.duracaoLabel}}{{/if}}{{#if c.cd}} · CD {{c.cd}}{{/if}}
+      </span>
+      {{#if c.implicada}}
+      <span class="condicao-origem" title="Aplicada por {{c.porCausaDe}}">
+        <i class="fas fa-link"></i> {{c.porCausaDe}}
+      </span>
+      {{else}}
+      <button type="button" class="condicao-remover" data-action="removerCondicao"
+              title="Remover {{c.nome}}"><i class="fas fa-times"></i></button>
+      {{/if}}
+    </div>
+    {{/each}}
+  </div>
+
+  {{#if condicoesAvisos.length}}
+  <ul class="condicoes-avisos">
+    {{#each condicoesAvisos as |a|}}<li>{{a}}</li>{{/each}}
+  </ul>
+  {{/if}}
+
+  {{#if condicoesResumo.length}}
+  <p class="dica condicoes-resumo">
+    Já descontado das fichas:
+    {{#each condicoesResumo as |r|}}<b>{{r}}</b>{{#unless @last}} · {{/unless}}{{/each}}.
+    Condições com o mesmo efeito não se acumulam: vale a mais severa (p. 317).
+  </p>
+  {{/if}}
+  {{else}}
+  <p class="dica">Nenhuma condição ativa. Arraste uma condição de uma carta do chat para esta ficha,
+    use o <i class="fas fa-plus"></i> acima, ou o HUD do token.</p>
+  {{/if}}
+</fieldset>

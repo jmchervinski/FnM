@@ -63,6 +63,16 @@
     </label>
     {{/if}}
 
+    {{!-- As condições do alvo mudam a jogada (Exposto dá +4, Caído troca a
+          Defesa conforme o lado do ataque): quem rola precisa saber que elas
+          já estão na conta, mesmo sem ver o número da Defesa. --}}
+    {{#if condicoesDoAlvo.length}}
+    <p class="fnm-condicoes-alvo">
+      <i class="fas fa-skull-crossbones"></i> {{alvo}} está
+      {{#each condicoesDoAlvo}}<b>{{this}}</b>{{#unless @last}}, {{/unless}}{{/each}}.
+    </p>
+    {{/if}}
+
     <label title="Coberturas não se acumulam: vale só a maior (p. 294)">Cobertura
       <select name="cobertura">
         {{#each cobertura as |c|}}

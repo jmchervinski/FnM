@@ -100,6 +100,7 @@ const USO = {
   "actor-recursos.html": ["character", "npc", "invocacao"],
   "actor-itens.html": ["character", "npc", "invocacao"],
   "actor-footer.html": ["character", "npc", "invocacao"],
+  "actor-condicoes.html": ["character", "npc", "invocacao"],
   "npc-header.html": ["npc"],
   "npc-principal.html": ["npc"],
   "npc-acoes.html": ["npc"],
@@ -108,6 +109,9 @@ const USO = {
   "invocacao-header.html": ["invocacao"],
   "invocacao-principal.html": ["invocacao"],
   "invocacao-acoes.html": ["invocacao"],
+  "item-condicoes.html": Object.keys(MODELOS).filter(
+    k => !["character", "npc", "invocacao"].includes(k)
+  ),
   "item-sheet.html": Object.keys(MODELOS).filter(
     k => !["character", "npc", "invocacao"].includes(k)
   )
@@ -155,8 +159,8 @@ function camposDe(arquivo) {
 const ICONES_PERMITIDOS = new Set([
   "arrow-up", "asterisk", "bed", "bolt", "clock", "comment", "crosshairs",
   "dice-d20", "edit", "file-import", "fire", "ghost", "hand-fist", "heart",
-  "lock", "minus", "plus", "power-off", "shield-alt", "skull", "suitcase",
-  "trash"
+  "link", "lock", "minus", "plus", "power-off", "shield-alt", "skull",
+  "skull-crossbones", "suitcase", "times", "trash"
 ]);
 /**
  * Prefixos de estilo do Font Awesome, que não são nomes de ícone.

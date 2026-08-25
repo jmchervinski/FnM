@@ -8,6 +8,7 @@
  * refazer a rolagem sem depender do estado da ficha aberta.
  */
 import { FNM } from "./config.mjs";
+import { blocoDeCondicoes, ligarCondicoes, rolarTRdeCondicao } from "./condicoes.mjs";
 
 const TEMPLATE_ATAQUE = "systems/fnm/templates/chat/ataque.html";
 const TEMPLATE_DANO = "systems/fnm/templates/chat/dano.html";
@@ -54,10 +55,14 @@ export async function cartaAtaque({
   camuflagem,
   d10,
   atributo,
-  versatil
+  versatil,
+  notasExtras = [],
+  condicoes = [],
+  cdCondicoes = null,
+  resistenciaCondicoes = ""
 }) {
   const veredito = RESULTADOS[resultado] ?? RESULTADOS.indefinido;
-  const notas = [];
+  const notas = [...notasExtras];
 
   if (veredito.nota) notas.push(veredito.nota);
   if (!perfil.treinado) {
@@ -105,9 +110,27 @@ export async function cartaAtaque({
     rotuloAlternativo: versatil ? "Com uma mão" : "Com as duas mãos"
   });
 
+  // Condição em Feitiço de Teste de Ataque não é automática: o alvo ainda faz
+  // um TR ao ser acertado, e recebe a condição só em uma falha (p. 207). Por
+  // isso os chips só aparecem quando o ataque acertou, e vêm com o botão do TR
+  const acertou = resultado === "acerto" || resultado === "critico";
+  const bloco =
+    acertou && condicoes.length
+      ? await blocoDeCondicoes(condicoes, {
+          titulo: `Ao ser acertado, o alvo faz um TR${cdCondicoes ? ` contra CD ${cdCondicoes}` : ""}`,
+          dica:
+            `Em uma falha, aplique${
+              resistenciaCondicoes
+                ? ` (TR de ${FNM.resistencias[resistenciaCondicoes]?.nome ?? resistenciaCondicoes})`
+                : ""
+            }: clique para aplicar nos alvos da carta, Shift+clique nos tokens selecionados, ` +
+            "ou arraste para um token."
+        })
+      : "";
+
   return ChatMessage.create({
     speaker: ChatMessage.getSpeaker({ actor: ator }),
-    content: conteudo,
+    content: conteudo + bloco,
     rolls: [roll],
     sound: CONFIG.sounds.dice,
     flags: {
@@ -117,7 +140,11 @@ export async function cartaAtaque({
         itemId: perfil.item?.id ?? null,
         atributo,
         versatil,
-        critico: resultado === "critico"
+        critico: resultado === "critico",
+        // Quem estava marcado quando o ataque saiu é quem recebe a condição
+        alvos: alvosMarcados(),
+        origemNome: perfil.nome,
+        condicoes: acertou ? condicoes : []
       }
     }
   });
@@ -186,7 +213,8 @@ export async function cartaResistencia({
   linhas = [],
   dano,
   subtitulo,
-  efeitoDaFalha
+  efeitoDaFalha,
+  condicoes = []
 }) {
   const nomeTR = FNM.resistencias[resistencia]?.nome ?? "à escolha do Narrador";
   const sys = item.system;
@@ -213,9 +241,18 @@ export async function cartaResistencia({
     descricao: sys.description
   });
 
+  // O TR do alvo decide as duas coisas de uma vez: o dano e as condições. Em um
+  // sucesso ele ignora as condições; em uma falha, recebe todas (p. 289)
+  const bloco = await blocoDeCondicoes(condicoes, {
+    titulo: "Em uma falha no teste, o alvo recebe",
+    dica:
+      "Clique para aplicar nos alvos da carta, Shift+clique para aplicar nos tokens selecionados, " +
+      "ou arraste a condição para um token. Um sucesso crítico ignora dano e condições (p. 289)."
+  });
+
   return ChatMessage.create({
     speaker: ChatMessage.getSpeaker({ actor: ator }),
-    content: conteudo,
+    content: conteudo + bloco,
     flags: {
       fnm: {
         tipo: "resistencia",
@@ -225,7 +262,9 @@ export async function cartaResistencia({
         resistencia,
         // Quem estava marcado AGORA é quem faz o teste depois, seja quem for
         // que clique no botão
-        alvos
+        alvos,
+        origemNome: item.name,
+        condicoes
       }
     }
   });
@@ -248,7 +287,11 @@ export function registrarChat() {
       trecho.remove();
     }
 
-    if (!["ataque", "resistencia", "dano"].includes(flags.tipo)) return;
+    // Chips de condição existem em carta de ataque, de TR e na carta simples de
+    // um Feitiço sem resolução: basta a carta ter guardado a lista
+    ligarCondicoes(elemento, flags, alvosDaCarta);
+
+    if (!["ataque", "resistencia", "dano", "efeito", "fimDeTurno"].includes(flags.tipo)) return;
 
     for (const botao of elemento.querySelectorAll("[data-fnm-acao]")) {
       botao.addEventListener("click", async evento => {
@@ -257,6 +300,14 @@ export function registrarChat() {
 
         // O TR é do alvo, e não de quem publicou a carta: ele resolve sozinho
         if (acao === "tr") return rolarTRdosAlvos(flags);
+        // Fim de turno: o novo teste que pode encerrar uma condição (p. 208)
+        if (acao === "trCondicao") {
+          const ator = game.actors.get(flags.atorId);
+          if (!ator) return ui.notifications.warn("O ator desta carta não existe mais.");
+          if (!ator.isOwner) return ui.notifications.warn(`Você não controla ${ator.name}.`);
+          const pendente = flags.pendentes?.[Number(botao.dataset.fnmIndice)];
+          return rolarTRdeCondicao(ator, pendente);
+        }
         // Aplicar dano e curar também agem sobre o alvo, não sobre a origem
         if (acao === "aplicar" || acao === "curar") {
           return aplicarNosAlvos(flags, acao, Number(botao.dataset.fnmFator) || 1);

@@ -1266,8 +1266,87 @@ function paginaCondicoes() {
      exemplo, um personagem enredado e caído sofre −3 na Defesa, não −5.</p>` +
     `<p>Certas condições aplicam outras condições. Ser imune a uma condição não o torna imune às
      demais citadas dentro dela.</p>` +
+    `<p><b>No sistema.</b> Cada condição é um efeito com ícone no token: ligue pelo HUD, pelo botão
+     <i>+</i> da faixa de Condições da ficha, ou arraste a condição de uma carta do chat até o token
+     ou a ficha. As penalidades entram sozinhas em Defesa, perícias, Testes de Resistência, jogadas
+     de ataque, Iniciativa, Redução de Dano e deslocamento — inclusive as das condições que vêm por
+     consequência de outra, que a ficha mostra apagadas e sem botão de remover.</p>` +
     secoes +
     `<p><i>Livro de Regras v2.5.2, p. 317-319.</i></p>`
+  );
+}
+
+/** As tabelas do capítulo de criação que governam a aplicação de condições. */
+function paginaAplicandoCondicoes() {
+  const niveis = FNM.niveisCondicao;
+  const cabecalho = `<tr><th>Nível do Feitiço</th>${niveis
+    .map(n => `<th>${n}</th>`)
+    .join("")}</tr>`;
+  const linhas = Object.entries(FNM.duracaoCondicao)
+    .map(([nivel, tabela]) => {
+      const rotulo = nivel === "max" ? "Técnica Máxima" : `Nível ${nivel}`;
+      const celulas = niveis
+        .map(n => {
+          const v = tabela[n];
+          if (v === -1) return "<td>Cena</td>";
+          if (!v) return "<td>—</td>";
+          return `<td>${v} ${v === 1 ? "rodada" : "rodadas"}</td>`;
+        })
+        .join("");
+      return `<tr><td><b>${rotulo}</b></td>${celulas}</tr>`;
+    })
+    .join("");
+
+  const custo = niveis
+    .map(n => `<li><b>Condição ${n}.</b> Reduz o dano em ${FNM.reducaoDadosPorCondicao[n]} dado(s).</li>`)
+    .join("");
+  const sangramento = niveis
+    .map(n => `<li><b>Sangramento ${n}.</b> ${FNM.sangramentoPorNivel[n]} de perda de vida.</li>`)
+    .join("");
+
+  const porNivel = {};
+  for (const c of FNM.condicoes) {
+    if (!niveis.includes(c.nivel)) continue;
+    (porNivel[c.nivel] ??= []).push(c.nome);
+  }
+  const classificacao = niveis
+    .map(n => `<li><b>${n}s.</b> ${(porNivel[n] ?? []).join(", ")}.</li>`)
+    .join("");
+
+  return (
+    `<p>Um Feitiço de Dano pode aplicar condições em troca de dados de dano. Um efeito aplica no
+     máximo tantas condições quanto o próprio nível, e condições mais fortes exigem níveis maiores:
+     nível 0 não aplica nenhuma, nível 1 aplica Fracas, nível 2 também Médias, nível 3 também Fortes,
+     e níveis 4 e 5 aplicam todas.</p>` +
+    `<h2>Custo em dados de dano</h2><ul>${custo}</ul>` +
+    `<h2>Duração padrão</h2>` +
+    `<table><thead>${cabecalho}</thead><tbody>${linhas}</tbody></table>` +
+    `<p>A criatura ainda pode se livrar antes: no fim de cada turno dela, repete o Teste de
+     Resistência contra a mesma CD e se livra em um sucesso. Caído sai com uma ação de movimento,
+     Desorientado acaba quando seu efeito acontece e Sangramento só termina no TR.</p>` +
+    `<h2>Feitiço focado em condições</h2>
+     <p>Deixa de causar dano, conta como um nível acima para escolher a condição — uma só de nível
+     superior por Feitiço — e estende a duração padrão em uma rodada, exceto para as Extremas. Uma
+     condição acima do que o nível normalmente alcança dura sempre uma rodada.</p>` +
+    `<h2>Infligindo Sangramento</h2><ul>${sangramento}</ul>
+     <p>O Sangramento cobra a perda de vida no início do turno e se encerra quando a criatura passa
+     no TR. Um Sangramento Extremo exige sucesso crítico para acabar.</p>` +
+    `<h2>Nível de cada condição</h2><ul>${classificacao}</ul>` +
+    `<h2>No sistema</h2>
+     <p>Cada Feitiço, Técnica Marcial, arma, habilidade ou ação tem um quadro <b>Condições
+     aplicadas</b> na ficha do item. O que for declarado ali sai na carta do chat como um chip
+     clicável: clique para aplicar nos alvos marcados, Shift+clique para aplicar nos tokens
+     selecionados, ou arraste até um token ou uma ficha. Um efeito de Teste de Ataque só mostra os
+     chips quando o ataque acerta, porque é aí que o alvo faz o TR.</p>
+     <p>Quando a condição chega com CD, o fim do turno do alvo publica sozinho a carta do novo teste;
+     um sucesso apaga a condição. Sangramento cobra a perda de vida no início do turno sem perguntar,
+     e durações em rodadas se esgotam sozinhas — a contagem só corre dentro de um combate, porque é
+     ele que tem rodadas.</p>
+     <p>Para mexer no prazo, clique na condição na faixa da ficha: o ajuste abre com o que resta e
+     aceita o valor digitado mesmo que encurte (0 tira o prazo, -1 dura a cena). Já receber a mesma
+     condição de novo nunca encurta o que está valendo: fica a duração mais longa entre a nova e o
+     que ainda resta da antiga.</p>` +
+    `<p><i>Livro de Regras v2.5.2, p. 207-210 e 317-319.</i></p>`
   );
 }
 
@@ -1433,6 +1512,11 @@ export const JOURNAL_PACKS = {
             _id: id("pagina-condicoes"),
             name: "Condições",
             content: paginaCondicoes()
+          },
+          {
+            _id: id("pagina-aplicando-condicoes"),
+            name: "Aplicando Condições",
+            content: paginaAplicandoCondicoes()
           },
           {
             _id: id("pagina-dano"),

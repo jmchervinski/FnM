@@ -9,6 +9,16 @@ import { FnmActor, invocacoesDe } from "./documents/actor.mjs";
 import { FnmItem } from "./documents/item.mjs";
 import { registrarChat } from "./chat.mjs";
 import {
+  agregarCondicoes,
+  aplicarCondicao,
+  duracaoPadraoCondicao,
+  ehArrastoDeCondicao,
+  registrarCondicoes,
+  registrarStatusEffects,
+  removerCondicao,
+  resolverCondicoes
+} from "./condicoes.mjs";
+import {
   lerArquivo,
   mapearInimigo,
   aplicarNoAtor,
@@ -60,6 +70,15 @@ Hooks.once("init", async function () {
     config: FNM,
     // Importação de fichas de inimigo de construtores externos, também para macros
     importar: { lerArquivo, mapearInimigo, aplicarNoAtor, importarDeArquivo },
+    // Condições, para macros que apliquem ou consultem efeitos na mesa
+    condicoes: {
+      aplicar: aplicarCondicao,
+      remover: removerCondicao,
+      agregar: agregarCondicoes,
+      resolver: resolverCondicoes,
+      duracaoPadrao: duracaoPadraoCondicao,
+      catalogo: FNM.condicoes
+    },
     utils: {
       modificador,
       bonusTreinamento,
@@ -110,12 +129,7 @@ Hooks.once("init", async function () {
   CONFIG.Combat.initiative = { formula: "1d20 + @iniciativa", decimals: 0 };
 
   // Condições do sistema substituem os efeitos de status padrão do Foundry
-  CONFIG.statusEffects = FNM.condicoes.map(c => ({
-    id: c.id,
-    name: c.nome,
-    img: c.icone,
-    description: `<b>${c.grupo} · ${c.nivel}</b><br>${c.efeito}`
-  }));
+  registrarStatusEffects();
 
   // Sheets registradas pelo caminho namespaced (evita globais depreciados)
   const { DocumentSheetConfig } = foundry.applications.apps;
@@ -141,6 +155,7 @@ Hooks.once("init", async function () {
 
   registrarHelpers();
   registrarChat();
+  registrarCondicoes();
   await preloadHandlebarsTemplates();
 });
 
@@ -171,10 +186,13 @@ async function preloadHandlebarsTemplates() {
     "systems/fnm/templates/actors/parts/actor-itens.html",
     "systems/fnm/templates/actors/parts/actor-recursos.html",
     "systems/fnm/templates/actors/parts/actor-atributos.html",
+    "systems/fnm/templates/actors/parts/actor-condicoes.html",
+    "systems/fnm/templates/items/item-condicoes.html",
     "systems/fnm/templates/actors/parts/actor-footer.html",
     "systems/fnm/templates/actors/parts/linha-uso.html",
     "systems/fnm/templates/chat/ataque-dialogo.html",
     "systems/fnm/templates/chat/ataque.html",
+    "systems/fnm/templates/chat/condicoes.html",
     "systems/fnm/templates/chat/dano.html",
     "systems/fnm/templates/chat/resistencia.html"
   ];

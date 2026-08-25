@@ -91,11 +91,13 @@ function fundir(alvo, fonte) {
 }
 
 /** Monta um ator do tipo pedido, com os itens dados, e roda a derivação real. */
-function prepararAtor(Modelo, ajustar = () => {}, itens = []) {
+function prepararAtor(Modelo, ajustar = () => {}, itens = [], statuses = []) {
   const sys = padroes(Modelo.defineSchema());
   ajustar(sys);
   Object.setPrototypeOf(sys, Modelo.prototype);
-  sys.parent = { items: itens };
+  // `statuses` é o que o Foundry preenche a partir dos Active Effects: é dali
+  // que a ficha lê quais condições estão ligadas
+  sys.parent = { items: itens, statuses: new Set(statuses) };
   sys.prepareDerivedData();
   return sys;
 }
@@ -440,7 +442,11 @@ const npcBase = sys => {
     const perfilDe = (ajustarInvocacao, sysAcao) => {
       const sys = prepararAtor(M.InvocacaoDataModel, ajustarInvocacao);
       const item = prepararAtor(M.AcaoInvocacaoDataModel, a => fundir(a, sysAcao));
-      return FnmActor.prototype._perfilAcaoInvocacao.call({ system: sys }, {
+      // O perfil chama outros métodos do ator (as condições da ação, por
+      // exemplo), então o `this` precisa ter o protótipo, e não só o system
+      const ator = Object.create(FnmActor.prototype);
+      ator.system = sys;
+      return ator._perfilAcaoInvocacao({
         name: "Golpe",
         img: "",
         system: item
@@ -935,6 +941,430 @@ const npcBase = sys => {
     true
   );
   globalThis.innerWidth = largacoOriginal;
+}
+
+/* -------- Condições: a automação da p. 317 -------- */
+
+{
+  const C = await import(new URL("../module/condicoes.mjs", import.meta.url));
+
+  const comCondicoes = (...ids) =>
+    prepararAtor(M.NpcDataModel, npcBase, [], ids);
+  const limpo = comCondicoes();
+
+  /* A regra que o livro enuncia com nome e exemplo: condições com os mesmos
+     efeitos não se acumulam, vale a mais severa (p. 317). O exemplo do próprio
+     texto é enredado + caído dando -3 de Defesa, e não -5. */
+  {
+    const dois = comCondicoes("enredado", "caido");
+    confere(
+      "Condições: Enredado + Caído dá -3 de Defesa contra corpo a corpo, não -5",
+      dois.combate.defesaCorpoACorpo,
+      limpo.combate.defesa - 3
+    );
+    // O +3 do Caído contra ataques a distância é bônus, e esse soma
+    confere(
+      "Condições: e +1 contra ataques a distância (-2 do Enredado, +3 do Caído)",
+      dois.combate.defesaDistancia,
+      limpo.combate.defesa + 1
+    );
+
+    const evolucao = comCondicoes("abalado", "amedrontado");
+    confere(
+      "Condições: Amedrontado não soma com Abalado, é evolução dele",
+      evolucao.ataquesView.distancia.total,
+      limpo.ataquesView.distancia.total - 3
+    );
+  }
+
+  /* Condições que aplicam outras (p. 317): Agarrado deixa Desprevenido e
+     Imóvel, e as duas precisam pesar sem serem ligadas à mão. */
+  {
+    const agarrado = comCondicoes("agarrado");
+    confere(
+      "Condições: Agarrado aplica Desprevenido e Imóvel junto",
+      C.expandirCondicoes(["agarrado"]).join(","),
+      "agarrado,imovel,desprevenido"
+    );
+    confere(
+      "Condições: o Desprevenido implícito tira 3 da Defesa",
+      agarrado.combate.defesa,
+      limpo.combate.defesa - 3
+    );
+    confere("Condições: o Imóvel implícito zera o deslocamento", agarrado.combate.deslocamentoAtual, 0);
+    confere(
+      "Condições: e o Desprevenido implícito pesa nos Reflexos",
+      agarrado.resistencias.reflexos.total,
+      limpo.resistencias.reflexos.total - 3
+    );
+    // A penalidade de Reflexos é só dos Reflexos
+    confere(
+      "Condições: os outros Testes de Resistência ficam intactos",
+      agarrado.resistencias.fortitude.total,
+      limpo.resistencias.fortitude.total
+    );
+  }
+
+  /* Cego encadeia duas: Surpreso (que aplica Desprevenido) e Lento. */
+  {
+    const cego = comCondicoes("cego");
+    confere(
+      "Condições: Cego traz Surpreso, Lento e o Desprevenido de dentro do Surpreso",
+      C.expandirCondicoes(["cego"]).join(","),
+      "lento,cego,desprevenido,surpreso"
+    );
+    confere(
+      "Condições: Cego tira 5 da Percepção",
+      cego.pericias.percepcao.total,
+      limpo.pericias.percepcao.total - 5
+    );
+    // A Atenção é 10 + Percepção, e acompanha
+    confere("Condições: e a Atenção acompanha a Percepção", cego.combate.atencao, limpo.combate.atencao - 5);
+    confere(
+      "Condições: o Lento de dentro do Cego reduz o movimento à metade",
+      cego.combate.deslocamentoAtual,
+      limpo.combate.deslocamentoAtual / 2
+    );
+  }
+
+  /* Penalidades que valem para tudo (p. 317) */
+  {
+    const envenenado = comCondicoes("envenenado");
+    confere(
+      "Condições: Envenenado tira 2 do ataque",
+      envenenado.ataquesView.distancia.total,
+      limpo.ataquesView.distancia.total - 2
+    );
+    confere(
+      "Condições: Envenenado tira 2 das perícias",
+      envenenado.pericias.atletismo.total,
+      limpo.pericias.atletismo.total - 2
+    );
+    confere(
+      "Condições: Envenenado tira 2 dos Testes de Resistência",
+      envenenado.resistencias.fortitude.total,
+      limpo.resistencias.fortitude.total - 2
+    );
+
+    // Envenenado (-2 em TR) e Desprevenido (-3 em Reflexos) descrevem o mesmo
+    // prejuízo nos Reflexos: vale o pior, não a soma
+    const ambos = comCondicoes("envenenado", "desprevenido");
+    confere(
+      "Condições: -2 em TR e -3 em Reflexos não somam nos Reflexos",
+      ambos.resistencias.reflexos.total,
+      limpo.resistencias.reflexos.total - 3
+    );
+  }
+
+  /* Fragilizado zera a Redução de Dano, inclusive a que veio de item (p. 319) */
+  {
+    const comEscudo = [comAjustes("dote", { reducaoDano: 6 })];
+    const rijo = prepararAtor(M.NpcDataModel, npcBase, comEscudo);
+    const fragil = prepararAtor(M.NpcDataModel, npcBase, comEscudo, ["fragilizado"]);
+    confere("Condições: sem Fragilizado a RD do item conta", rijo.combate.reducaoDanoTotal, 6);
+    confere("Condições: Fragilizado zera a Redução de Dano", fragil.combate.reducaoDanoTotal, 0);
+    confere(
+      "Condições: e zera também a grade por tipo de dano",
+      fragil.combate.rdPorTipo.cortante,
+      0
+    );
+  }
+
+  /* Movimento: teto, desconto e metade, na ordem do texto (p. 318) */
+  {
+    confere("Condições: Caído rasteja 4,5 m", comCondicoes("caido").combate.deslocamentoAtual, 4.5);
+    confere("Condições: Imóvel não anda", comCondicoes("imovel").combate.deslocamentoAtual, 0);
+    confere(
+      "Condições: Lento anda metade",
+      comCondicoes("lento").combate.deslocamentoAtual,
+      limpo.combate.deslocamentoAtual / 2
+    );
+    confere(
+      "Condições: Sofrendo perde 3 metros",
+      comCondicoes("sofrendo").combate.deslocamentoAtual,
+      limpo.combate.deslocamentoAtual - 3
+    );
+    // Lento e Enredado reduzem à metade: o mesmo efeito, aplicado uma vez só
+    confere(
+      "Condições: Lento e Enredado juntos não reduzem duas vezes",
+      comCondicoes("lento", "enredado").combate.deslocamentoAtual,
+      limpo.combate.deslocamentoAtual / 2
+    );
+  }
+
+  /* Surdo mexe na Iniciativa; Condenado, no custo em PE (p. 317) */
+  {
+    confere(
+      "Condições: Surdo tira 5 da Iniciativa",
+      comCondicoes("surdo").combate.iniciativa,
+      limpo.combate.iniciativa - 5
+    );
+    confere("Condições: Condenado soma 1 ao custo em PE", comCondicoes("condenado").condicoes.custoPE, 1);
+  }
+
+  /* Sinalizadores que a ficha não calcula, mas precisa saber */
+  {
+    const paralisado = comCondicoes("paralisado");
+    confere("Condições: Paralisado tira 10 da Defesa", paralisado.combate.defesa, limpo.combate.defesa - 10);
+    confere("Condições: Paralisado falha em Reflexos", paralisado.condicoes.falhaReflexos, true);
+    confere(
+      "Condições: Inconsciente é sempre acertado",
+      comCondicoes("inconsciente").condicoes.sempreAcertado,
+      true
+    );
+    confere("Condições: Exposto dá +4 a quem ataca", comCondicoes("exposto").condicoes.ataquesContra, 4);
+    // Indefeso é Imóvel e Atordoado, e o Atordoado traz o Desprevenido
+    confere(
+      "Condições: Indefeso encadeia Imóvel, Atordoado e Desprevenido",
+      comCondicoes("indefeso").condicoes.ativas.join(","),
+      "atordoado,indefeso,imovel,desprevenido"
+    );
+  }
+
+  /* Duração padrão pela tabela do nível do Feitiço (p. 208) */
+  {
+    confere("Duração: nível 1 dá 1 rodada para condição Fraca", C.duracaoPadraoCondicao("1", "Fraca"), 1);
+    confere("Duração: nível 1 não alcança condição Média", C.duracaoPadraoCondicao("1", "Média"), 0);
+    confere("Duração: nível 3 dá 1 rodada para condição Forte", C.duracaoPadraoCondicao("3", "Forte"), 1);
+    confere("Duração: nível 5 dá 5 rodadas para condição Fraca", C.duracaoPadraoCondicao("5", "Fraca"), 5);
+    confere("Duração: nível 5 dá 1 rodada para condição Extrema", C.duracaoPadraoCondicao("5", "Extrema"), 1);
+    confere(
+      "Duração: a Técnica Máxima deixa a condição Fraca durar a cena",
+      C.duracaoPadraoCondicao("max", "Fraca"),
+      -1
+    );
+
+    // Feitiço focado em condições: uma rodada a mais, menos nas Extremas (p. 208)
+    confere(
+      "Duração: o foco em condições estende a Fraca em uma rodada",
+      C.duracaoPadraoCondicao("2", "Fraca", { foco: true }),
+      3
+    );
+    confere(
+      "Duração: mas não estende a Extrema",
+      C.duracaoPadraoCondicao("4", "Extrema", { foco: true }),
+      1
+    );
+    // O foco alcança um nível acima, e o que passa do normal dura 1 rodada
+    confere(
+      "Duração: o foco alcança a Média em um Feitiço de nível 1, por 1 rodada",
+      C.duracaoPadraoCondicao("1", "Média", { foco: true }),
+      1
+    );
+    confere(
+      "Duração: mas nem o foco alcança a Extrema em um nível 1",
+      C.duracaoPadraoCondicao("1", "Extrema", { foco: true }),
+      0
+    );
+  }
+
+  /* O que a condição custa em dano, e a perda de vida do Sangramento */
+  {
+    confere("Aplicação: condição Média custa 3 dados de dano", C.reducaoDeDados("Média"), 3);
+    confere("Aplicação: condição Extrema custa 8 dados", C.reducaoDeDados("Extrema"), 8);
+
+    const resolvidas = C.resolverCondicoes(
+      [{ id: "sangramento", nivel: "Forte", rodadas: 0, formula: "" }],
+      { nivelItem: "3", cd: 18, resistencia: "" }
+    );
+    confere("Sangramento: o nível Forte perde 4d10 de vida", resolvidas[0].formula, "4d10");
+    confere("Sangramento: e testa Fortitude por padrão", resolvidas[0].resistencia, "fortitude");
+    confere("Sangramento: a CD do efeito viaja com a condição", resolvidas[0].cd, 18);
+    // O Sangramento ignora o cálculo de duração: só um sucesso no TR o encerra
+    // (p. 210), então ele não pode nascer com um prazo em rodadas
+    confere("Sangramento: não conta rodadas", resolvidas[0].rodadas, 0);
+    confere("Sangramento: e a carta diz como se livrar", resolvidas[0].duracaoLabel, "até passar no TR");
+    confere(
+      "Sangramento: o Active Effect sai sem duração de rodadas",
+      C.dadosDeCondicao("sangramento", resolvidas[0]).duration,
+      undefined
+    );
+
+    // Rodadas preenchidas na ficha vencem a tabela
+    const fixa = C.resolverCondicoes([{ id: "cego", nivel: "", rodadas: 4, formula: "" }], {
+      nivelItem: "3"
+    });
+    confere("Aplicação: as rodadas escritas na ficha vencem a tabela", fixa[0].rodadas, 4);
+  }
+
+  /* Um item declara condições e elas chegam prontas na carta */
+  {
+    const feitico = prepararAtor(M.FeiticoDataModel, sys => {
+      sys.nivel = "3";
+      sys.condicoes = [
+        { id: "amedrontado", nivel: "", rodadas: 0, formula: "" },
+        { id: "caido", nivel: "", rodadas: 0, formula: "" }
+      ];
+    });
+    confere("Item: as duas condições do Feitiço são resolvidas", feitico.condicoesView.length, 2);
+    confere(
+      "Item: Amedrontado (Média) em um nível 3 dura 2 rodadas",
+      feitico.condicoesView[0].rodadas,
+      2
+    );
+    // Caído foge da tabela: sai com uma ação de movimento, não com o relógio
+    // (p. 208)
+    confere("Item: Caído não conta rodadas", feitico.condicoesView[1].rodadas, 0);
+    confere(
+      "Item: e a carta diz como se livrar dele",
+      feitico.condicoesView[1].duracaoLabel,
+      "até se levantar"
+    );
+    confere(
+      "Item: e as duas custam 3 + 1 dados de dano ao Feitiço",
+      feitico.reducaoDadosCondicoes,
+      4
+    );
+
+    // Ids que não existem no catálogo são descartados, e não derrubam o uso
+    const torto = prepararAtor(M.FeiticoDataModel, sys => {
+      sys.nivel = "2";
+      sys.condicoes = [{ id: "inexistente", nivel: "", rodadas: 0, formula: "" }];
+    });
+    confere("Item: uma condição desconhecida é ignorada", torto.condicoesView.length, 0);
+  }
+
+  /* Os avisos de criação (p. 207) */
+  {
+    const nivel0 = C.resolverCondicoes([{ id: "abalado", nivel: "", rodadas: 1, formula: "" }], {
+      nivelItem: "0"
+    });
+    const avisos = C.avisosDeAplicacao(nivel0, "0").join(" ");
+    confere(
+      "Aviso: Feitiço de nível 0 não aplica condições",
+      avisos.includes("nível 0 não podem aplicar condições"),
+      true
+    );
+
+    const demais = C.resolverCondicoes(
+      [
+        { id: "abalado", nivel: "", rodadas: 0, formula: "" },
+        { id: "caido", nivel: "", rodadas: 0, formula: "" }
+      ],
+      { nivelItem: "1" }
+    );
+    confere(
+      "Aviso: um efeito de nível 1 aplica no máximo 1 condição",
+      C.avisosDeAplicacao(demais, "1").join(" ").includes("no máximo 1 condição"),
+      true
+    );
+  }
+
+  /* Um ator sem condição nenhuma não muda em nada */
+  {
+    confere("Condições: sem condição, nada muda na Defesa", limpo.combate.defesa, limpo.combate.defesaCorpoACorpo);
+    confere("Condições: nem nos ataques", limpo.condicoes.totalAtaque, 0);
+    confere("Condições: e a lista de ativas fica vazia", limpo.condicoes.ativas.length, 0);
+  }
+
+  /* Os totais fechados de uma ficha de Grimório também sentem a condição */
+  {
+    const fechado = prepararAtor(
+      M.NpcDataModel,
+      sys => {
+        npcBase(sys);
+        sys.detalhes.valoresManuais = true;
+        sys.combate.defesaManual = 27;
+        sys.manuais.acerto = 12;
+        sys.manuais.pericias.atletismo = 16;
+      },
+      [],
+      ["envenenado"]
+    );
+    // Envenenado não mexe na Defesa: o total fechado continua o mesmo
+    confere("Manuais: a Defesa fechada segue intacta sem condição que a afete", fechado.combate.defesa, 27);
+    confere("Manuais: e sobre o acerto fechado", fechado.ataquesView.distancia.total, 10);
+    confere("Manuais: e sobre a perícia fechada", fechado.pericias.atletismo.total, 14);
+  }
+}
+
+/* -------- Duração de condição: esticar, encurtar e tirar o prazo -------- */
+
+{
+  const C = await import(new URL("../module/condicoes.mjs", import.meta.url));
+
+  globalThis.ChatMessage = { create: async () => null, getSpeaker: () => ({}) };
+  globalThis.game = { ...(globalThis.game ?? {}), combat: { round: 7 }, time: { worldTime: 1000 } };
+  globalThis.ActiveEffect = {
+    implementation: {
+      getInitialDuration: () => ({ duration: { startTime: 1000, startRound: 7, startTurn: 0 } })
+    }
+  };
+
+  /** Um Active Effect de mentira, que só guarda o update que recebeu. */
+  const efeitoFalso = (rounds, remaining) => ({
+    statuses: new Set(["cego"]),
+    duration: { rounds, remaining },
+    flags: { fnm: {} },
+    update(u) {
+      this.ultimo = u;
+      return Promise.resolve(this);
+    }
+  });
+
+  const atorCom = efeito => ({
+    name: "Yuji",
+    isOwner: true,
+    effects: [efeito],
+    statuses: new Set(["cego"]),
+    system: {}
+  });
+
+  const reaplicar = async (rounds, remaining, novasRodadas) => {
+    const efeito = efeitoFalso(rounds, remaining);
+    await C.aplicarCondicao(atorCom(efeito), "cego", { rodadas: novasRodadas });
+    return efeito.ultimo?.duration;
+  };
+
+  /* A comparação é contra o que RESTA, não contra o prazo original. Uma
+     condição de 5 rodadas com 1 pela frente é mais curta que uma nova de 3, e
+     recebê-la de novo tem de esticar o efeito. */
+  {
+    const esticou = await reaplicar(5, 1, 3);
+    confere("Duração: reaplicar estica quando o que resta é menor", esticou?.rounds, 3);
+    confere("Duração: e o relógio recomeça na rodada atual", esticou?.startRound, 7);
+
+    confere(
+      "Duração: reaplicar não encurta o que ainda tem mais rodadas",
+      await reaplicar(5, 4, 3),
+      undefined
+    );
+  }
+
+  /* "Sem prazo" é a duração mais longa que existe, dos dois lados */
+  {
+    const semPrazo = await reaplicar(2, 2, 0);
+    confere("Duração: uma aplicação sem prazo apaga a contagem", semPrazo?.rounds, null);
+    confere(
+      "Duração: e uma contagem não encurta a condição que já estava sem prazo",
+      await reaplicar(0, null, 3),
+      undefined
+    );
+  }
+
+  /* O ajuste à mão é uma correção, não uma nova aplicação: o valor digitado
+     vale mesmo que encurte. */
+  {
+    const efeito = efeitoFalso(5, 5);
+    await C.ajustarCondicao(atorCom(efeito), "cego", {
+      rodadas: 2,
+      cd: 21,
+      resistencia: "reflexos"
+    });
+    confere("Ajuste: encurtar à mão vale", efeito.ultimo.duration.rounds, 2);
+    confere("Ajuste: o relógio recomeça", efeito.ultimo.duration.startRound, 7);
+    confere("Ajuste: a CD nova entra nas flags", efeito.ultimo["flags.fnm.cd"], 21);
+    confere("Ajuste: e o TR também", efeito.ultimo["flags.fnm.resistencia"], "reflexos");
+
+    const semPrazo = efeitoFalso(5, 5);
+    await C.ajustarCondicao(atorCom(semPrazo), "cego", { rodadas: 0 });
+    confere("Ajuste: zerar as rodadas tira o prazo", semPrazo.ultimo["duration.rounds"], null);
+
+    const cena = efeitoFalso(5, 5);
+    await C.ajustarCondicao(atorCom(cena), "cego", { rodadas: -1 });
+    confere("Ajuste: -1 marca a condição como de cena", cena.ultimo["flags.fnm.cena"], true);
+    confere("Ajuste: e a tira da contagem de rodadas", cena.ultimo["duration.rounds"], null);
+  }
 }
 
 if (problemas) {

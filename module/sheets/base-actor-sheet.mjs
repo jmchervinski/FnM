@@ -2,6 +2,7 @@ const { HandlebarsApplicationMixin } = foundry.applications.api;
 const { ActorSheetV2 } = foundry.applications.sheets;
 
 import { FNM } from "../config.mjs";
+import { ehArrastoDeCondicao } from "../condicoes.mjs";
 
 /**
  * Base compartilhada pelas fichas de Personagem, NPC e Invocação
@@ -38,6 +39,9 @@ export class FnmBaseActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) 
       descansoLongo: FnmBaseActorSheet.onDescansoLongo,
       exaustaoMais: FnmBaseActorSheet.onExaustaoMais,
       exaustaoMenos: FnmBaseActorSheet.onExaustaoMenos,
+      adicionarCondicao: FnmBaseActorSheet.onAdicionarCondicao,
+      ajustarCondicao: FnmBaseActorSheet.onAjustarCondicao,
+      removerCondicao: FnmBaseActorSheet.onRemoverCondicao,
       itemCreate: FnmBaseActorSheet.onItemCreate,
       itemEdit: FnmBaseActorSheet.onItemEdit,
       itemDelete: FnmBaseActorSheet.onItemDelete,
@@ -107,6 +111,14 @@ export class FnmBaseActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) 
 
     context.exaustaoView = FNM.exaustao.map(e => ({ ...e, ativo: sys.exaustao >= e.nivel }));
 
+    // Faixa de Condições: o que está ligado, os avisos que a automação não
+    // calcula e o resumo do que já foi descontado dos números da ficha
+    context.condicoesView = this.actor.condicoesDaFicha ?? [];
+    context.condicoesAvisos = [
+      ...new Set(context.condicoesView.flatMap(c => c.avisos ?? []))
+    ];
+    context.condicoesResumo = resumoDeCondicoes(sys.condicoes);
+
     return context;
   }
 
@@ -127,6 +139,25 @@ export class FnmBaseActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) 
         this.#colapsos[chave] = det.open;
       });
     }
+
+    // Soltar uma condição arrastada de uma carta do chat em cima da ficha.
+    // O listener é da ficha inteira, e não de um alvo pequeno: quem arrasta
+    // não deveria ter de acertar a faixa de Condições para acertar o ator.
+    this.element.addEventListener("dragover", evento => {
+      if (evento.dataTransfer?.types?.includes("text/plain")) evento.preventDefault();
+    });
+    this.element.addEventListener("drop", async evento => {
+      let dados;
+      try {
+        dados = JSON.parse(evento.dataTransfer?.getData("text/plain") ?? "");
+      } catch {
+        return;
+      }
+      if (!ehArrastoDeCondicao(dados)) return;
+      evento.preventDefault();
+      evento.stopPropagation();
+      await this.actor.aplicarCondicao(dados.id, dados);
+    });
   }
 
   /* ------------------------------------------ */
@@ -309,6 +340,141 @@ export class FnmBaseActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) 
   }
 
   /* ------------------------------------------ */
+  /*  Condições                                 */
+  /* ------------------------------------------ */
+
+  /**
+   * Escolhe uma condição do catálogo e a aplica. O diálogo pergunta as rodadas
+   * e a CD porque é o que o fim de turno vai usar: sem CD, a condição fica até
+   * alguém tirá-la na mão (p. 208).
+   */
+  static async onAdicionarCondicao() {
+    const grupos = {};
+    for (const c of FNM.condicoes) (grupos[c.grupo] ??= []).push(c);
+    const opcoes = Object.entries(grupos)
+      .map(
+        ([grupo, itens]) =>
+          `<optgroup label="${grupo}">` +
+          itens.map(c => `<option value="${c.id}">${c.nome} (${c.nivel})</option>`).join("") +
+          "</optgroup>"
+      )
+      .join("");
+
+    const dados = await foundry.applications.api.DialogV2.prompt({
+      window: { title: `Aplicar Condição — ${this.actor.name}` },
+      content: `
+        <div class="form-group"><label>Condição</label>
+          <select name="id" autofocus>${opcoes}</select></div>
+        <div class="form-group"><label>Nível (só para o Sangramento)</label>
+          <select name="nivel"><option value="">padrão</option>
+            ${FNM.niveisCondicao.map(n => `<option value="${n}">${n}</option>`).join("")}
+          </select></div>
+        <div class="form-group"><label>Duração em rodadas</label>
+          <input type="number" name="rodadas" value="0" min="-1" step="1" /></div>
+        <div class="form-group"><label>CD do novo teste no fim do turno</label>
+          <input type="number" name="cd" value="0" min="0" step="1" /></div>
+        <div class="form-group"><label>Teste de Resistência</label>
+          <select name="resistencia"><option value="">—</option>
+            ${Object.entries(FNM.resistencias)
+              .map(([id, r]) => `<option value="${id}">${r.nome}</option>`)
+              .join("")}
+          </select></div>
+        <p class="hint">Rodadas em 0 deixa a condição sem prazo; -1 dura a cena. Sem CD, o fim do
+          turno não oferece teste para se livrar (p. 208).</p>`,
+      rejectClose: false,
+      ok: {
+        label: "Aplicar",
+        icon: "fa-solid fa-skull-crossbones",
+        callback: (event, button) => {
+          const campos = button.form.elements;
+          return {
+            id: campos.id?.value,
+            nivel: campos.nivel?.value ?? "",
+            rodadas: Number(campos.rodadas?.value ?? 0) || 0,
+            cd: Number(campos.cd?.value ?? 0) || null,
+            resistencia: campos.resistencia?.value ?? ""
+          };
+        }
+      }
+    });
+    if (!dados?.id) return;
+
+    const nivelAplicado = dados.nivel || FNM.condicoesPorId[dados.id]?.nivel || "";
+    await this.actor.aplicarCondicao(dados.id, {
+      ...dados,
+      nivelAplicado,
+      // Sangramento sem fórmula própria usa a perda de vida do nível (p. 210)
+      formula: FNM.condicoesPorId[dados.id]?.perdaDeVida
+        ? (FNM.sangramentoPorNivel[nivelAplicado] ?? "")
+        : "",
+      origem: "aplicada na ficha"
+    });
+  }
+
+  /**
+   * Ajusta a duração e a CD de uma condição já ativa.
+   *
+   * O diálogo nasce com o que resta agora, e não com o prazo original: quem
+   * abre isto no meio do combate quer decidir a partir do que está na mesa. E
+   * aqui o valor digitado vale, ponto — a regra de "vale a duração mais longa"
+   * é para quando o efeito é aplicado de novo, não para uma correção à mão.
+   */
+  static async onAjustarCondicao(event, target) {
+    const id = target.closest("[data-condicao]")?.dataset.condicao;
+    const cond = FNM.condicoesPorId[id];
+    if (!cond) return;
+
+    const efeito = this.actor.efeitoDaCondicao(id);
+    const flags = efeito?.flags?.fnm ?? {};
+    const restam = efeito?.duration?.rounds
+      ? Math.max(0, Math.floor(efeito.duration.remaining ?? efeito.duration.rounds))
+      : flags.cena
+        ? -1
+        : 0;
+
+    const dados = await foundry.applications.api.DialogV2.prompt({
+      window: { title: `${cond.nome} — ${this.actor.name}` },
+      content: `
+        <p class="hint">${cond.efeito}</p>
+        <div class="form-group"><label>Duração em rodadas</label>
+          <input type="number" name="rodadas" value="${restam}" min="-1" step="1" autofocus /></div>
+        <div class="form-group"><label>CD do novo teste no fim do turno</label>
+          <input type="number" name="cd" value="${flags.cd ?? 0}" min="0" step="1" /></div>
+        <div class="form-group"><label>Teste de Resistência</label>
+          <select name="resistencia"><option value="">—</option>
+            ${Object.entries(FNM.resistencias)
+              .map(
+                ([rid, r]) =>
+                  `<option value="${rid}" ${rid === flags.resistencia ? "selected" : ""}>${r.nome}</option>`
+              )
+              .join("")}
+          </select></div>
+        <p class="hint">O relógio recomeça do valor digitado. <b>0</b> tira o prazo e a condição fica
+          até alguém removê-la; <b>-1</b> dura a cena. Sem CD, o fim do turno não oferece teste para
+          se livrar (p. 208).</p>`,
+      rejectClose: false,
+      ok: {
+        label: "Ajustar",
+        icon: "fa-solid fa-clock",
+        callback: (evento, button) => {
+          const campos = button.form.elements;
+          return {
+            rodadas: Number(campos.rodadas?.value ?? 0) || 0,
+            cd: Number(campos.cd?.value ?? 0) || null,
+            resistencia: campos.resistencia?.value ?? ""
+          };
+        }
+      }
+    });
+    if (dados) await this.actor.ajustarCondicao(id, dados);
+  }
+
+  static async onRemoverCondicao(event, target) {
+    const id = target.closest("[data-condicao]")?.dataset.condicao;
+    if (id) await this.actor.removerCondicao(id);
+  }
+
+  /* ------------------------------------------ */
   /*  Itens                                     */
   /* ------------------------------------------ */
 
@@ -388,4 +554,51 @@ export class FnmBaseActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) 
     });
     return fp.browse();
   }
+}
+
+/**
+ * O que as condições já tiraram dos números da ficha, em uma linha.
+ *
+ * A faixa mostra isto porque a penalidade não aparece em lugar nenhum além do
+ * total: a Defesa simplesmente vale 3 a menos, e sem esta linha ninguém sabe
+ * por quê.
+ */
+function resumoDeCondicoes(condicoes) {
+  if (!condicoes) return [];
+  const partes = [];
+  const sinal = v => (v >= 0 ? `+${v}` : `${v}`);
+
+  if (condicoes.totalAtaque) partes.push(`${sinal(condicoes.totalAtaque)} nas jogadas de ataque`);
+  if (condicoes.totalAtaqueCorpoACorpo !== condicoes.totalAtaque) {
+    partes.push(`${sinal(condicoes.totalAtaqueCorpoACorpo)} no corpo a corpo`);
+  }
+  if (condicoes.totalPericias) partes.push(`${sinal(condicoes.totalPericias)} nas perícias`);
+  if (condicoes.totalResistencias) {
+    partes.push(`${sinal(condicoes.totalResistencias)} nos Testes de Resistência`);
+  }
+  if (condicoes.totalReflexos !== condicoes.totalResistencias) {
+    partes.push(`${sinal(condicoes.totalReflexos)} em Reflexos`);
+  }
+  if (condicoes.totalDefesa) partes.push(`${sinal(condicoes.totalDefesa)} de Defesa`);
+  if (condicoes.totalDefesaCorpoACorpo !== condicoes.totalDefesa) {
+    partes.push(`${sinal(condicoes.totalDefesaCorpoACorpo)} de Defesa contra corpo a corpo`);
+  }
+  if (condicoes.totalDefesaDistancia !== condicoes.totalDefesa) {
+    partes.push(`${sinal(condicoes.totalDefesaDistancia)} de Defesa contra ataques a distância`);
+  }
+  if (condicoes.iniciativa) partes.push(`${sinal(condicoes.iniciativa)} de Iniciativa`);
+  if (condicoes.totalPercepcao !== condicoes.totalPericias) {
+    partes.push(`${sinal(condicoes.totalPercepcao)} em Percepção`);
+  }
+  if (condicoes.totalFurtividade !== condicoes.totalPericias) {
+    partes.push(`${sinal(condicoes.totalFurtividade)} em Furtividade`);
+  }
+  if (condicoes.custoPE) partes.push(`+${condicoes.custoPE} PE em toda habilidade`);
+  if (condicoes.semRD) partes.push("Redução de Dano zerada");
+  if (condicoes.semAcoes) partes.push("sem ações");
+  if (condicoes.semReacoes) partes.push("sem reações");
+  if (condicoes.falhaReflexos) partes.push("falha automática em Reflexos");
+  if (condicoes.deslocamentoMetade) partes.push("movimento pela metade");
+
+  return partes;
 }
