@@ -457,6 +457,51 @@ const npcBase = sys => {
     confere("Perfil: a distância usa Destreza", distante.atributos[0], "destreza");
     confere("Perfil: a linha não treinada sai sem treino", distante.treinado, false);
 
+    // O bônus de acerto da ação chega à jogada, e com rótulo próprio: a carta
+    // não pode chamar de "Bônus da arma" o que veio de uma característica
+    const comBonus = perfilDe(invocacaoBase, {
+      linhaAtaque: "corpoACorpo",
+      dano: "2d12",
+      bonusAtaque: 3
+    });
+    confere("Perfil: o bônus de acerto da ação entra na jogada", comBonus.bonusAtaque, 3);
+    confere(
+      "Perfil: e não é rotulado como bônus de arma",
+      comBonus.rotuloBonusAtaque,
+      "Bônus da ação"
+    );
+    confere("Perfil: sem bônus declarado, a jogada não ganha nada", corpo.bonusAtaque, 0);
+
+    // O mesmo campo existe no Feitiço e na Técnica Marcial, e cada um se
+    // apresenta com o próprio nome na carta
+    // Os perfis chamam outros métodos do ator (_atributoDaLinha), então o
+    // dublê precisa do protótipo inteiro, e não só de `system`
+    const ator = Object.create(FnmActor.prototype);
+    ator.system = prepararAtor(M.CharacterDataModel, sys => (sys.detalhes.nivel = 5));
+    const perfilDeItem = (metodo, Modelo, ajustar) => {
+      const sys = prepararAtor(Modelo, ajustar);
+      return ator[metodo]({ name: "X", img: "", system: sys });
+    };
+
+    const feitico = perfilDeItem("_perfilFeitico", M.FeiticoDataModel, f => (f.bonusAtaque = 2));
+    confere("Feitiço: o bônus de acerto chega à jogada", feitico.bonusAtaque, 2);
+    confere("Feitiço: com rótulo próprio", feitico.rotuloBonusAtaque, "Bônus do Feitiço");
+
+    const marcial = perfilDeItem(
+      "_perfilTecnicaMarcial",
+      M.TecnicaMarcialDataModel,
+      t => (t.bonusAtaque = 4)
+    );
+    confere("Técnica Marcial: o bônus de acerto chega à jogada", marcial.bonusAtaque, 4);
+    confere("Técnica Marcial: com rótulo próprio", marcial.rotuloBonusAtaque, "Bônus da técnica");
+
+    // Um perfil sem bônus não inventa rótulo nem valor
+    confere(
+      "Feitiço: sem bônus declarado continua zero",
+      perfilDeItem("_perfilFeitico", M.FeiticoDataModel, () => {}).bonusAtaque,
+      0
+    );
+
     // Só o Grau Especial dobra o modificador no dano e na cura (p. 272)
     confere("Perfil: fora do Especial o modificador conta uma vez", corpo.multiplicadorAtributoNoDano, 1);
     const especial = perfilDe(

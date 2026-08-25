@@ -126,6 +126,9 @@ Tudo abaixo é calculado ou executado pelo sistema, com a página do livro anota
   4 níveis, com os efeitos automatizáveis entrando de fato nas perícias, TRs, RD, Atenção,
   deslocamento, PV e Estamina. **Restrito pelos Céus** soma Força ou Constituição na Defesa,
   limitado pelo nível
+- **Bônus de acerto por item** em Armas, Feitiços, Técnicas Marciais e Ações de Invocação, para o
+  que a mesa conceder — uma característica, um auxílio, uma ferramenta. Entra como linha própria no
+  detalhamento da carta, com o nome da fonte, ao lado do atributo e do Bônus de Treinamento
 - **Inimigos montados pelo Patamar** (Grimório, p. 8-22): a ficha de NPC mostra o orçamento do
   Patamar escolhido — pontos de atributo e o teto por atributo, perícias treinadas, imunidades,
   resistências, vulnerabilidades, imunidades a condição, características recomendadas e as ações

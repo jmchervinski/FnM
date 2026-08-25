@@ -436,7 +436,8 @@ export class FnmActor extends Actor {
       linhaAtaque: "amaldicoado",
       atributos: [this._atributoDaLinha("amaldicoado")],
       treinado: true,
-      bonusAtaque: 0,
+      bonusAtaque: sys.bonusAtaque,
+      rotuloBonusAtaque: "Bônus do Feitiço",
       critico: 20,
       dano: sys.dano || sys.danoPadrao || "",
       danoVersatil: "",
@@ -488,7 +489,8 @@ export class FnmActor extends Actor {
       atributos: [s.ataques?.[linha]?.atributo || cfg.atributo],
       // A Invocação só é treinada na jogada que escolheu na criação (p. 261)
       treinado: s.detalhes?.ataqueTreinado === linha,
-      bonusAtaque: 0,
+      bonusAtaque: sys.bonusAtaque,
+      rotuloBonusAtaque: "Bônus da ação",
       critico: 20,
       dano: sys.dano,
       danoVersatil: "",
@@ -535,7 +537,12 @@ export class FnmActor extends Actor {
         valor: linha.outros
       });
     }
-    if (perfil.bonusAtaque) mods.push({ rotulo: "Bônus da arma", valor: perfil.bonusAtaque });
+    if (perfil.bonusAtaque) {
+      mods.push({
+        rotulo: perfil.rotuloBonusAtaque ?? "Bônus da arma",
+        valor: perfil.bonusAtaque
+      });
+    }
     if (s.penalidadeExaustao) {
       mods.push({ rotulo: `Exaustão ${s.exaustao}`, valor: s.penalidadeExaustao });
     }
@@ -978,7 +985,8 @@ export class FnmActor extends Actor {
       atributos: [this.system.ataques?.[linha]?.atributo || cfg.atributo],
       // Restringido é treinado em todas as armas e escudos (p. 114)
       treinado: true,
-      bonusAtaque: 0,
+      bonusAtaque: sys.bonusAtaque,
+      rotuloBonusAtaque: "Bônus da técnica",
       critico: 20,
       dano: sys.dano || sys.danoPadrao || "",
       danoVersatil: "",

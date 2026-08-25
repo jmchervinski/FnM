@@ -1632,6 +1632,8 @@ export class FeiticoDataModel extends BaseItemModel {
         blank: true,
         choices: ["", ...Object.keys(FNM.tiposDano)]
       }),
+      // Bônus na jogada de ataque do Feitiço, para o que a mesa conceder
+      bonusAtaque: new NumberField({ required: true, integer: true, initial: 0 }),
       // Marca Registrada do Inato e efeitos afins reduzem o custo (p. 27)
       reducaoCusto: new NumberField({ required: true, integer: true, min: 0, initial: 0 }),
       // Variação de Liberação: aponta para o Feitiço base (p. 200)
@@ -1713,6 +1715,9 @@ export class TecnicaMarcialDataModel extends BaseItemModel {
         initial: "impacto",
         choices: ["", ...Object.keys(FNM.tiposDano)]
       }),
+      // Bônus na jogada de ataque da técnica, para o que a mesa conceder —
+      // Implemento Celeste, um auxílio, uma ferramenta do arsenal
+      bonusAtaque: new NumberField({ required: true, integer: true, initial: 0 }),
       requisito: new StringField({ required: true, blank: true }),
       usos: usosSchema()
     };
@@ -1946,6 +1951,9 @@ export class AcaoInvocacaoDataModel extends BaseItemModel {
       alcance: new NumberField({ required: true, min: 0, initial: 0 }),
       area: new NumberField({ required: true, min: 0, initial: 0 }),
       formatoArea: new StringField({ required: true, blank: true }),
+      // Bônus na jogada de ataque da ação, para o que a mesa conceder: uma
+      // característica que melhore o acerto, um auxílio, um item
+      bonusAtaque: new NumberField({ required: true, integer: true, initial: 0 }),
       // Ação com Custo: 1 PE no mínimo, 2 por grau no máximo (p. 269)
       custoPE: new NumberField({ required: true, integer: true, min: 0, initial: 0 }),
       // Prejuízo por Múltiplos Auxílios, que a ficha precisa deixar explícito (p. 269)

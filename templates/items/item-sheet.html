@@ -222,6 +222,9 @@
       <label title="Marca Registrada do Inato e efeitos afins">Redução de custo
         <input type="number" name="system.reducaoCusto" value="{{system.reducaoCusto}}" min="0" />
       </label>
+      <label title="Somado à jogada de Ataque Amaldiçoado deste Feitiço">Bônus de acerto
+        <input type="number" name="system.bonusAtaque" value="{{system.bonusAtaque}}" step="1" />
+      </label>
       <label>Conjuração
         <select name="system.conjuracao">
           {{#each config.conjuracoes as |c|}}
@@ -553,6 +556,9 @@
           {{/each}}
         </select>
       </label>
+      <label title="Somado à jogada de ataque da técnica: Implemento Celeste, auxílios, o que a mesa conceder">Bônus de acerto
+        <input type="number" name="system.bonusAtaque" value="{{system.bonusAtaque}}" step="1" />
+      </label>
       <label class="largo">Requisito
         <input type="text" name="system.requisito" value="{{system.requisito}}" />
       </label>
@@ -605,6 +611,9 @@
           <option value="corpoACorpo" {{#if (eq system.linhaAtaque "corpoACorpo")}}selected{{/if}}>Corpo a Corpo</option>
           <option value="distancia" {{#if (eq system.linhaAtaque "distancia")}}selected{{/if}}>A Distância</option>
         </select>
+      </label>
+      <label title="Somado à jogada de ataque da ação: características, auxílios e o que mais a mesa conceder">Bônus de acerto
+        <input type="number" name="system.bonusAtaque" value="{{system.bonusAtaque}}" step="1" />
       </label>
       <label title="Integridade fica de fora (p. 263)">Resistência exigida
         <select name="system.resistencia">
