@@ -2,7 +2,7 @@
   "id": "fnm",
   "title": "Feiticeiros & Maldições (Não-Oficial)",
   "description": "<p>Sistema NÃO-OFICIAL, feito por fã, para jogar <strong>Feiticeiros &amp; Maldições</strong> no Foundry VTT.</p><p>Feiticeiros &amp; Maldições é um RPG de mesa gratuito criado de fãs para fãs, ambientado no universo de <strong>Jujutsu Kaisen</strong>, obra de <strong>Gege Akutami</strong>. Desenvolvimento: Setsugiri e Parker; Diagramação e Edição: Setsugiri e Jou; Revisão: Jou, Kame e Parker; Artes originais: Konatsuu e Strabey. Baseado no Livro de Regras v2.5.2 e no Grimório das Maldições (Versão 1) — Grimório: Setsugiri, Parker, Jou, Justoneblock, Camelo, Kamisori, Bianco, A1rtur Butler e Afty.</p><p>Este sistema não é afiliado, endossado ou patrocinado pelos autores de Feiticeiros &amp; Maldições nem pelos detentores dos direitos de Jujutsu Kaisen. Todos os créditos da obra original são de Gege Akutami.</p>",
-  "version": "0.7.0",
+  "version": "0.8.0",
   "compatibility": {
     "minimum": "13",
     "verified": "14"
@@ -194,6 +194,6 @@
   "secondaryTokenAttribute": "recursos.pe",
   "url": "https://github.com/jmchervinski/FnM",
   "manifest": "https://github.com/jmchervinski/FnM/releases/latest/download/system.json",
-  "download": "https://github.com/jmchervinski/FnM/releases/download/v0.7.0/system.zip",
+  "download": "https://github.com/jmchervinski/FnM/releases/download/v0.8.0/system.zip",
   "license": "LICENSE"
 }
