@@ -229,6 +229,10 @@ export class FnmItem extends Item {
       .map(([k, v]) => `${k} ${v > 0 ? "+" : ""}${v}`);
     if (bonus.length) linhas.push(`<b>Ajustes:</b> ${bonus.join(", ")}`);
 
+    // Efeitos que o item aplica na ficha, já em texto (atributo, perícia, CD…)
+    const efeitos = (sys.efeitosView ?? []).map(e => e.texto);
+    if (efeitos.length) linhas.push(`<b>Efeitos:</b> ${efeitos.join(" · ")}`);
+
     return linhas;
   }
 

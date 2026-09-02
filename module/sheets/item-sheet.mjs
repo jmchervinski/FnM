@@ -14,7 +14,9 @@ export class FnmItemSheet extends HandlebarsApplicationMixin(ItemSheetV2) {
       editImage: FnmItemSheet.onEditImage,
       aplicarPadroes: FnmItemSheet.onAplicarPadroes,
       adicionarCondicaoItem: FnmItemSheet.onAdicionarCondicao,
-      removerCondicaoItem: FnmItemSheet.onRemoverCondicao
+      removerCondicaoItem: FnmItemSheet.onRemoverCondicao,
+      adicionarEfeitoItem: FnmItemSheet.onAdicionarEfeito,
+      removerEfeitoItem: FnmItemSheet.onRemoverEfeito
     }
   };
 
@@ -58,6 +60,8 @@ export class FnmItemSheet extends HandlebarsApplicationMixin(ItemSheetV2) {
     // existe: nível de Feitiço ou de Técnica Marcial (p. 208)
     context.catalogoCondicoes = FNM.condicoes;
     context.temNivelDeCriacao = ["feitico", "tecnicaMarcial"].includes(this.item.type);
+
+    context.chavesEfeito = FnmItemSheet._chavesDeEfeito();
 
     context.enrichedDescription =
       await foundry.applications.ux.TextEditor.implementation.enrichHTML(sys.description ?? "", {
@@ -106,6 +110,42 @@ export class FnmItemSheet extends HandlebarsApplicationMixin(ItemSheetV2) {
     ui.notifications.info(
       `Valores padrão de ${cfg.nome} aplicados: alcance ${cfg.alcance} m, dano ${dano}.`
     );
+  }
+
+  /**
+   * As chaves possíveis de um efeito, agrupadas por família. O select é um só e
+   * mostra todas: o alvo escolhido diz qual grupo faz sentido, e o agregado
+   * ignora a chave que não pertence ao alvo.
+   */
+  static _chavesDeEfeito() {
+    const lista = (catalogo, nome) => ({
+      nome,
+      itens: Object.entries(catalogo).map(([id, c]) => ({ id, nome: c.nome }))
+    });
+    return [
+      lista(FNM.atributos, "Atributos"),
+      lista(FNM.pericias, "Perícias"),
+      lista(FNM.resistencias, "Testes de Resistência"),
+      lista(FNM.tiposAtaque, "Jogadas de Ataque"),
+      {
+        nome: "Tipos de dano",
+        itens: FNM.tiposComRD.map(id => ({ id, nome: FNM.tiposDano[id].nome }))
+      }
+    ];
+  }
+
+  static async onAdicionarEfeito() {
+    const lista = this.item.toObject().system.efeitos ?? [];
+    await this.item.update({
+      "system.efeitos": [...lista, { alvo: "defesa", chave: "", valor: 0, proficiencia: "" }]
+    });
+  }
+
+  static async onRemoverEfeito(event, target) {
+    const idx = Number(target.dataset.idx);
+    const lista = this.item.toObject().system.efeitos ?? [];
+    if (!Number.isInteger(idx) || idx < 0 || idx >= lista.length) return;
+    await this.item.update({ "system.efeitos": lista.filter((_, i) => i !== idx) });
   }
 
   /**

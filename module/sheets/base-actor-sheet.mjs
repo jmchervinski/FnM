@@ -73,12 +73,19 @@ export class FnmBaseActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) 
     context.atributos = FNM.ordemAtributos.map(id => ({ id, ...FNM.atributos[id] }));
 
     // Atributos na ordem canônica do livro
+    // O bônus de item aparece separado do valor digitado: o campo continua
+    // editável e o total mostra o que os itens somaram por cima (p. 147)
     context.atributosView = FNM.ordemAtributos.map(key => ({
       key,
       ...FNM.atributos[key],
       value: sys.atributos[key].value,
-      mod: sys.atributos[key].mod
+      mod: sys.atributos[key].mod,
+      bonusItens: sys.atributos[key].bonusItens ?? 0,
+      total: sys.atributos[key].total ?? sys.atributos[key].value
     }));
+
+    // De onde veio cada bônus de item, para a ficha explicar os totais
+    context.fontesDeItem = sys.efeitosItens?.fontes ?? [];
 
     // Perícias ordenadas alfabeticamente, como na ficha oficial
     context.periciasView = Object.entries(sys.pericias)

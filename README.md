@@ -103,6 +103,10 @@ Tudo abaixo é calculado ou executado pelo sistema, com a página do livro anota
   penalidade deles — cumulativa entre os dois — pesa só nas perícias de Destreza
 - **Ferramentas Amaldiçoadas**: o grau da ferramenta define o bônus de dano da arma, a RD do
   escudo e quantos Encantamentos ela acumula
+- **Efeitos de item** que a ficha soma sozinha: bônus em atributo (que pode passar do limite
+  normal, até 30, e recalcula tudo que depende dele), em perícia, em Teste de Resistência, nas
+  Jogadas de Ataque, na Redução de Dano por tipo e nas CDs — além de treinamento concedido pelo
+  item. A aba de Registro lista cada bônus com o item que o concedeu
 - **Invocações** montadas pelo grau: Vida, Defesa, custo em PE e o bônus de todo teste saem das
   fórmulas do capítulo 10, usando o nível e o Bônus de Treinamento do **invocador**. A ficha mostra
   o orçamento da criação — pontos de atributo, perícias treinadas, Ações/Características e Ações
@@ -402,15 +406,37 @@ sozinho. A exceção são as **condições**, que são Active Effects de verdade
 ficha — mas quem diz que um poder aplica uma condição continua sendo você, no quadro **Condições
 aplicadas** da ficha do item.
 
-O que um item **consegue** mexer sozinho é o bloco **Ajustes no dono**, que toda ficha de item
-tem: PV máximo, PE máximo, Defesa, Deslocamento e Redução de Dano. Enquanto o dono possuir o
-item, os cinco entram na conta — Armas e Equipamentos só quando **equipados**, Votos só quando
-**ativos**. Um Dote que dá "+10 PV" precisa ter esse +10 lançado ali; a descrição sozinha não
-mexe em nada. O resto (uma aptidão que concede +2 na CD, por exemplo) vai nos campos "Outros"
-da ficha.
+O que um item **consegue** mexer sozinho está em dois lugares da ficha dele. O bloco **Ajustes no
+dono** é o atalho dos cinco alvos mais comuns — PV máximo, PE máximo, Defesa, Deslocamento e
+Redução de Dano. A lista **Efeitos no dono** cobre o resto, uma linha por bônus:
+
+| O que a linha alcança | Exemplos do livro |
+| --- | --- |
+| **Atributo** (pode passar do limite normal, até 30) | Anéis do Conhecimento, Bracelete da Força, Faixas Céleres |
+| **Perícia** e **Teste de Resistência**, com bônus ou concedendo Treinado/Mestre | Amuleto do Vislumbre, Uniforme Sob Medida, Pulseira Magistral |
+| **Jogadas de Ataque**, em uma linha ou nas três | encantamentos e talentos de acerto |
+| **Redução de Dano por tipo de dano** | Uniforme Isolante, Resiliente |
+| **CD Amaldiçoada, de Técnica e de Especialização** | Chaveiro Canalizador |
+| **PV, PE, Estamina, Deslocamento, Iniciativa e Atenção** | Bracelete do Vigor, Ombreiras do Vigor Superior |
+
+Enquanto o dono possuir o item, tudo isso entra na conta — Armas e Equipamentos só quando
+**equipados**, Votos só quando **ativos**. Um atributo levantado por item recalcula o que depende
+dele: modificador, perícias, Defesa e até o limite de carga. A aba **Registro e Inventário** lista
+cada bônus com o item que o concedeu, para o número nunca aparecer do nada.
+
+No compêndio, **11 itens já vêm automatizados**: os seis acessórios de atributo, os dois de PV, o
+Chaveiro Canalizador, o Amuleto do Vislumbre e o Uniforme Sob Medida. A curadoria é manual e
+deliberadamente conservadora — só o que é **sempre ativo e numérico**. O que depende de uma escolha
+na hora ("treinado em uma perícia à sua escolha"), o que é gatilho (Chaveiro Absorsor, Laço da
+Vida) e o que é consumido em um uso continuam valendo pelo texto; para os primeiros, basta o
+jogador acrescentar a linha dizendo qual perícia.
+
+Fora dos itens, habilidades e aptidões continuam entrando pelos campos "Outros" da ficha.
 
 Isso é verificado: `npm run check` roda `tools/testa-automacao.mjs`, que monta atores de mentira,
-executa a derivação real dos DataModels e confere que os ajustes de item chegam ao ator, que os
+executa a derivação real dos DataModels e confere que os ajustes e efeitos de item chegam ao ator
+(inclusive que todo alvo do catálogo tem para onde ir, senão a ficha aceitaria a linha e o número
+sumiria em silêncio), que os
 totais fechados substituem as fórmulas (e que a Exaustão ainda pesa em cima deles), que o
 orçamento do Patamar conta os pontos gastos acima da base de 10, e que uma ficha importada
 reproduz exatamente os números do arquivo depois de derivada.

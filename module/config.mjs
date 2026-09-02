@@ -980,6 +980,42 @@ FNM.grausFerramenta = {
 FNM.carga = { base: 8, defesaSobrecarga: -5, deslocamentoSobrecarga: -4.5 };
 
 /* -------------------------------------------- */
+/*  Efeitos de item                             */
+/* -------------------------------------------- */
+
+/**
+ * O que um item pode alterar na ficha de quem o possui.
+ *
+ * O livro descreve os benefícios em prosa ("os anéis aumentam o valor de
+ * Sabedoria do usuário em 2"), e é esta tabela que dá a eles um lugar numérico.
+ * Cada linha de `system.efeitos` escolhe um `alvo` daqui e, quando o alvo tem
+ * `lista`, uma `chave` dentro dela — a perícia, o atributo ou o tipo de dano.
+ *
+ * `proficiencia` marca os alvos em que o item pode conceder Treinado ou Mestre
+ * no lugar de (ou além de) um bônus numérico, como a Pulseira Magistral.
+ */
+FNM.alvosEfeito = [
+  { id: "atributo", nome: "Atributo", lista: "atributos" },
+  { id: "pericia", nome: "Perícia", lista: "pericias", proficiencia: true },
+  { id: "resistencia", nome: "Teste de Resistência", lista: "resistencias", proficiencia: true },
+  { id: "ataque", nome: "Jogada de Ataque", lista: "ataques" },
+  { id: "defesa", nome: "Defesa" },
+  { id: "reducaoDano", nome: "Redução de Dano", lista: "tiposDano" },
+  { id: "pv", nome: "PV máximo" },
+  { id: "pe", nome: "PE máximo" },
+  { id: "estamina", nome: "Estamina máxima" },
+  { id: "deslocamento", nome: "Deslocamento" },
+  { id: "iniciativa", nome: "Iniciativa" },
+  { id: "atencao", nome: "Atenção" },
+  { id: "cdAmaldicoada", nome: "CD Amaldiçoada" },
+  { id: "cdEspecializacao", nome: "CD de Especialização" },
+  { id: "cdTecnica", nome: "CD de Técnica" }
+];
+
+/** Um atributo pode passar do limite normal por item, até 30 (p. 147-148). */
+FNM.maximoAtributoPorItem = 30;
+
+/* -------------------------------------------- */
 /*  Grimório das Maldições (Versão 1)           */
 /* -------------------------------------------- */
 

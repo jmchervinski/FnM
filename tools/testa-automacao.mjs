@@ -1367,6 +1367,269 @@ const npcBase = sys => {
   }
 }
 
+/* -------- Efeitos de item: atributo, perícia, CD e RD por tipo -------- */
+
+/**
+ * O livro descreve os benefícios em prosa e a ficha precisa somá-los sozinha.
+ * Cada caso aqui é um item real do compêndio: os Anéis do Conhecimento dão +2
+ * de Sabedoria, o Chaveiro Canalizador +1 na CD Amaldiçoada, a Pulseira
+ * Magistral treina uma perícia. O que importa é que o bônus chegue ao TOTAL,
+ * e não só ao campo do item.
+ */
+{
+  // Armas e equipamentos só concedem o que concedem enquanto equipados
+  const comEfeitos = (type, efeitos) => ({
+    type,
+    system: {
+      equipado: true,
+      equipada: true,
+      ajustes: { pv: 0, pe: 0, defesa: 0, deslocamento: 0, reducaoDano: 0 },
+      efeitos: efeitos.map(e => ({ alvo: "", chave: "", valor: 0, proficiencia: "", ...e }))
+    }
+  });
+
+  const personagem = sys => {
+    sys.detalhes.nivel = 5;
+    sys.atributos.sabedoria.value = 14;
+    sys.atributos.destreza.value = 12;
+    // Sem item de especialização o PV cairia no piso de 1, e o piso esconderia
+    // a soma dos itens; o ajuste tira o teste de perto dele
+    sys.recursos.pv = { value: 60, max: 60, perdidos: 0, ajuste: 40 };
+    sys.recursos.integridade = { value: 60, max: 60, perdidos: 0, ajuste: 0 };
+  };
+
+  const base = prepararAtor(M.CharacterDataModel, personagem);
+
+  /* Anéis do Conhecimento: +2 de Sabedoria (p. 147) */
+  const aneis = prepararAtor(M.CharacterDataModel, personagem, [
+    comEfeitos("equipamento", [{ alvo: "atributo", chave: "sabedoria", valor: 2 }])
+  ]);
+  confere("Efeito: o atributo soma o bônus do item", aneis.atributos.sabedoria.total, 16);
+  confere("Efeito: o valor digitado não é alterado", aneis.atributos.sabedoria.value, 14);
+  confere(
+    "Efeito: o modificador acompanha o atributo com item",
+    aneis.atributos.sabedoria.mod,
+    base.atributos.sabedoria.mod + 1
+  );
+  confere(
+    "Efeito: e a perícia do atributo herda o modificador",
+    aneis.pericias.ocultismo.total,
+    base.pericias.ocultismo.total + 1
+  );
+
+  /* Um atributo por item pode passar do limite normal, mas trava em 30 */
+  const teto = prepararAtor(
+    M.CharacterDataModel,
+    sys => {
+      personagem(sys);
+      sys.atributos.sabedoria.value = 29;
+    },
+    [comEfeitos("equipamento", [{ alvo: "atributo", chave: "sabedoria", valor: 4 }])]
+  );
+  confere("Efeito: o atributo com item trava em 30", teto.atributos.sabedoria.total, 30);
+
+  /* Amuleto do Vislumbre: +2 em Percepção — e a Atenção acompanha (p. 146) */
+  const amuleto = prepararAtor(M.CharacterDataModel, personagem, [
+    comEfeitos("equipamento", [{ alvo: "pericia", chave: "percepcao", valor: 2 }])
+  ]);
+  confere(
+    "Efeito: a perícia soma o bônus do item",
+    amuleto.pericias.percepcao.total,
+    base.pericias.percepcao.total + 2
+  );
+  confere(
+    "Efeito: a Atenção acompanha a Percepção",
+    amuleto.combate.atencao,
+    base.combate.atencao + 2
+  );
+
+  /* Pulseira Magistral: treina uma perícia (p. 146) */
+  const pulseira = prepararAtor(M.CharacterDataModel, personagem, [
+    comEfeitos("equipamento", [
+      { alvo: "pericia", chave: "feiticaria", proficiencia: "treinado" }
+    ])
+  ]);
+  confere(
+    "Efeito: o item treina a perícia e soma o Bônus de Treinamento",
+    pulseira.pericias.feiticaria.total,
+    base.pericias.feiticaria.total + pulseira.bonusTreinamento
+  );
+  confere(
+    "Efeito: e a perícia que exige treino deixa de ficar bloqueada",
+    pulseira.pericias.feiticaria.bloqueada,
+    false
+  );
+
+  /* Chaveiro Canalizador: +1 na CD Amaldiçoada (p. 145) */
+  const chaveiro = prepararAtor(M.CharacterDataModel, personagem, [
+    comEfeitos("equipamento", [{ alvo: "cdAmaldicoada", valor: 1 }])
+  ]);
+  confere("Efeito: a CD Amaldiçoada soma o item", chaveiro.cdAmaldicoada, base.cdAmaldicoada + 1);
+  confere(
+    "Efeito: e a CD de Especialização fica de fora",
+    chaveiro.cdEspecializacao,
+    base.cdEspecializacao
+  );
+
+  /* Uniforme Isolante: 5 de RD contra Queimante e Congelante (p. 159) */
+  const isolante = prepararAtor(M.CharacterDataModel, personagem, [
+    comEfeitos("equipamento", [
+      { alvo: "reducaoDano", chave: "queimante", valor: 5 },
+      { alvo: "reducaoDano", chave: "congelante", valor: 5 }
+    ])
+  ]);
+  confere(
+    "Efeito: a RD por tipo soma só no tipo escolhido",
+    isolante.combate.rdPorTipo.queimante,
+    base.combate.rdPorTipo.queimante + 5
+  );
+  confere(
+    "Efeito: e não vaza para os outros tipos",
+    isolante.combate.rdPorTipo.cortante,
+    base.combate.rdPorTipo.cortante
+  );
+  confere("Efeito: nem para a RD geral", isolante.combate.reducaoDanoTotal, base.combate.reducaoDanoTotal);
+
+  /* Sem chave, a Redução de Dano é geral */
+  const rdGeral = prepararAtor(M.CharacterDataModel, personagem, [
+    comEfeitos("equipamento", [{ alvo: "reducaoDano", valor: 3 }])
+  ]);
+  confere(
+    "Efeito: RD sem tipo entra na geral",
+    rdGeral.combate.reducaoDanoTotal,
+    base.combate.reducaoDanoTotal + 3
+  );
+
+  /* Jogada de Ataque: com chave vale só em uma linha, sem chave vale nas três */
+  const precisa = prepararAtor(M.CharacterDataModel, personagem, [
+    comEfeitos("arma", [{ alvo: "ataque", chave: "corpoACorpo", valor: 2 }])
+  ]);
+  confere(
+    "Efeito: o ataque corpo a corpo soma o item",
+    precisa.ataques.corpoACorpo.total,
+    base.ataques.corpoACorpo.total + 2
+  );
+  confere(
+    "Efeito: e a linha a distância fica intacta",
+    precisa.ataques.distancia.total,
+    base.ataques.distancia.total
+  );
+
+  const todas = prepararAtor(M.CharacterDataModel, personagem, [
+    comEfeitos("talento", [{ alvo: "ataque", valor: 1 }])
+  ]);
+  confere(
+    "Efeito: ataque sem linha vale para as três",
+    [todas.ataques.corpoACorpo.total, todas.ataques.distancia.total, todas.ataques.amaldicoado.total].join(),
+    [
+      base.ataques.corpoACorpo.total + 1,
+      base.ataques.distancia.total + 1,
+      base.ataques.amaldicoado.total + 1
+    ].join()
+  );
+
+  /* Bracelete do Vigor e Ombreiras: PV máximo (p. 146-147) */
+  const vigor = prepararAtor(M.CharacterDataModel, personagem, [
+    comEfeitos("equipamento", [{ alvo: "pv", valor: 10 }]),
+    comEfeitos("equipamento", [{ alvo: "pv", valor: 20 }])
+  ]);
+  confere("Efeito: o PV máximo soma os dois itens", vigor.recursos.pv.max, base.recursos.pv.max + 30);
+
+  /* Um item desequipado não concede nada */
+  const guardado = prepararAtor(M.CharacterDataModel, personagem, [
+    {
+      type: "equipamento",
+      system: {
+        equipado: false,
+        ajustes: { pv: 0, pe: 0, defesa: 0, deslocamento: 0, reducaoDano: 0 },
+        efeitos: [{ alvo: "atributo", chave: "sabedoria", valor: 2, proficiencia: "" }]
+      }
+    }
+  ]);
+  confere(
+    "Efeito: item guardado no inventário não altera o atributo",
+    guardado.atributos.sabedoria.total,
+    14
+  );
+
+  /* A ficha precisa saber de onde veio cada bônus */
+  const fontes = aneis.efeitosItens.fontes;
+  confere("Efeito: o bônus fica registrado com a fonte", fontes.length, 1);
+  confere("Efeito: e a fonte diz o alvo", fontes[0].rotulo, "Sabedoria");
+
+  /* Bracelete da Força: o modificador maior também levanta o limite de carga,
+     que é 8 + o dobro do modificador de Força (p. 129) */
+  const forte = prepararAtor(
+    M.CharacterDataModel,
+    sys => {
+      personagem(sys);
+      sys.atributos.forca.value = 14;
+    },
+    [comEfeitos("equipamento", [{ alvo: "atributo", chave: "forca", valor: 2 }])]
+  );
+  const semItem = prepararAtor(M.CharacterDataModel, sys => {
+    personagem(sys);
+    sys.atributos.forca.value = 14;
+  });
+  confere("Efeito: o limite de carga acompanha a Força com item", forte.carga.limite, semItem.carga.limite + 2);
+
+  /* A Invocação carrega itens como qualquer ator */
+  {
+    const invBase = prepararAtor(M.InvocacaoDataModel, sys => {
+      sys.detalhes.grau = "Terceiro";
+      sys.atributos.sabedoria.value = 14;
+    });
+    const invCom = prepararAtor(
+      M.InvocacaoDataModel,
+      sys => {
+        sys.detalhes.grau = "Terceiro";
+        sys.atributos.sabedoria.value = 14;
+      },
+      [
+        comEfeitos("equipamento", [
+          { alvo: "atributo", chave: "sabedoria", valor: 2 },
+          { alvo: "pericia", chave: "percepcao", valor: 3 }
+        ])
+      ]
+    );
+    confere(
+      "Efeito: a Invocação soma o atributo do item",
+      invCom.atributos.sabedoria.total,
+      invBase.atributos.sabedoria.total + 2
+    );
+    confere(
+      "Efeito: e a perícia dela também",
+      invCom.pericias.percepcao.total,
+      invBase.pericias.percepcao.total + 3 + 1
+    );
+  }
+
+  /* Todo alvo do catálogo precisa ter um destino no agregado, senão o item
+     aceita a linha na ficha e o número some sem aviso */
+  for (const cfg of FNM.alvosEfeito) {
+    const chave =
+      cfg.lista === "atributos"
+        ? "forca"
+        : cfg.lista === "pericias"
+          ? "acrobacia"
+          : cfg.lista === "resistencias"
+            ? "vontade"
+            : cfg.lista === "ataques"
+              ? "distancia"
+              : cfg.lista === "tiposDano"
+                ? "acido"
+                : "";
+    const ator = prepararAtor(M.CharacterDataModel, personagem, [
+      comEfeitos("equipamento", [{ alvo: cfg.id, chave, valor: 3 }])
+    ]);
+    const registrou = ator.efeitosItens.fontes.some(f => f.valor === 3);
+    if (!registrou) {
+      console.log(`ERRO  Efeito: o alvo "${cfg.id}" não chega a lugar nenhum no agregado`);
+      problemas++;
+    }
+  }
+}
+
 if (problemas) {
   console.log(`\n${problemas} problema(s) de automação encontrado(s).`);
   process.exit(1);

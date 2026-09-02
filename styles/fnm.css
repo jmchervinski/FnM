@@ -1729,3 +1729,76 @@
   background: rgba(163, 22, 43, 0.18);
   box-shadow: 0 0 5px rgba(163, 22, 43, 0.4);
 }
+
+/* -------------------------------------------- */
+/*  Efeitos de item                             */
+/* -------------------------------------------- */
+
+/* Editor de efeitos, na ficha de item */
+.fnm-sheet .efeitos-linhas {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+.fnm-sheet .efeito-linha {
+  display: grid;
+  grid-template-columns: 1.4fr 1.4fr 0.6fr 1fr auto;
+  gap: 0.3rem;
+  align-items: end;
+}
+.fnm-sheet .efeito-linha > label {
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+  font-size: 0.66rem;
+}
+.fnm-sheet .efeitos-previa {
+  list-style: none;
+  margin: 0.4rem 0 0;
+  padding: 0.3rem 0.45rem;
+  border-left: 3px solid var(--fnm-azul);
+  background: rgba(31, 78, 121, 0.1);
+  font-size: 0.7rem;
+  line-height: 1.5;
+}
+
+/* Bônus que os itens somaram, na aba de Registro e Inventário */
+.fnm-sheet .bonus-de-item {
+  margin: 0.4rem 0;
+  font-size: 0.72rem;
+}
+.fnm-sheet .bonus-de-item > summary {
+  cursor: pointer;
+  color: var(--fnm-cinza);
+}
+.fnm-sheet .bonus-de-item ul {
+  list-style: none;
+  margin: 0.3rem 0 0;
+  padding: 0;
+}
+.fnm-sheet .bonus-de-item li {
+  display: grid;
+  grid-template-columns: 1.4fr 1fr auto;
+  gap: 0.4rem;
+  padding: 0.1rem 0.2rem;
+  border-bottom: 1px dotted var(--fnm-osso-escuro);
+}
+.fnm-sheet .bonus-item-alvo {
+  color: var(--fnm-cinza);
+}
+.fnm-sheet .bonus-item-valor {
+  font-weight: bold;
+  font-variant-numeric: tabular-nums;
+  color: var(--fnm-azul);
+}
+
+/* O bônus de item aparece ao lado do valor digitado do atributo */
+.fnm-sheet .atributo-box.com-item {
+  border-color: var(--fnm-azul);
+}
+.fnm-sheet .atributo-item {
+  font-size: 0.6rem;
+  font-weight: bold;
+  color: var(--fnm-azul);
+  line-height: 1;
+}

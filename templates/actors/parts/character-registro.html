@@ -68,6 +68,26 @@
       {{/if}}
     </div>
 
+    {{!-- O que os itens equipados já somaram na ficha, com a fonte de cada
+          bônus: sem isso a automação vira um número que aparece do nada --}}
+    {{#if fontesDeItem.length}}
+    <details class="bonus-de-item" data-colapso="bonus-item">
+      <summary>Bônus dos itens equipados ({{fontesDeItem.length}})</summary>
+      <ul>
+        {{#each fontesDeItem as |f|}}
+        <li>
+          <span class="bonus-item-nome">{{f.item}}</span>
+          <span class="bonus-item-alvo">{{f.rotulo}}</span>
+          <span class="bonus-item-valor">
+            {{#if f.valor}}{{sinal f.valor}}{{/if}}
+            {{#if f.proficiencia}}{{f.proficiencia}}{{/if}}
+          </span>
+        </li>
+        {{/each}}
+      </ul>
+    </details>
+    {{/if}}
+
     <header class="itens-header">
       <span></span>
       <span>

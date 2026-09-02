@@ -687,9 +687,12 @@
         <label>Deslocamento ± <input type="number" name="system.ajustes.deslocamento" value="{{system.ajustes.deslocamento}}" step="1.5" /></label>
         <label>Redução de Dano ± <input type="number" name="system.ajustes.reducaoDano" value="{{system.ajustes.reducaoDano}}" step="1" /></label>
       </div>
-      <p class="dica">Aplicados automaticamente enquanto o dono possuir o item. Armas e equipamentos
-        só contam quando <b>equipados</b>; Votos, só quando <b>ativos</b>.</p>
+      <p class="dica">Atalho para os cinco ajustes mais comuns, aplicados enquanto o dono possuir o
+        item. Armas e equipamentos só contam quando <b>equipados</b>; Votos, só quando <b>ativos</b>.
+        O que não cabe aqui — atributo, perícia, CD — vai na lista de <b>Efeitos no dono</b>.</p>
     </fieldset>
+
+    {{> "systems/fnm/templates/items/item-efeitos.html"}}
 
     <label class="campo-largo">Descrição</label>
     <prose-mirror name="system.description" toggled value="{{source.description}}"

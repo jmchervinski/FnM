@@ -1,0 +1,71 @@
+{{!-- Efeitos que o item aplica na ficha do dono.
+
+      O livro descreve os benefícios em prosa ("os anéis aumentam o valor de
+      Sabedoria do usuário em 2"), e é aqui que eles viram número. Cada linha
+      escolhe um alvo e, quando o alvo tem lista, a chave dentro dele. Perícias
+      e resistências ainda podem vir treinadas ou mestres pelo item. --}}
+<fieldset class="bloco efeitos-item">
+  <legend>
+    Efeitos no dono
+    <button type="button" class="efeito-adicionar" data-action="adicionarEfeitoItem"
+            title="Adicionar um efeito"><i class="fas fa-plus"></i></button>
+  </legend>
+
+  {{#if source.efeitos.length}}
+  <div class="efeitos-linhas">
+    {{#each source.efeitos as |linha idx|}}
+    <div class="efeito-linha" data-idx="{{idx}}">
+      <label class="efeito-campo-alvo">O que muda
+        <select name="system.efeitos.{{idx}}.alvo">
+          {{#each ../config.alvosEfeito as |a|}}
+          <option value="{{a.id}}" {{#if (eq a.id linha.alvo)}}selected{{/if}}>{{a.nome}}</option>
+          {{/each}}
+        </select>
+      </label>
+
+      {{!-- A lista de chaves reúne atributos, perícias, resistências, linhas de
+            ataque e tipos de dano: o alvo escolhido diz qual metade vale. --}}
+      <label title="Deixe em branco quando o alvo não pedir uma chave">Qual
+        <select name="system.efeitos.{{idx}}.chave">
+          <option value="">—</option>
+          {{#each ../chavesEfeito as |grupo|}}
+          <optgroup label="{{grupo.nome}}">
+            {{#each grupo.itens as |c|}}
+            <option value="{{c.id}}" {{#if (eq c.id ../../linha.chave)}}selected{{/if}}>{{c.nome}}</option>
+            {{/each}}
+          </optgroup>
+          {{/each}}
+        </select>
+      </label>
+
+      <label>Valor
+        <input type="number" name="system.efeitos.{{idx}}.valor" value="{{linha.valor}}" step="1" />
+      </label>
+
+      <label title="Só vale para perícias e testes de resistência">Proficiência
+        <select name="system.efeitos.{{idx}}.proficiencia">
+          <option value="">—</option>
+          <option value="treinado" {{#if (eq "treinado" linha.proficiencia)}}selected{{/if}}>Treinado</option>
+          <option value="mestre" {{#if (eq "mestre" linha.proficiencia)}}selected{{/if}}>Mestre</option>
+        </select>
+      </label>
+
+      <button type="button" class="efeito-remover" data-action="removerEfeitoItem"
+              data-idx="{{idx}}" title="Remover esta linha"><i class="fas fa-times"></i></button>
+    </div>
+    {{/each}}
+  </div>
+
+  {{#if system.efeitosView.length}}
+  <ul class="efeitos-previa">
+    {{#each system.efeitosView as |e|}}
+    <li>{{e.texto}}</li>
+    {{/each}}
+  </ul>
+  {{/if}}
+  {{else}}
+  <p class="dica">Nenhum efeito. Use esta lista para o que os ajustes acima não cobrem: bônus em
+    atributo, perícia ou teste de resistência, treinamento concedido, CDs, linhas de Jogada de
+    Ataque e Redução de Dano por tipo.</p>
+  {{/if}}
+</fieldset>

@@ -226,32 +226,141 @@ class BaseActorModel extends foundry.abstract.TypeDataModel {
   }
 
   /**
-   * Soma os ajustes mecânicos de todos os itens do ator (Origens, Talentos,
-   * Uniformes, Escudos etc.). Equipamentos e armas só contam quando equipados.
+   * Agrega o que os itens do ator alteram na ficha.
+   *
+   * Roda antes de qualquer fórmula, como as condições: os atributos precisam do
+   * bônus de item já somado para o modificador sair certo, e o modificador é a
+   * base de perícias, resistências, Defesa e ataques. Cada bônus fica junto da
+   * fonte que o concedeu, para a ficha conseguir dizer de onde veio.
    *
    * Um uniforme lança seu bônus na Defesa e um escudo a sua Redução de Dano
-   * pelos campos próprios; `ajustes` continua sendo a saída de emergência para
-   * qualquer outro efeito, e os dois se somam.
+   * pelos campos próprios; `ajustes` é o atalho dos cinco alvos mais comuns e
+   * `efeitos` cobre o resto. Os três se somam.
    */
-  _ajustesDeItens() {
-    const total = { pv: 0, pe: 0, defesa: 0, deslocamento: 0, reducaoDano: 0, penalidade: 0 };
+  _efeitosDeItens() {
+    const zerar = chaves => Object.fromEntries(chaves.map(k => [k, 0]));
+    const total = {
+      pv: 0,
+      pe: 0,
+      estamina: 0,
+      defesa: 0,
+      deslocamento: 0,
+      reducaoDano: 0,
+      iniciativa: 0,
+      atencao: 0,
+      penalidade: 0,
+      cdAmaldicoada: 0,
+      cdEspecializacao: 0,
+      cdTecnica: 0,
+      atributos: zerar(Object.keys(FNM.atributos)),
+      ataques: zerar(Object.keys(FNM.tiposAtaque)),
+      rdPorTipo: zerar(FNM.tiposComRD),
+      pericias: {},
+      resistencias: {},
+      // Uma linha por bônus concedido, para a ficha explicar a origem
+      fontes: []
+    };
+    for (const id of Object.keys(FNM.pericias)) {
+      total.pericias[id] = { bonus: 0, treinado: false, mestre: false };
+    }
+    for (const id of Object.keys(FNM.resistencias)) {
+      total.resistencias[id] = { bonus: 0, treinado: false, mestre: false };
+    }
+
     for (const item of this.parent?.items ?? []) {
       if (!BaseActorModel._equipado(item)) continue;
       // Votos desativados não concedem seus benefícios
       if (item.type === "voto" && item.system.ativo === false) continue;
 
+      const registrar = (rotulo, valor) => {
+        if (valor) total.fontes.push({ item: item.name, rotulo, valor });
+      };
+
       const aj = item.system?.ajustes;
-      if (aj) for (const chave of Object.keys(total)) total[chave] += aj[chave] ?? 0;
+      if (aj) {
+        for (const chave of ["pv", "pe", "defesa", "deslocamento", "reducaoDano"]) {
+          total[chave] += aj[chave] ?? 0;
+          registrar(chave, aj[chave] ?? 0);
+        }
+      }
 
       if (item.type === "equipamento") {
         total.defesa += item.system.defesa ?? 0;
-        total.reducaoDano += item.system.rdTotal ?? item.system.reducaoDano ?? 0;
+        registrar("defesa", item.system.defesa ?? 0);
+        const rd = item.system.rdTotal ?? item.system.reducaoDano ?? 0;
+        total.reducaoDano += rd;
+        registrar("reducaoDano", rd);
         // Penalidades de uniforme e de escudo são cumulativas (p. 141)
         total.penalidade += item.system.penalidade ?? 0;
       }
+
+      for (const efeito of item.system?.efeitos ?? []) {
+        this._aplicarEfeito(total, efeito, item.name);
+      }
     }
+
     return total;
   }
+
+  /** Encaixa uma linha de `efeitos` no balde certo do agregado. */
+  _aplicarEfeito(total, efeito, nomeItem) {
+    const { alvo, chave, valor, proficiencia } = efeito;
+    const cfg = FNM.alvosEfeito.find(a => a.id === alvo);
+    if (!cfg) return;
+
+    const anotar = rotulo => {
+      if (valor || proficiencia) {
+        total.fontes.push({ item: nomeItem, rotulo, valor, proficiencia });
+      }
+    };
+
+    switch (alvo) {
+      case "atributo":
+        if (chave in total.atributos) {
+          total.atributos[chave] += valor;
+          anotar(FNM.atributos[chave].nome);
+        }
+        return;
+
+      case "pericia":
+      case "resistencia": {
+        const grupo = alvo === "pericia" ? total.pericias : total.resistencias;
+        const catalogo = alvo === "pericia" ? FNM.pericias : FNM.resistencias;
+        if (!(chave in grupo)) return;
+        grupo[chave].bonus += valor;
+        if (proficiencia === "treinado") grupo[chave].treinado = true;
+        if (proficiencia === "mestre") grupo[chave].mestre = true;
+        anotar(catalogo[chave].nome);
+        return;
+      }
+
+      case "ataque":
+        // Sem chave, o bônus vale para as três linhas de Jogada de Ataque
+        for (const id of Object.keys(total.ataques)) {
+          if (!chave || chave === id) total.ataques[id] += valor;
+        }
+        anotar(chave ? FNM.tiposAtaque[chave]?.nome ?? chave : "Jogadas de Ataque");
+        return;
+
+      case "reducaoDano":
+        // Sem tipo, a RD é geral; com tipo, entra só na linha dele
+        if (chave && chave in total.rdPorTipo) {
+          total.rdPorTipo[chave] += valor;
+          anotar(`RD ${FNM.tiposDano[chave].nome}`);
+        } else {
+          total.reducaoDano += valor;
+          anotar("Redução de Dano");
+        }
+        return;
+
+      default:
+        if (alvo in total) {
+          total[alvo] += valor;
+          anotar(cfg.nome);
+        }
+    }
+  }
+
 
   /**
    * Inventário e Carregamento (p. 129). O limite é 8 espaços + o dobro do
@@ -286,9 +395,13 @@ class BaseActorModel extends foundry.abstract.TypeDataModel {
 
   /** Modificadores derivados dos seis atributos. */
   _prepararModificadores() {
+    const deItens = this.efeitosItens?.atributos ?? {};
     for (const chave of Object.keys(FNM.atributos)) {
       const attr = this.atributos[chave];
-      attr.mod = modificador(attr.value);
+      // Um item pode levar o atributo além do limite normal, até 30 (p. 147)
+      attr.bonusItens = deItens[chave] ?? 0;
+      attr.total = Math.min(FNM.maximoAtributoPorItem, attr.value + attr.bonusItens);
+      attr.mod = modificador(attr.total);
       attr.label = FNM.atributos[chave].nome;
       attr.abrev = FNM.atributos[chave].abrev;
     }
@@ -309,27 +422,42 @@ class BaseActorModel extends foundry.abstract.TypeDataModel {
       p.exigeTreino = cfg.exigeTreino === true;
       p.complementar = cfg.complementar === true;
       p.temSubcategoria = cfg.subcategoria === true;
+      // Um item pode treinar a perícia (Pulseira Magistral) ou levá-la a mestre
+      const dePericia = this.efeitosItens?.pericias?.[id];
+      p.treinadoPorItem = dePericia?.treinado === true || dePericia?.mestre === true;
+      p.mestrePorItem = dePericia?.mestre === true;
       p.total =
         this.atributos[cfg.atributo].mod +
         metade +
-        bonusProficiencia(nivel, p) +
+        bonusProficiencia(nivel, {
+          treinado: p.treinado || p.treinadoPorItem,
+          mestre: p.mestre || p.mestrePorItem
+        }) +
+        (dePericia?.bonus ?? 0) +
         p.outros +
         this.penalidadeGlobal +
         // Uniformes e escudos pesam só nas perícias de Destreza (p. 140-141)
         (cfg.atributo === "destreza" ? this.penalidadeDestreza : 0) +
         this._condicaoNaPericia(id);
       // Perícias que exigem treino ficam inutilizáveis sem ele (salvo exceções da mesa)
-      p.bloqueada = p.exigeTreino && !p.treinado && !p.mestre;
+      p.bloqueada = p.exigeTreino && !p.treinado && !p.mestre && !p.treinadoPorItem;
     }
 
     for (const [id, cfg] of Object.entries(FNM.resistencias)) {
       const r = this.resistencias[id];
       r.nome = cfg.nome;
       r.atributo = cfg.atributo;
+      const deResistencia = this.efeitosItens?.resistencias?.[id];
+      r.treinadoPorItem = deResistencia?.treinado === true || deResistencia?.mestre === true;
+      r.mestrePorItem = deResistencia?.mestre === true;
       r.total =
         this.atributos[cfg.atributo].mod +
         metade +
-        bonusProficiencia(nivel, r) +
+        bonusProficiencia(nivel, {
+          treinado: r.treinado || r.treinadoPorItem,
+          mestre: r.mestre || r.mestrePorItem
+        }) +
+        (deResistencia?.bonus ?? 0) +
         r.outros +
         this.penalidadeGlobal +
         // Reflexos tem penalidade própria (Desprevenido); as duas não se
@@ -353,7 +481,14 @@ class BaseActorModel extends foundry.abstract.TypeDataModel {
   _prepararCombate() {
     const c = this.combate;
     const nivel = this.nivel;
-    const itens = this.ajustesItens ?? { defesa: 0, deslocamento: 0, reducaoDano: 0 };
+    const itens = this.efeitosItens ?? {
+      defesa: 0,
+      deslocamento: 0,
+      reducaoDano: 0,
+      iniciativa: 0,
+      atencao: 0,
+      rdPorTipo: {}
+    };
     const sobrecarga = this.carga?.sobrecarregado === true;
 
     const cond = this.condicoes;
@@ -376,17 +511,23 @@ class BaseActorModel extends foundry.abstract.TypeDataModel {
     c.defesaDistancia = c.defesa - cond.totalDefesa + cond.totalDefesaDistancia;
 
     // Atenção é uma percepção passiva: 10 + bônus de Percepção (p. 19)
-    c.atencao = 10 + (this.pericias.percepcao?.total ?? 0) + c.atencaoOutros;
+    c.atencao = 10 + (this.pericias.percepcao?.total ?? 0) + c.atencaoOutros + itens.atencao;
 
     c.iniciativa =
-      this.atributos.destreza.mod + c.iniciativaOutros + this.penalidadeGlobal + cond.iniciativa;
+      this.atributos.destreza.mod +
+      c.iniciativaOutros +
+      itens.iniciativa +
+      this.penalidadeGlobal +
+      cond.iniciativa;
 
     // RD geral (somando equipamentos) e a grade por tipo de dano. Fragilizado
     // zera a Redução de Dano e anula as resistências (p. 319)
     c.reducaoDanoTotal = cond.semRD ? 0 : c.rd.geral + itens.reducaoDano;
     c.rdPorTipo = {};
     for (const tipo of FNM.tiposComRD) {
-      c.rdPorTipo[tipo] = cond.semRD ? 0 : c.reducaoDanoTotal + (c.rd[tipo] ?? 0);
+      c.rdPorTipo[tipo] = cond.semRD
+        ? 0
+        : c.reducaoDanoTotal + (c.rd[tipo] ?? 0) + (itens.rdPorTipo?.[tipo] ?? 0);
     }
 
     // Cada nível de exaustão reduz 1,5 m de deslocamento (p. 324); as condições
@@ -425,6 +566,7 @@ class BaseActorModel extends foundry.abstract.TypeDataModel {
         metade +
         (a.treinado ? bt : 0) +
         a.outros +
+        (this.efeitosItens?.ataques?.[id] ?? 0) +
         this.penalidadeGlobal +
         // Caído pesa só no corpo a corpo; Abalado e afins, em toda jogada
         (id === "corpoACorpo"
@@ -474,7 +616,7 @@ class BaseActorModel extends foundry.abstract.TypeDataModel {
     this.penalidadeAlma = this.alma?.penalidade ?? 0;
     this.penalidadeGlobal = this.penalidadeExaustao + this.penalidadeAlma;
     // A do equipamento fica de fora do total global: só pesa em Destreza
-    this.penalidadeDestreza = Math.min(0, this.ajustesItens?.penalidade ?? 0);
+    this.penalidadeDestreza = Math.min(0, this.efeitosItens?.penalidade ?? 0);
   }
 
   /** Estado de consciência derivado dos Pontos de Vida (p. 313). */
@@ -505,7 +647,7 @@ class BaseActorModel extends foundry.abstract.TypeDataModel {
   prepareDerivedData() {
     super.prepareDerivedData();
     this._prepararCondicoes();
-    this.ajustesItens = this._ajustesDeItens();
+    this.efeitosItens = this._efeitosDeItens();
     this._prepararModificadores();
     // Carga depende do modificador de Força e pesa na Defesa e no Deslocamento
     this._prepararCarga();
@@ -758,13 +900,13 @@ export class CharacterDataModel extends BaseActorModel {
   prepareDerivedData() {
     // Ordem importa: PV/PE dependem dos itens; Integridade depende do PV.
     this._prepararCondicoes();
-    this.ajustesItens = this._ajustesDeItens();
+    this.efeitosItens = this._efeitosDeItens();
     this._prepararModificadores();
     // Carga depende do modificador de Força e pesa na Defesa e no Deslocamento
     this._prepararCarga();
 
     const totais = this._somarEspecializacoes();
-    const aj = this.ajustesItens;
+    const aj = this.efeitosItens;
 
     // As Dádivas do Céu precisam ser conhecidas ANTES dos máximos: Vigor
     // Infindável mexe em PV e Estamina, e a Integridade máxima acompanha o PV
@@ -793,6 +935,7 @@ export class CharacterDataModel extends BaseActorModel {
       0,
       totais.estamina +
         porDadiva.estamina +
+        aj.estamina +
         this.recursos.estamina.ajuste -
         this.recursos.estamina.perdidos
     );
@@ -815,9 +958,11 @@ export class CharacterDataModel extends BaseActorModel {
     this.metadeNivel = metade;
     // As duas caixas de CD da ficha compartilham a fórmula e diferem só nos "Outros"
     const cdBase = 10 + metade + modTecnica + bt + this.penalidadeGlobal;
-    this.cdTecnica = cdBase + this.jujutsu.cdTecnicaOutros;
-    this.cdAmaldicoada = cdBase + this.jujutsu.cdOutros;
-    this.cdEspecializacao = 10 + metade + modEspec + bt + this.penalidadeGlobal;
+    this.cdTecnica = cdBase + this.jujutsu.cdTecnicaOutros + aj.cdTecnica;
+    // O Chaveiro Canalizador e afins entram aqui (p. 145)
+    this.cdAmaldicoada = cdBase + this.jujutsu.cdOutros + aj.cdAmaldicoada;
+    this.cdEspecializacao =
+      10 + metade + modEspec + bt + this.penalidadeGlobal + aj.cdEspecializacao;
 
     // Ataque Amaldiçoado: sempre treinado (p. 279)
     this.ataqueAmaldicoado = this.ataques.amaldicoado.total;
@@ -1067,7 +1212,7 @@ export class NpcDataModel extends BaseActorModel {
   prepareDerivedData() {
     // Os máximos entram antes de super(): a Integridade e, com ela, o Estado da
     // Alma derivam do PV máximo, e `_prepararAlma` roda lá dentro.
-    this.ajustesItens = this._ajustesDeItens();
+    this.efeitosItens = this._efeitosDeItens();
     this._aplicarMaximos();
 
     super.prepareDerivedData();
@@ -1079,7 +1224,14 @@ export class NpcDataModel extends BaseActorModel {
 
     this.bonusTreinamento = bt;
     this.metadeNivel = metade;
-    this.cdAmaldicoada = 10 + metade + modTecnica + bt + this.jujutsu.cdOutros + this.penalidadeGlobal;
+    this.cdAmaldicoada =
+      10 +
+      metade +
+      modTecnica +
+      bt +
+      this.jujutsu.cdOutros +
+      this.efeitosItens.cdAmaldicoada +
+      this.penalidadeGlobal;
     this.cdEspecializacao = this.cdAmaldicoada;
     this.ataqueAmaldicoado = modTecnica + metade + bt + this.penalidadeGlobal;
     this.danoDesarmado = danoDesarmado(this.nivel);
@@ -1169,7 +1321,7 @@ export class NpcDataModel extends BaseActorModel {
   _aplicarMaximos() {
     for (const [chave, piso] of [["pv", 1], ["pe", 0]]) {
       const r = this.recursos[chave];
-      r.max = Math.max(piso, r.max + this.ajustesItens[chave] + r.ajuste - r.perdidos);
+      r.max = Math.max(piso, r.max + this.efeitosItens[chave] + r.ajuste - r.perdidos);
     }
   }
 
@@ -1366,25 +1518,32 @@ export class InvocacaoDataModel extends BaseActorModel {
       p.exigeTreino = cfg.exigeTreino === true;
       p.complementar = cfg.complementar === true;
       p.temSubcategoria = cfg.subcategoria === true;
+      // Uma Invocação também pode carregar itens que a treinem ou a beneficiem
+      const dePericia = this.efeitosItens?.pericias?.[id];
+      p.treinadoPorItem = dePericia?.treinado === true || dePericia?.mestre === true;
+      p.mestrePorItem = dePericia?.mestre === true;
       p.total =
         this.atributos[cfg.atributo].mod +
         metade +
-        (p.treinado ? bt : 0) +
+        (p.treinado || p.treinadoPorItem ? bt : 0) +
+        (dePericia?.bonus ?? 0) +
         p.outros +
         this._condicaoNaPericia(id);
       // Sem treino, a Invocação só usa a perícia dentro de uma ação comandada
-      p.bloqueada = !p.treinado && !p.mestre;
+      p.bloqueada = !p.treinado && !p.mestre && !p.treinadoPorItem;
     }
 
     for (const [id, cfg] of Object.entries(FNM.resistencias)) {
       const r = this.resistencias[id];
       r.nome = cfg.nome;
       r.atributo = cfg.atributo;
-      const treinado = this.detalhes.resistenciaTreinada === id;
+      const deResistencia = this.efeitosItens?.resistencias?.[id];
+      const treinado = this.detalhes.resistenciaTreinada === id || deResistencia?.treinado === true;
       r.total =
         this.atributos[cfg.atributo].mod +
         metade +
         (treinado ? bt : 0) +
+        (deResistencia?.bonus ?? 0) +
         r.outros +
         (id === "reflexos" ? this.condicoes.totalReflexos : this.condicoes.totalResistencias);
     }
@@ -1437,7 +1596,7 @@ export class InvocacaoDataModel extends BaseActorModel {
     this.bonusTreinamentoUsuario = bonusTreinamento(this.nivelUsuario);
 
     this._prepararCondicoes();
-    this.ajustesItens = this._ajustesDeItens();
+    this.efeitosItens = this._efeitosDeItens();
     this._prepararModificadores();
     this._prepararCarga();
 
@@ -1469,7 +1628,7 @@ export class InvocacaoDataModel extends BaseActorModel {
       this.bonusTreinamentoUsuario +
       this.combate.defesaOutros +
       this.extras.defesa +
-      this.ajustesItens.defesa +
+      this.efeitosItens.defesa +
       this.condicoes.totalDefesa;
 
     // A fórmula do grau substituiu a Defesa inteira: as duas leituras do Caído
@@ -1511,11 +1670,41 @@ export class InvocacaoDataModel extends BaseActorModel {
 /*  Base comum aos itens                        */
 /* -------------------------------------------- */
 
+/**
+ * Frase de uma linha de `efeitos`, para a ficha e a carta do chat dizerem o que
+ * o item faz sem o leitor ter que decifrar alvo e chave.
+ */
+function descreverEfeito(efeito) {
+  const cfg = FNM.alvosEfeito.find(a => a.id === efeito.alvo);
+  if (!cfg) return { texto: "" };
+
+  const catalogos = {
+    atributos: FNM.atributos,
+    pericias: FNM.pericias,
+    resistencias: FNM.resistencias,
+    ataques: FNM.tiposAtaque,
+    tiposDano: FNM.tiposDano
+  };
+  const nomeChave = catalogos[cfg.lista]?.[efeito.chave]?.nome ?? "";
+  // Sem chave, o alvo vale por inteiro: RD geral, todas as jogadas de ataque
+  const alvoNome = nomeChave ? `${cfg.nome} (${nomeChave})` : cfg.nome;
+
+  const partes = [];
+  if (efeito.valor) partes.push(`${efeito.valor > 0 ? "+" : ""}${efeito.valor}`);
+  if (efeito.proficiencia === "treinado") partes.push("Treinado");
+  if (efeito.proficiencia === "mestre") partes.push("Mestre");
+  if (!partes.length) return { texto: "" };
+
+  return { alvo: alvoNome, texto: `${alvoNome}: ${partes.join(" e ")}` };
+}
+
 class BaseItemModel extends foundry.abstract.TypeDataModel {
   static defineSchema() {
     return {
       description: new HTMLField({ required: true, blank: true }),
-      // Ajustes aplicados ao dono enquanto ele possuir o item
+      // Atalho para os cinco ajustes mais comuns, aplicados ao dono enquanto ele
+      // possuir o item. O que não cabe aqui — atributos, perícias, CDs — vai em
+      // `efeitos`; os dois são somados pelo mesmo agregador.
       ajustes: new SchemaField({
         pv: new NumberField({ required: true, integer: true, initial: 0 }),
         pe: new NumberField({ required: true, integer: true, initial: 0 }),
@@ -1523,6 +1712,28 @@ class BaseItemModel extends foundry.abstract.TypeDataModel {
         deslocamento: new NumberField({ required: true, initial: 0 }),
         reducaoDano: new NumberField({ required: true, integer: true, initial: 0 })
       }),
+      /**
+       * Efeitos que o item aplica na ficha do dono. Cada linha aponta um alvo
+       * de FNM.alvosEfeito e, quando o alvo pede, a chave dentro dele: o
+       * atributo, a perícia, a linha de ataque ou o tipo de dano.
+       */
+      efeitos: new ArrayField(
+        new SchemaField({
+          alvo: new StringField({
+            required: true,
+            initial: "defesa",
+            choices: FNM.alvosEfeito.map(a => a.id)
+          }),
+          chave: new StringField({ required: true, blank: true }),
+          valor: new NumberField({ required: true, integer: true, initial: 0 }),
+          // Perícias e resistências podem vir treinadas ou mestres pelo item
+          proficiencia: new StringField({
+            required: true,
+            blank: true,
+            choices: ["", "treinado", "mestre"]
+          })
+        })
+      ),
       // Condições que o item inflige quando é usado (p. 207)
       condicoes: condicoesSchema(),
       // Feitiço focado em condições: não causa dano, alcança um nível acima e
@@ -1545,6 +1756,7 @@ class BaseItemModel extends foundry.abstract.TypeDataModel {
     });
     // Quanto dano em dados as condições custam ao Feitiço (p. 207)
     this.reducaoDadosCondicoes = this.condicoesView.reduce((n, c) => n + c.reducaoDados, 0);
+    this.efeitosView = (this.efeitos ?? []).map(descreverEfeito).filter(e => e.texto);
   }
 }
 

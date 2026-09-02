@@ -112,6 +112,9 @@ const USO = {
   "item-condicoes.html": Object.keys(MODELOS).filter(
     k => !["character", "npc", "invocacao"].includes(k)
   ),
+  "item-efeitos.html": Object.keys(MODELOS).filter(
+    k => !["character", "npc", "invocacao"].includes(k)
+  ),
   "item-sheet.html": Object.keys(MODELOS).filter(
     k => !["character", "npc", "invocacao"].includes(k)
   )

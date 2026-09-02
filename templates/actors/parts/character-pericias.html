@@ -31,6 +31,8 @@
           {{p.nome}}
           {{#if p.exigeTreino}}<i class="fas fa-lock" title="Exige treinamento (p. 284-287)"></i>{{/if}}
           {{#if p.complementar}}<i class="fas fa-asterisk" title="Perícia complementar: opcional na campanha"></i>{{/if}}
+          {{#if p.treinadoPorItem}}<i class="fas fa-suitcase"
+             title="{{#if p.mestrePorItem}}Mestre{{else}}Treinado{{/if}} por um item equipado"></i>{{/if}}
         </a>
         <span class="col-attr">{{p.abrevAtributo}}</span>
         <span class="col-total">{{sinal p.total}}</span>
