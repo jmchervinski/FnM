@@ -364,6 +364,21 @@ FNM.tiposFeitico = ["Dano", "Auxiliar", "Curativo", "Especial", "Passivo"];
 FNM.duracoes = ["Imediato", "Duradouro", "Sustentado", "Concentrado", "Variável"];
 
 /**
+ * Unidades para a duração de um Feitiço Duradouro, que "durará uma quantidade
+ * específica de tempo, seja minutos, rodadas ou outra medida" (p. 203).
+ *
+ * `singular` existe porque a ficha escreve o prazo por extenso: 1 rodada, e não
+ * 1 rodadas.
+ */
+FNM.unidadesDuracao = [
+  { id: "rodadas", nome: "rodadas", singular: "rodada" },
+  { id: "minutos", nome: "minutos", singular: "minuto" },
+  { id: "horas", nome: "horas", singular: "hora" },
+  { id: "dias", nome: "dias", singular: "dia" },
+  { id: "cena", nome: "cenas", singular: "cena" }
+];
+
+/**
  * Tempo de conjuração — as ações que um Feitiço pode consumir (p. 300-304).
  *
  * A "Ação Rápida" não está na hierarquia de ações do livro básico: ela vem da

@@ -1630,6 +1630,129 @@ const npcBase = sys => {
   }
 }
 
+/* -------- Duração com prazo e atributo separado de acerto e dano -------- */
+
+/**
+ * Duas coisas que a ficha precisa deixar a mesa escrever: quantas rodadas um
+ * Feitiço Duradouro dura, e qual atributo a arma usa — no acerto e no dano, que
+ * não precisam ser o mesmo.
+ */
+{
+  const itemPreparado = (Modelo, ajustar = () => {}) => {
+    const sys = padroes(Modelo.defineSchema());
+    ajustar(sys);
+    Object.setPrototypeOf(sys, Modelo.prototype);
+    sys.prepareDerivedData();
+    return sys;
+  };
+
+  /* Um Duradouro sem prazo diz que falta o prazo; com prazo, escreve por extenso */
+  const semPrazo = itemPreparado(M.FeiticoDataModel, sys => {
+    sys.duracao = "Duradouro";
+    sys.duracaoQuantidade = 0;
+  });
+  confere("Duração: Duradouro sem prazo avisa", semPrazo.duracaoLabel, "Duradouro — prazo a definir");
+
+  const tresRodadas = itemPreparado(M.FeiticoDataModel, sys => {
+    sys.duracao = "Duradouro";
+    sys.duracaoQuantidade = 3;
+    sys.duracaoUnidade = "rodadas";
+  });
+  confere("Duração: prazo em rodadas", tresRodadas.duracaoLabel, "Duradouro — 3 rodadas");
+
+  /* Singular: 1 rodada, e não 1 rodadas */
+  const umaRodada = itemPreparado(M.FeiticoDataModel, sys => {
+    sys.duracao = "Duradouro";
+    sys.duracaoQuantidade = 1;
+  });
+  confere("Duração: o singular é respeitado", umaRodada.duracaoLabel, "Duradouro — 1 rodada");
+
+  const dezMinutos = itemPreparado(M.FeiticoDataModel, sys => {
+    sys.duracao = "Duradouro";
+    sys.duracaoQuantidade = 10;
+    sys.duracaoUnidade = "minutos";
+  });
+  confere("Duração: outras unidades", dezMinutos.duracaoLabel, "Duradouro — 10 minutos");
+
+  /* Imediato não ganha aviso de prazo faltando */
+  const imediato = itemPreparado(M.FeiticoDataModel, sys => {
+    sys.duracao = "Imediato";
+  });
+  confere("Duração: Imediato fica só com o tipo", imediato.duracaoLabel, "Imediato");
+
+  /* O livro admite durações misturadas: um prazo em um Sustentado aparece igual */
+  const sustentado = itemPreparado(M.FeiticoDataModel, sys => {
+    sys.duracao = "Sustentado";
+    sys.duracaoQuantidade = 5;
+  });
+  confere("Duração: prazo vale em qualquer tipo", sustentado.duracaoLabel, "Sustentado — 5 rodadas");
+
+  /* A Técnica Marcial usa o mesmo campo */
+  const marcial = itemPreparado(M.TecnicaMarcialDataModel, sys => {
+    sys.duracao = "Duradouro";
+    sys.duracaoQuantidade = 2;
+  });
+  confere("Duração: a Técnica Marcial também tem prazo", marcial.duracaoLabel, "Duradouro — 2 rodadas");
+
+  /* -------- Atributo do acerto e do dano -------- */
+
+  const guerreiro = sys => {
+    sys.detalhes.nivel = 5;
+    sys.atributos.forca.value = 18; // +4
+    sys.atributos.destreza.value = 10; // 0
+    sys.atributos.sabedoria.value = 16; // +3
+    sys.recursos.pv = { value: 60, max: 60, perdidos: 0, ajuste: 40 };
+    sys.recursos.integridade = { value: 60, max: 60, perdidos: 0, ajuste: 0 };
+  };
+  const arma = extra => ({
+    type: "arma",
+    name: "Arma de teste",
+    system: {
+      ...padroes(M.ArmaDataModel.defineSchema()),
+      categoria: "Simples",
+      tipo: "Corpo a Corpo",
+      dano: "1d8",
+      equipada: true,
+      ...extra
+    }
+  });
+  /* O perfil da arma é quem decide o atributo do acerto e o do dano */
+  {
+    globalThis.Actor ??= class {};
+    const { FnmActor } = await import(new URL("../module/documents/actor.mjs", import.meta.url));
+
+    const perfilDaArma = extra => {
+      const ator = Object.create(FnmActor.prototype);
+      ator.system = prepararAtor(M.CharacterDataModel, guerreiro);
+      return ator._perfilArma({ name: "Arma", img: "", system: arma(extra).system });
+    };
+
+    /* Sem nada preenchido, valem as regras: corpo a corpo usa Força */
+    const padrao = perfilDaArma({});
+    confere("Arma: sem escolha, o acerto é pelas regras", padrao.atributos.join(), "forca");
+    confere("Arma: sem escolha, o dano segue o acerto", padrao.atributoDano, "");
+
+    /* Fineza abre a escolha entre Força e Destreza */
+    const comFineza = perfilDaArma({ fineza: true });
+    confere("Arma: Fineza abre as duas opções", comFineza.atributos.join(), "forca,destreza");
+
+    /* Um atributo fixado no acerto fecha a escolha, mesmo com Fineza */
+    const fixada = perfilDaArma({ fineza: true, atributoAtaque: "sabedoria" });
+    confere("Arma: o acerto fixado fecha a escolha", fixada.atributos.join(), "sabedoria");
+    confere("Arma: e a ficha sabe que está fixado", fixada.atributoAtaqueFixo, true);
+
+    /* Acertar com Força e causar dano com Sabedoria */
+    const mista = perfilDaArma({ atributoAtaque: "forca", atributoDano: "sabedoria" });
+    confere("Arma: o acerto usa o atributo do acerto", mista.atributos.join(), "forca");
+    confere("Arma: e o dano usa o outro", mista.atributoDano, "sabedoria");
+
+    /* O mesmo atributo nos dois lados também é um caso válido */
+    const sabedoria = perfilDaArma({ atributoAtaque: "sabedoria", atributoDano: "sabedoria" });
+    confere("Arma: Sabedoria nos dois lados", sabedoria.atributos.join(), "sabedoria");
+    confere("Arma: dano por Sabedoria", sabedoria.atributoDano, "sabedoria");
+  }
+}
+
 if (problemas) {
   console.log(`\n${problemas} problema(s) de automação encontrado(s).`);
   process.exit(1);

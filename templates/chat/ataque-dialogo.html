@@ -114,6 +114,9 @@
   </div>
 
   <p class="fnm-dica">Crítico com {{perfil.critico}} ou mais no d20. O acerto garantido vale só no
-    20 natural (p. 307).</p>
+    20 natural (p. 307).
+    {{#if atributoDanoNome}} O dano desta arma usa <b>{{atributoDanoNome}}</b>, e não o atributo do
+    acerto.{{/if}}
+    {{#if perfil.atributoAtaqueFixo}} O acerto está fixado no atributo escolhido na ficha da arma.{{/if}}</p>
 
 </div>

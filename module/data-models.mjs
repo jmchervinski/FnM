@@ -1698,6 +1698,25 @@ function descreverEfeito(efeito) {
   return { alvo: alvoNome, texto: `${alvoNome}: ${partes.join(" e ")}` };
 }
 
+/**
+ * A duração de um Feitiço ou Técnica Marcial por extenso.
+ *
+ * O tipo diz a natureza do prazo (Imediato, Duradouro, Sustentado…) e o prazo
+ * em si só existe para quem tem um: o livro define Duradouro como "uma
+ * quantidade específica de tempo" (p. 203) e deixa o resto sem número. Quando a
+ * mesa preenche um prazo em outro tipo, ele aparece do mesmo jeito — o livro
+ * admite durações misturadas.
+ */
+function rotuloDuracaoItem(tipo, quantidade, unidade) {
+  if (!quantidade) {
+    // Um Duradouro sem prazo é um item pela metade, e a ficha diz isso
+    return tipo === "Duradouro" ? `${tipo} — prazo a definir` : tipo;
+  }
+  const cfg = FNM.unidadesDuracao.find(u => u.id === unidade) ?? FNM.unidadesDuracao[0];
+  const nome = quantidade === 1 ? cfg.singular : cfg.nome;
+  return `${tipo} — ${quantidade} ${nome}`;
+}
+
 class BaseItemModel extends foundry.abstract.TypeDataModel {
   static defineSchema() {
     return {
@@ -1963,6 +1982,13 @@ export class FeiticoDataModel extends BaseItemModel {
         tamanho: new NumberField({ required: true, min: 0, initial: 0 })
       }),
       duracao: new StringField({ required: true, initial: "Imediato", choices: FNM.duracoes }),
+      // Quanto tempo um Duradouro dura: 0 deixa o prazo em aberto (p. 203)
+      duracaoQuantidade: new NumberField({ required: true, integer: true, min: 0, initial: 0 }),
+      duracaoUnidade: new StringField({
+        required: true,
+        initial: "rodadas",
+        choices: FNM.unidadesDuracao.map(u => u.id)
+      }),
       // Como o Feitiço é resolvido: teste de ataque, TR do alvo, ou nenhum
       resolucao: new StringField({
         required: true,
@@ -2002,6 +2028,11 @@ export class FeiticoDataModel extends BaseItemModel {
     const comReducao = base - this.reducaoCusto;
     this.custoEfetivo = this.nivel === "0" ? Math.max(0, comReducao) : Math.max(1, comReducao);
     this.nivelLabel = cfg.nome;
+    this.duracaoLabel = rotuloDuracaoItem(
+      this.duracao,
+      this.duracaoQuantidade,
+      this.duracaoUnidade
+    );
     this.alcancePadrao = cfg.alcance;
     this.danoPadrao =
       this.alvo === "Área"
@@ -2039,6 +2070,13 @@ export class TecnicaMarcialDataModel extends BaseItemModel {
         tamanho: new NumberField({ required: true, min: 0, initial: 0 })
       }),
       duracao: new StringField({ required: true, initial: "Imediato", choices: FNM.duracoes }),
+      // Quanto tempo um Duradouro dura: 0 deixa o prazo em aberto (p. 203)
+      duracaoQuantidade: new NumberField({ required: true, integer: true, min: 0, initial: 0 }),
+      duracaoUnidade: new StringField({
+        required: true,
+        initial: "rodadas",
+        choices: FNM.unidadesDuracao.map(u => u.id)
+      }),
       resolucao: new StringField({
         required: true,
         initial: "ataque",
@@ -2077,6 +2115,11 @@ export class TecnicaMarcialDataModel extends BaseItemModel {
       FNM.niveisTecnicaMarcial.find(n => n.id === this.nivel) ?? FNM.niveisTecnicaMarcial[0];
     this.custoEfetivo = this.custoEstamina >= 0 ? this.custoEstamina : cfg.custo;
     this.nivelLabel = cfg.nome;
+    this.duracaoLabel = rotuloDuracaoItem(
+      this.duracao,
+      this.duracaoQuantidade,
+      this.duracaoUnidade
+    );
 
     // Alcance, dano e área padrão vêm da tabela de Feitiços do mesmo nível: é
     // o mesmo capítulo de criação (p. 248)
@@ -2149,6 +2192,23 @@ export class ArmaDataModel extends BaseItemModel {
       encantamentos: new StringField({ required: true, blank: true }),
       // Fineza permite trocar Força por Destreza no ataque e no dano (p. 279)
       fineza: new BooleanField({ required: true, initial: false }),
+      /**
+       * Atributo fixado para o acerto e para o dano, quando a arma foge do
+       * padrão. Em branco, valem as regras do livro: Destreza a distância,
+       * Força no corpo a corpo, e a escolha entre as duas com Fineza ou
+       * arremesso. Os dois são independentes — dá para acertar com Força e
+       * causar dano com Sabedoria.
+       */
+      atributoAtaque: new StringField({
+        required: true,
+        blank: true,
+        choices: ["", ...Object.keys(FNM.atributos)]
+      }),
+      atributoDano: new StringField({
+        required: true,
+        blank: true,
+        choices: ["", ...Object.keys(FNM.atributos)]
+      }),
       treinado: new BooleanField({ required: true, initial: true }),
       equipada: new BooleanField({ required: true, initial: false }),
       bonusAtaque: new NumberField({ required: true, integer: true, initial: 0 }),

@@ -439,12 +439,16 @@ export class FnmActor extends Actor {
     const arremesso = sys.tipo === "De Arremesso";
 
     // Armas a distância usam Destreza; as de arremesso podem escolher, e no
-    // corpo a corpo a escolha só existe com o traço Fineza (p. 279 e 305)
-    const atributos = distancia
-      ? ["destreza"]
-      : arremesso || sys.fineza
-        ? ["forca", "destreza"]
-        : ["forca"];
+    // corpo a corpo a escolha só existe com o traço Fineza (p. 279 e 305).
+    // Uma arma que fixe o atributo de acerto passa por cima disso e não abre
+    // escolha nenhuma no diálogo.
+    const atributos = sys.atributoAtaque
+      ? [sys.atributoAtaque]
+      : distancia
+        ? ["destreza"]
+        : arremesso || sys.fineza
+          ? ["forca", "destreza"]
+          : ["forca"];
 
     const grupo = FNM.gruposArma[sys.grupo];
     return {
@@ -464,6 +468,9 @@ export class FnmActor extends Actor {
       danoVersatil: sys.danoVersatil,
       tipoDano: sys.tipoDano,
       bonusDano: sys.danoTotal ?? sys.bonusDano,
+      // Em branco, o dano segue o atributo usado no acerto (p. 306)
+      atributoDano: sys.atributoDano,
+      atributoAtaqueFixo: !!sys.atributoAtaque,
       grau: sys.grau,
       grupo: sys.grupo,
       alcance: sys.alcance,
@@ -748,6 +755,12 @@ export class FnmActor extends Actor {
       "systems/fnm/templates/chat/ataque-dialogo.html",
       {
         perfil,
+        // Quando a arma fixa um atributo só para o dano, o diálogo avisa: o
+        // jogador está escolhendo o do acerto, e o do dano não muda com ele
+        atributoDanoNome:
+          perfil.atributoDano && perfil.atributoDano !== padrao
+            ? FNM.atributos[perfil.atributoDano]?.nome
+            : "",
         // A faixa de alcance é regra de arma (p. 305); Feitiço tem alcance próprio
         distancia: distanciaOuArremesso,
         escolheAtributo: perfil.atributos.length > 1,
@@ -972,7 +985,8 @@ export class FnmActor extends Actor {
    */
   async _rolarDano(perfil, { critico = false, versatil = false, atributo = null } = {}) {
     const s = this.system;
-    const chave = atributo ?? this._melhorAtributo(perfil.atributos);
+    // A arma pode fixar um atributo só para o dano, diferente do que acertou
+    const chave = perfil.atributoDano || atributo || this._melhorAtributo(perfil.atributos);
     // Só o dano de arma soma o modificador do atributo que a maneja (p. 306);
     // o dano de um Feitiço é o da tabela do nível dele (p. 205)
     // O Grau Especial de uma Invocação conta o modificador dobrado (p. 272)
@@ -1053,7 +1067,7 @@ export class FnmActor extends Actor {
       `<b>Nível:</b> ${sys.nivelLabel} · <b>Tipo:</b> ${sys.tipo} · <b>Conjuração:</b> ${sys.conjuracao}`,
       `<b>Alcance:</b> ${sys.alcance || `${sys.alcancePadrao} metros`} · <b>Alvo:</b> ${sys.alvo}` +
         (sys.area.formato ? ` · <b>Área:</b> ${sys.area.formato} de ${sys.area.tamanho} m` : ""),
-      `<b>Duração:</b> ${sys.duracao}` +
+      `<b>Duração:</b> ${sys.duracaoLabel}` +
         (sys.duracao === "Sustentado"
           ? ` (${custoSustento(sys.nivel)} PE por rodada para sustentar)`
           : "")
@@ -1311,7 +1325,7 @@ export class FnmActor extends Actor {
     }
 
     const linhas = [
-      `<b>${sys.nivelLabel}</b> · <b>Execução:</b> ${sys.execucao} · <b>Duração:</b> ${sys.duracao}`,
+      `<b>${sys.nivelLabel}</b> · <b>Execução:</b> ${sys.execucao} · <b>Duração:</b> ${sys.duracaoLabel}`,
       `<b>Alcance:</b> ${sys.alcance || `${sys.alcancePadrao} metros`} · <b>Alvo:</b> ${sys.alvo}` +
         (sys.area.formato ? ` · <b>Área:</b> ${sys.area.formato} de ${sys.area.tamanho} m` : "")
     ];

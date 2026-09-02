@@ -103,7 +103,7 @@ export class FnmItem extends Item {
           linhas.push(`<b>Área:</b> ${sys.area.formato} de ${sys.area.tamanho} metros`);
         }
         linhas.push(
-          `<b>Duração:</b> ${sys.duracao}` +
+          `<b>Duração:</b> ${sys.duracaoLabel}` +
             (sys.duracao === "Sustentado" ? ` (${custoSustento(sys.nivel)} PE/rodada)` : "")
         );
         if (sys.resolucao === "resistencia") {
@@ -131,6 +131,13 @@ export class FnmItem extends Item {
             `${tipo ? ` ${tipo}` : ""} · <b>Crítico:</b> ${sys.critico}`
         );
         if (sys.propriedades) linhas.push(`<b>Propriedades:</b> ${sys.propriedades}`);
+        // Só aparece quando a arma foge do padrão de atributo do livro
+        if (sys.atributoAtaque || sys.atributoDano) {
+          const nome = chave => FNM.atributos[chave]?.nome ?? "";
+          const acerto = sys.atributoAtaque ? nome(sys.atributoAtaque) : "pelas regras";
+          const dano = sys.atributoDano ? nome(sys.atributoDano) : "o mesmo do acerto";
+          linhas.push(`<b>Atributos:</b> acerto por ${acerto} · dano por ${dano}`);
+        }
         if (sys.alcance) linhas.push(`<b>Alcance:</b> ${sys.alcance}`);
         linhas.push(`<b>Espaços:</b> ${sys.espacos} · <b>Custo:</b> ${sys.custo}`);
         linhas.push(...linhasFerramenta(sys));
@@ -164,7 +171,7 @@ export class FnmItem extends Item {
           `<b>Alcance:</b> ${sys.alcance || `${sys.alcancePadrao} metros`} · <b>Alvo:</b> ${sys.alvo}` +
             (sys.area.formato ? ` · <b>Área:</b> ${sys.area.formato} de ${sys.area.tamanho} m` : "")
         );
-        linhas.push(`<b>Duração:</b> ${sys.duracao}`);
+        linhas.push(`<b>Duração:</b> ${sys.duracaoLabel}`);
         if (sys.resolucao === "resistencia") {
           const tr = FNM.resistencias[sys.resistencia]?.nome ?? "a definir";
           const cd = this.actor?.system?.cdEspecializacao;

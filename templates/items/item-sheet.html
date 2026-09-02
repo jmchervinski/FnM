@@ -239,6 +239,16 @@
           {{/each}}
         </select>
       </label>
+      <label title="Quanto tempo um Duradouro dura. Deixe em 0 para não fixar prazo (p. 203)">Prazo
+        <input type="number" name="system.duracaoQuantidade" value="{{system.duracaoQuantidade}}" min="0" />
+      </label>
+      <label>Unidade do prazo
+        <select name="system.duracaoUnidade">
+          {{#each config.unidadesDuracao as |u|}}
+          <option value="{{u.id}}" {{#if (eq u.id ../system.duracaoUnidade)}}selected{{/if}}>{{u.nome}}</option>
+          {{/each}}
+        </select>
+      </label>
       <label>Alcance
         <input type="text" name="system.alcance" value="{{system.alcance}}" placeholder="{{system.alcancePadrao}} metros" />
       </label>
@@ -369,6 +379,24 @@
       <label>Quantidade <input type="number" name="system.quantidade" value="{{system.quantidade}}" min="0" /></label>
       <label>Peso (kg) <input type="number" name="system.peso" value="{{system.peso}}" min="0" step="0.1" /></label>
       <label>Preço <input type="text" name="system.preco" value="{{system.preco}}" /></label>
+      <label title="Em branco, valem as regras do livro: Destreza a distância, Força no corpo a corpo, e a escolha entre as duas com Fineza ou arremesso (p. 279 e 305)">
+        Atributo do acerto
+        <select name="system.atributoAtaque">
+          <option value="">Automático (pelas regras)</option>
+          {{#each atributos as |a|}}
+          <option value="{{a.id}}" {{#if (eq a.id ../system.atributoAtaque)}}selected{{/if}}>{{a.nome}}</option>
+          {{/each}}
+        </select>
+      </label>
+      <label title="Em branco, o dano segue o mesmo atributo do acerto (p. 306)">
+        Atributo do dano
+        <select name="system.atributoDano">
+          <option value="">Mesmo do acerto</option>
+          {{#each atributos as |a|}}
+          <option value="{{a.id}}" {{#if (eq a.id ../system.atributoDano)}}selected{{/if}}>{{a.nome}}</option>
+          {{/each}}
+        </select>
+      </label>
       <label class="largo">Propriedades
         <input type="text" name="system.propriedades" value="{{system.propriedades}}"
                placeholder="Fineza, leve, marcial, versátil…" />
@@ -500,6 +528,16 @@
         <select name="system.duracao">
           {{#each config.duracoes as |d|}}
           <option value="{{d}}" {{#if (eq d ../system.duracao)}}selected{{/if}}>{{d}}</option>
+          {{/each}}
+        </select>
+      </label>
+      <label title="Quanto tempo um Duradouro dura. Deixe em 0 para não fixar prazo (p. 203)">Prazo
+        <input type="number" name="system.duracaoQuantidade" value="{{system.duracaoQuantidade}}" min="0" />
+      </label>
+      <label>Unidade do prazo
+        <select name="system.duracaoUnidade">
+          {{#each config.unidadesDuracao as |u|}}
+          <option value="{{u.id}}" {{#if (eq u.id ../system.duracaoUnidade)}}selected{{/if}}>{{u.nome}}</option>
           {{/each}}
         </select>
       </label>

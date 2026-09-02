@@ -93,6 +93,12 @@ Tudo abaixo é calculado ou executado pelo sistema, com a página do livro anota
 - **A Defesa do alvo é do Narrador.** Com um alvo marcado, o jogador rola sem ver o número — o
   diálogo esconde o campo e a carta mostra só o veredito. O Narrador vê o valor nos dois lugares
 - **Custo de Feitiço** derivado do nível, com Marca Registrada e afins reduzindo até o mínimo de 1
+- **Prazo da duração**: um Feitiço ou Técnica Marcial Duradouro diz por quantas rodadas (ou
+  minutos, horas, dias, cenas) ele dura, e a ficha e as cartas escrevem isso por extenso. Um
+  Duradouro sem prazo preenchido avisa que falta o prazo
+- **Atributo do acerto e do dano de uma arma**, escolhidos separadamente: dá para acertar com Força
+  e causar dano com Sabedoria, ou usar Sabedoria nos dois. Em branco, valem as regras do livro —
+  Destreza a distância, Força no corpo a corpo, e a escolha entre as duas com Fineza ou arremesso
 - **Integridade da Alma** e seus quatro **Estados** (penalidade em rolagens, custo extra e condições)
 - **Dano na Alma**: ignora RD e PV temporários, reduz a vida máxima junto da atual
 - **Portas da Morte** completas, incluindo dano massivo, morte instantânea e aviso de Ferimento Complexo
