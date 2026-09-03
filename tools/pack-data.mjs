@@ -1884,6 +1884,22 @@ export const MACRO_PACKS = {
   "fnm-macros": {
     macros: [
       {
+        _id: id("macro-reparar-efeitos"),
+        name: "Reparar Efeitos dos Itens",
+        img: "icons/svg/upgrade.svg",
+        command: `// Devolve aos itens do compêndio os efeitos que eles ganharam em versões
+// novas do sistema. Um item arrastado é uma cópia e não volta a consultar a
+// origem, então quem montou a ficha antes fica sem o bônus.
+// Só preenche o que está VAZIO: item editado à mão não é tocado.
+if (!game.user.isGM) return ui.notifications.warn("Só o Narrador pode rodar o reparo.");
+const reparados = await game.fnm.migracoes.repararEfeitos();
+ui.notifications.info(
+  reparados
+    ? \`\${reparados} item(ns) receberam os efeitos que faltavam.\`
+    : "Nenhum item precisava de reparo."
+);`
+      },
+      {
         _id: id("macro-teste-rapido"),
         name: "Teste Rápido (d20)",
         img: "icons/svg/d20.svg",

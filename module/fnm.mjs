@@ -8,7 +8,7 @@
 import { FnmActor, invocacoesDe } from "./documents/actor.mjs";
 import { FnmItem } from "./documents/item.mjs";
 import { registrarChat } from "./chat.mjs";
-import { migrarMundo, registrarMigracoes } from "./migracoes.mjs";
+import { migrarMundo, registrarMigracoes, repararEfeitosDeItens } from "./migracoes.mjs";
 import {
   agregarCondicoes,
   aplicarCondicao,
@@ -71,6 +71,8 @@ Hooks.once("init", async function () {
     config: FNM,
     // Importação de fichas de inimigo de construtores externos, também para macros
     importar: { lerArquivo, mapearInimigo, aplicarNoAtor, importarDeArquivo },
+    // Reparo dos efeitos de item, para a macro do compêndio chamar
+    migracoes: { repararEfeitos: repararEfeitosDeItens },
     // Condições, para macros que apliquem ou consultem efeitos na mesa
     condicoes: {
       aplicar: aplicarCondicao,

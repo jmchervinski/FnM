@@ -1815,6 +1815,35 @@ const npcBase = sys => {
   confere("Guardado: acessório com efeito avisa", anelGuardado.system.equipavelComEfeito, true);
   confere("Guardado: consumível não avisa", remedio.system.equipavelComEfeito, false);
 
+  /* Quem o reparo escolhe: só item de compêndio com a lista de efeitos vazia */
+  {
+    globalThis.game ??= {};
+    const { itensParaReparar } = await import(
+      new URL("../module/migracoes.mjs", import.meta.url)
+    );
+    const doMundo = [
+      { type: "equipamento", name: "Anéis do Conhecimento", system: { efeitos: [] } },
+      { type: "equipamento", name: "Chaveiro Canalizador", system: { efeitos: [] } },
+      // Já tem efeito: veio de um compêndio novo, ou foi editado à mão
+      {
+        type: "equipamento",
+        name: "Bracelete da Força",
+        system: { efeitos: [{ alvo: "atributo", chave: "forca", valor: 2 }] }
+      },
+      // Não está na curadoria: o livro não dá número a ele
+      { type: "equipamento", name: "Faixa de Foco", system: { efeitos: [] } },
+      // Nem é equipamento
+      { type: "arma", name: "Anéis do Conhecimento", system: { efeitos: [] } }
+    ];
+    const alvos = itensParaReparar(doMundo).map(i => i.name);
+    confere(
+      "Reparo: escolhe só o que está vazio e está na curadoria",
+      alvos.join(),
+      "Anéis do Conhecimento,Chaveiro Canalizador"
+    );
+    confere("Reparo: item sem efeitos declarados não quebra", itensParaReparar([{ type: "equipamento", name: "X" }]).length, 0);
+  }
+
   /* A curadoria do livro é a mesma que o compêndio usa e que o reparo aplica */
   confere(
     "Reparo: a curadoria conhece os Anéis do Conhecimento",

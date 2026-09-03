@@ -115,7 +115,8 @@ Tudo abaixo é calculado ou executado pelo sistema, com a página do livro anota
   consultar a origem, então quem montou a ficha antes dos efeitos existirem ficava com um acessório
   sem bônus nenhum. Na primeira vez que o Narrador entra depois de atualizar, o sistema preenche os
   efeitos que faltam — só onde a lista está vazia e só em itens cujo nome bate com a curadoria do
-  livro, para nunca sobrescrever o que foi editado à mão
+  livro, para nunca sobrescrever o que foi editado à mão. A macro **Reparar Efeitos dos Itens**
+  roda o mesmo reparo quando o Narrador quiser, sem depender de trocar de versão
 - **Efeitos de item** que a ficha soma sozinha: bônus em atributo (que pode passar do limite
   normal, até 30, e recalcula tudo que depende dele), em perícia, em Teste de Resistência, nas
   Jogadas de Ataque, na Redução de Dano por tipo e nas CDs — além de treinamento concedido pelo

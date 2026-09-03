@@ -14,35 +14,55 @@ import { FNM, linhaDeEfeito } from "./config.mjs";
 
 const CHAVE_VERSAO = "ultimaVersaoMigrada";
 
-/** Itens que ganhariam efeitos do reparo, dentro de um dono qualquer. */
-function itensParaReparar(colecao) {
-  return colecao.filter(
+/**
+ * Itens de uma coleção que ganhariam efeitos do reparo.
+ *
+ * Exportada porque é a parte testável: escolher os alvos é regra, gravar é
+ * banco de dados.
+ */
+export function itensParaReparar(itens) {
+  return [...itens].filter(
     item =>
       item.type === "equipamento" &&
-      (item.system.efeitos ?? []).length === 0 &&
+      (item.system?.efeitos ?? []).length === 0 &&
       Array.isArray(FNM.efeitosPorItem[item.name])
   );
 }
 
-/** Aplica a curadoria do livro nos itens que estão sem efeito nenhum. */
+/** A atualização que devolve a um item os efeitos que o livro dá a ele. */
+function atualizacaoDe(item) {
+  return {
+    _id: item.id,
+    "system.efeitos": FNM.efeitosPorItem[item.name].map(linhaDeEfeito)
+  };
+}
+
+/**
+ * Aplica a curadoria do livro nos itens que estão sem efeito nenhum, tanto na
+ * barra lateral quanto dentro de cada ficha.
+ *
+ * Item de ator e item de mundo são gravados por caminhos DIFERENTES: um item
+ * embutido só se atualiza pelo ator que o carrega. A primeira versão deste
+ * reparo usou `colecao.parent`, que em uma EmbeddedCollection não existe — o
+ * dono é `.model` —, então a gravação ia para lugar nenhum e o reparo ainda
+ * assim dizia que tinha funcionado. Por isso a contagem agora vem do que o
+ * Foundry devolve, e não do que era para ter sido feito.
+ */
 export async function repararEfeitosDeItens() {
   let reparados = 0;
 
-  const aplicar = async colecao => {
-    const alvos = itensParaReparar(colecao);
-    if (!alvos.length) return;
-    await Item.implementation.updateDocuments(
-      alvos.map(item => ({
-        _id: item.id,
-        "system.efeitos": FNM.efeitosPorItem[item.name].map(linhaDeEfeito)
-      })),
-      { parent: colecao === game.items ? null : colecao.parent }
-    );
-    reparados += alvos.length;
-  };
+  const doMundo = itensParaReparar(game.items);
+  if (doMundo.length) {
+    const feitos = await Item.implementation.updateDocuments(doMundo.map(atualizacaoDe));
+    reparados += feitos.length;
+  }
 
-  await aplicar(game.items);
-  for (const ator of game.actors) await aplicar(ator.items);
+  for (const ator of game.actors) {
+    const daFicha = itensParaReparar(ator.items);
+    if (!daFicha.length) continue;
+    const feitos = await ator.updateEmbeddedDocuments("Item", daFicha.map(atualizacaoDe));
+    reparados += feitos.length;
+  }
 
   return reparados;
 }
@@ -55,14 +75,13 @@ export async function migrarMundo() {
   if (!game.user.isGM) return;
 
   const versaoAtual = game.system.version;
-  const ultima = game.settings.get("fnm", CHAVE_VERSAO);
-  if (ultima === versaoAtual) return;
+  if (game.settings.get("fnm", CHAVE_VERSAO) === versaoAtual) return;
 
   try {
     const reparados = await repararEfeitosDeItens();
     if (reparados) {
       ui.notifications.info(
-        `F&M: ${reparados} item(ns) do compêndio receberam os efeitos que faltavam ` +
+        `F&M: ${reparados} item(ns) receberam os efeitos que faltavam ` +
           "(bônus de atributo, perícia e CD)."
       );
     }
