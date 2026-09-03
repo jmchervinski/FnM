@@ -8,6 +8,7 @@
 import { FnmActor, invocacoesDe } from "./documents/actor.mjs";
 import { FnmItem } from "./documents/item.mjs";
 import { registrarChat } from "./chat.mjs";
+import { migrarMundo, registrarMigracoes } from "./migracoes.mjs";
 import {
   agregarCondicoes,
   aplicarCondicao,
@@ -155,6 +156,7 @@ Hooks.once("init", async function () {
 
   registrarHelpers();
   registrarChat();
+  registrarMigracoes();
   registrarCondicoes();
   await preloadHandlebarsTemplates();
 });
@@ -188,6 +190,7 @@ async function preloadHandlebarsTemplates() {
     "systems/fnm/templates/actors/parts/actor-atributos.html",
     "systems/fnm/templates/actors/parts/actor-condicoes.html",
     "systems/fnm/templates/items/item-condicoes.html",
+    "systems/fnm/templates/items/item-efeitos.html",
     "systems/fnm/templates/actors/parts/actor-footer.html",
     "systems/fnm/templates/actors/parts/linha-uso.html",
     "systems/fnm/templates/chat/ataque-dialogo.html",
@@ -198,6 +201,12 @@ async function preloadHandlebarsTemplates() {
   ];
   return foundry.applications.handlebars.loadTemplates(paths);
 }
+
+/* -------------------------------------------- */
+/*  Reparos de mundo entre versões              */
+/* -------------------------------------------- */
+
+Hooks.once("ready", () => migrarMundo());
 
 /* -------------------------------------------- */
 /*  Criação de atores: valores iniciais úteis   */

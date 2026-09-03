@@ -1802,3 +1802,16 @@
   color: var(--fnm-azul);
   line-height: 1;
 }
+
+/* Item que muda números mas está guardado: os bônus dele não entram na ficha */
+.fnm-sheet .item-guardado {
+  display: inline-block;
+  margin-right: 0.25rem;
+  padding: 0 0.25rem;
+  border-radius: 2px;
+  background: rgba(163, 22, 43, 0.15);
+  color: var(--fnm-sangue);
+  font-size: 0.62rem;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}

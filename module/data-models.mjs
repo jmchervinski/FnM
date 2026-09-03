@@ -222,6 +222,9 @@ class BaseActorModel extends foundry.abstract.TypeDataModel {
   /** Um item vestível só vale enquanto estiver equipado. */
   static _equipado(item) {
     if (item.type !== "arma" && item.type !== "equipamento") return true;
+    // Consumível não é vestido: mesmo com a marca ligada por engano ou por
+    // uma ficha antiga, ele não concede bônus passivo
+    if (item.system.consumivel === true) return false;
     return item.system.equipada === true || item.system.equipado === true;
   }
 
@@ -1776,6 +1779,12 @@ class BaseItemModel extends foundry.abstract.TypeDataModel {
     // Quanto dano em dados as condições custam ao Feitiço (p. 207)
     this.reducaoDadosCondicoes = this.condicoesView.reduce((n, c) => n + c.reducaoDados, 0);
     this.efeitosView = (this.efeitos ?? []).map(descreverEfeito).filter(e => e.texto);
+    // A ficha usa isto para avisar quando um item que muda números está
+    // guardado: os bônus só valem equipado, e a linha mostra os valores do
+    // item de qualquer jeito
+    this.temEfeitoMecanico =
+      this.efeitosView.length > 0 ||
+      Object.values(this.ajustes ?? {}).some(v => v);
   }
 }
 
@@ -2294,6 +2303,15 @@ export class EquipamentoDataModel extends BaseItemModel {
     const grau = FNM.grausFerramenta[this.grau];
     this.rdFerramenta = this.tipo === "Escudo" ? (grau?.rdEscudo ?? 0) : 0;
     this.rdTotal = Math.max(this.reducaoDano, this.rdFerramenta);
+    // Um consumível é gasto no uso, não vestido: fármacos, misturas, talismãs e
+    // espirituais não têm o que equipar, e por isso não concedem bônus passivo
+    this.equipavel = !this.consumivel;
+    // Uniforme e escudo mexem na ficha pelos campos próprios, além dos efeitos
+    this.temEfeitoMecanico =
+      this.temEfeitoMecanico || !!this.defesa || !!this.rdTotal || !!this.penalidade;
+    // O aviso de "guardado" só vale para quem dá para equipar E muda números,
+    // e por isso vem depois do total de temEfeitoMecanico estar fechado
+    this.equipavelComEfeito = this.equipavel && this.temEfeitoMecanico;
     const chave = this.tipo === "Escudo" ? "escudo" : "uniforme";
     this.encantamentosPermitidos = grau?.encantamentos[chave] ?? 0;
     this.habilidadeUnica = grau?.unica === true;

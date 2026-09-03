@@ -31,7 +31,7 @@
           {{#each ../chavesEfeito as |grupo|}}
           <optgroup label="{{grupo.nome}}">
             {{#each grupo.itens as |c|}}
-            <option value="{{c.id}}" {{#if (eq c.id ../../linha.chave)}}selected{{/if}}>{{c.nome}}</option>
+            <option value="{{c.id}}" {{#if (eq c.id linha.chave)}}selected{{/if}}>{{c.nome}}</option>
             {{/each}}
           </optgroup>
           {{/each}}

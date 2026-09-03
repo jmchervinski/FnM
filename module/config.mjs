@@ -1027,6 +1027,55 @@ FNM.alvosEfeito = [
   { id: "cdTecnica", nome: "CD de Técnica" }
 ];
 
+/**
+ * O que cada item do livro faz na ficha, em número.
+ *
+ * O livro descreve os benefícios em prosa, e só uma leitura humana transforma
+ * "os anéis aumentam o valor de Sabedoria do usuário em 2" em um efeito que a
+ * ficha soma sozinha. Por isso esta tabela é escrita à mão e cobre só o que é
+ * *sempre ativo e numérico*: bônus fixos de atributo, perícia, PV e CD.
+ *
+ * Ficam de fora, de propósito, e continuam valendo pelo texto do item:
+ *
+ *  - o que depende de uma escolha na hora ("treinado em uma perícia à sua
+ *    escolha", da Pulseira Magistral) — o jogador acrescenta a linha na ficha
+ *    do item dizendo qual perícia;
+ *  - o que é gatilho ou evento (Chaveiro Absorsor, Laço da Vida);
+ *  - o que é consumido em um uso (fármacos, talismãs, misturas).
+ *
+ * A tabela alimenta o compêndio na hora do build e o reparo de mundos criados
+ * antes de os efeitos existirem — as duas coisas leem daqui.
+ */
+FNM.efeitosPorItem = {
+  // Itens Especiais de custo 1
+  "Chaveiro Canalizador": [{ alvo: "cdAmaldicoada", valor: 1 }],
+  // Custo 2
+  "Amuleto do Vislumbre": [{ alvo: "pericia", chave: "percepcao", valor: 2 }],
+  "Bracelete do Vigor": [{ alvo: "pv", valor: 10 }],
+  // Custo 3
+  "Anéis do Conhecimento": [{ alvo: "atributo", chave: "sabedoria", valor: 2 }],
+  "Bracelete da Força": [{ alvo: "atributo", chave: "forca", valor: 2 }],
+  "Cinturão do Inabalável": [{ alvo: "atributo", chave: "constituicao", valor: 2 }],
+  "Faixas Céleres": [{ alvo: "atributo", chave: "destreza", valor: 2 }],
+  "Ombreiras do Vigor Superior": [{ alvo: "pv", valor: 20 }],
+  "Ornamento Fascinante": [{ alvo: "atributo", chave: "presenca", valor: 2 }],
+  "Pingente do Intelecto": [{ alvo: "atributo", chave: "inteligencia", valor: 2 }],
+  // Uniformes com benefício além da Defesa, que já tem campo próprio
+  "Uniforme Sob Medida": [
+    { alvo: "pericia", chave: "acrobacia", valor: 2 },
+    { alvo: "pericia", chave: "furtividade", valor: 2 }
+  ]
+};
+
+/** Completa uma linha de efeito com os campos que o schema espera. */
+export const linhaDeEfeito = efeito => ({
+  alvo: "defesa",
+  chave: "",
+  valor: 0,
+  proficiencia: "",
+  ...efeito
+});
+
 /** Um atributo pode passar do limite normal por item, até 30 (p. 147-148). */
 FNM.maximoAtributoPorItem = 30;
 

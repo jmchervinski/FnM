@@ -102,6 +102,9 @@
         <img class="item-img" src="{{item.img}}" width="24" height="24" />
         <a class="item-nome" data-action="itemExpand">{{item.name}}</a>
         <span class="item-tag">
+          {{#unless item.system.equipada}}{{#if item.system.temEfeitoMecanico}}
+          <b class="item-guardado" title="Os bônus deste item só entram na ficha enquanto ele estiver equipado">guardado</b>
+          {{/if}}{{/unless}}
           {{item.system.categoria}} · {{item.system.tipo}}
           {{#if item.system.dano}} · {{item.system.dano}}{{/if}}
           {{#if item.system.grau}} · {{item.system.grau}} Grau (+{{item.system.bonusFerramenta}}){{/if}}
@@ -123,6 +126,9 @@
         <img class="item-img" src="{{item.img}}" width="24" height="24" />
         <a class="item-nome" data-action="itemExpand">{{item.name}}</a>
         <span class="item-tag">
+          {{#unless item.system.equipado}}{{#if item.system.equipavelComEfeito}}
+          <b class="item-guardado" title="Os bônus deste item só entram na ficha enquanto ele estiver equipado">guardado</b>
+          {{/if}}{{/unless}}
           {{item.system.tipo}}{{#if item.system.categoria}} · {{item.system.categoria}}{{/if}}
           {{#if item.system.grau}} · {{item.system.grau}} Grau{{/if}}
           {{#if item.system.defesa}} · Defesa +{{item.system.defesa}}{{/if}}
@@ -134,7 +140,9 @@
           {{#if item.system.preco}} · {{item.system.preco}}{{/if}}
         </span>
         <div class="item-controls">
+          {{#if item.system.equipavel}}
           <a data-action="itemToggle" title="Equipar/desequipar"><i class="fas fa-suitcase"></i></a>
+          {{/if}}
           <a data-action="itemChat"><i class="fas fa-comment"></i></a>
           <a data-action="itemEdit"><i class="fas fa-edit"></i></a>
           <a data-action="itemDelete"><i class="fas fa-trash"></i></a>

@@ -109,6 +109,13 @@ Tudo abaixo é calculado ou executado pelo sistema, com a página do livro anota
   penalidade deles — cumulativa entre os dois — pesa só nas perícias de Destreza
 - **Ferramentas Amaldiçoadas**: o grau da ferramenta define o bônus de dano da arma, a RD do
   escudo e quantos Encantamentos ela acumula
+- **Consumíveis não são equipáveis**: fármacos, misturas, talismãs e espirituais são gastos no
+  uso, então não têm botão de equipar nem concedem bônus passivo
+- **Reparo de mundo entre versões**: um item arrastado do compêndio é uma cópia e não volta a
+  consultar a origem, então quem montou a ficha antes dos efeitos existirem ficava com um acessório
+  sem bônus nenhum. Na primeira vez que o Narrador entra depois de atualizar, o sistema preenche os
+  efeitos que faltam — só onde a lista está vazia e só em itens cujo nome bate com a curadoria do
+  livro, para nunca sobrescrever o que foi editado à mão
 - **Efeitos de item** que a ficha soma sozinha: bônus em atributo (que pode passar do limite
   normal, até 30, e recalcula tudo que depende dele), em perícia, em Teste de Resistência, nas
   Jogadas de Ataque, na Redução de Dano por tipo e nas CDs — além de treinamento concedido pelo

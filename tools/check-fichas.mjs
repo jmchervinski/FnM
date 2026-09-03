@@ -46,6 +46,7 @@ globalThis.foundry = {
 const ROOT = path.resolve(import.meta.dirname, "..");
 const PARTS = path.join(ROOT, "templates/actors/parts");
 const M = await import(new URL("../module/data-models.mjs", import.meta.url));
+const { FNM } = await import(new URL("../module/config.mjs", import.meta.url));
 
 /** Achata um schema em caminhos de folha (arrays viram `campo.*.sub`). */
 function caminhos(fields, prefixo = "", saida = new Set()) {
@@ -318,6 +319,98 @@ if (raizFoundry) {
       }
     }
     console.log(`      (${compilados} template(s) compilados como Handlebars)`);
+
+    const preloadFnm = fs.readFileSync(path.join(ROOT, "module/fnm.mjs"), "utf8");
+
+    /**
+     * Compilar não basta: a ficha de item só quebra na hora de RENDERIZAR.
+     *
+     * Foi assim que um parcial fora do preload derrubou a ficha inteira — o
+     * template compilava, e clicar em editar não abria nada. Aqui a ficha é
+     * renderizada de verdade, uma vez por tipo de item, com os parciais
+     * registrados a partir da mesma lista que o fnm.mjs pré-carrega.
+     */
+    for (const [nome, fn] of Object.entries({
+      eq: (a, b) => a === b,
+      gte: (a, b) => Number(a) >= Number(b),
+      lte: (a, b) => Number(a) <= Number(b),
+      add: (a, b) => Number(a) + Number(b),
+      array: (...args) => args.slice(0, -1),
+      sinal: v => (Number(v) >= 0 ? `+${Number(v) || 0}` : `${Number(v)}`),
+      numero: v => String(Number(v) || 0).replace(".", ","),
+      porcento: () => 0
+    })) {
+      Handlebars.registerHelper(nome, fn);
+    }
+    for (const m of preloadFnm.matchAll(/"systems\/fnm\/(templates\/[\w/-]+\.html)"/g)) {
+      if (fs.existsSync(path.join(ROOT, m[1]))) {
+        Handlebars.registerPartial(
+          `systems/fnm/${m[1]}`,
+          fs.readFileSync(path.join(ROOT, m[1]), "utf8")
+        );
+      }
+    }
+
+    /** Valores padrão de um schema, para renderizar com dados plausíveis. */
+    const padroesDe = fields => {
+      const out = {};
+      for (const [chave, campo] of Object.entries(fields)) {
+        if (campo.tipo === "Schema") out[chave] = padroesDe(campo.fields);
+        else if (campo.tipo === "Array") out[chave] = [];
+        else if (campo.options.initial !== undefined) out[chave] = campo.options.initial;
+        else out[chave] = campo.tipo === "Number" ? 0 : campo.tipo === "Boolean" ? false : "";
+      }
+      return out;
+    };
+
+    const lista = catalogo => Object.entries(catalogo).map(([id, v]) => ({ id, ...v }));
+    const contextoBase = {
+      atributos: lista(FNM.atributos),
+      resistencias: lista(FNM.resistencias),
+      tiposDano: lista(FNM.tiposDano),
+      gruposArma: lista(FNM.gruposArma),
+      areasAptidao: lista(FNM.niveisAptidao),
+      grausFerramenta: lista(FNM.grausFerramenta),
+      niveisFeitico: FNM.niveisFeitico,
+      origens: FNM.origens,
+      especializacoes: FNM.especializacoes,
+      graus: FNM.graus,
+      catalogoCondicoes: FNM.condicoes,
+      chavesEfeito: [{ nome: "Atributos", itens: lista(FNM.atributos) }],
+      config: FNM,
+      editable: true
+    };
+    contextoBase.resistenciasTreinaveis = contextoBase.resistencias.filter(
+      r => r.id !== "integridade"
+    );
+    contextoBase.tiposDanoAcao = contextoBase.tiposDano.filter(
+      t => !["energiaReversa", "alma"].includes(t.id)
+    );
+
+    const fichaDeItem = Handlebars.compile(
+      fs.readFileSync(path.join(ROOT, "templates/items/item-sheet.html"), "utf8")
+    );
+    let renderizados = 0;
+    for (const [tipo, Modelo] of Object.entries(MODELOS)) {
+      if (["character", "npc", "invocacao"].includes(tipo)) continue;
+      const sys = padroesDe(Modelo.defineSchema());
+      // Uma linha preenchida, para o caso não-vazio dos parciais também rodar
+      sys.efeitos = [{ alvo: "atributo", chave: "forca", valor: 2, proficiencia: "" }];
+      try {
+        fichaDeItem({
+          ...contextoBase,
+          item: { type: tipo, img: "", name: "Item" },
+          system: sys,
+          source: sys
+        });
+        renderizados++;
+      } catch (erro) {
+        falha(
+          `item-sheet.html não renderiza para "${tipo}": ` + String(erro.message).split("\n")[0]
+        );
+      }
+    }
+    console.log(`      (ficha de item renderizada para ${renderizados} tipo(s))`);
   }
 }
 
@@ -417,7 +510,35 @@ if (raizFoundry) {
       falha(`fnm.mjs: "${rel}" não está na lista de templates pré-carregados`);
     }
   }
-  console.log(`      (${citados.size} template(s) citados no código conferidos)`);
+  /**
+   * Todo parcial usado com {{> "systems/fnm/..."}} precisa estar no preload.
+   *
+   * O Handlebars resolve parcial por nome registrado, e não por caminho: um
+   * parcial fora da lista faz a ficha inteira estourar com "could not be found"
+   * na hora de renderizar — a janela simplesmente não abre. O template compila
+   * sem reclamar, então só uma verificação como esta pega.
+   */
+  const parciais = new Set();
+  for (const arq of arquivos) {
+    const txt = fs.readFileSync(arq, "utf8").replace(/\{\{!--[\s\S]*?--\}\}/g, "");
+    for (const m of txt.matchAll(/\{\{>\s*"systems\/fnm\/(templates\/[\w/-]+\.html)"/g)) {
+      parciais.add(m[1]);
+    }
+  }
+  for (const rel of parciais) {
+    if (!fs.existsSync(path.join(ROOT, rel))) {
+      falha(`parcial "${rel}" é usado em um template mas não existe`);
+    } else if (!preload.includes(`systems/fnm/${rel}`)) {
+      falha(
+        `fnm.mjs: o parcial "${rel}" não está no preload — a ficha que o usa ` +
+          `não abre, com "The partial ... could not be found"`
+      );
+    }
+  }
+
+  console.log(
+    `      (${citados.size} template(s) citados no código e ${parciais.size} parcial(is) conferidos)`
+  );
 }
 
 /* -------- 4. O CSS não vaza para a moldura da janela -------- */

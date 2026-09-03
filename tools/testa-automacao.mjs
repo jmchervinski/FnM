@@ -55,7 +55,7 @@ globalThis.foundry = {
 
 const ROOT = path.resolve(import.meta.dirname, "..");
 const M = await import(new URL("../module/data-models.mjs", import.meta.url));
-const { FNM } = await import(new URL("../module/config.mjs", import.meta.url));
+const { FNM, linhaDeEfeito } = await import(new URL("../module/config.mjs", import.meta.url));
 const { mapearInimigo, lerArquivo } = await import(
   new URL("../module/importar-inimigo.mjs", import.meta.url)
 );
@@ -1751,6 +1751,82 @@ const npcBase = sys => {
     confere("Arma: Sabedoria nos dois lados", sabedoria.atributos.join(), "sabedoria");
     confere("Arma: dano por Sabedoria", sabedoria.atributoDano, "sabedoria");
   }
+}
+
+/* -------- Consumível não é equipável, e o reparo de mundos antigos -------- */
+
+/**
+ * Dois problemas relatados na mesa: um Anel do Conhecimento arrastado antes de
+ * os efeitos existirem fica sem bônus para sempre, e um fármaco aceitava ser
+ * "equipado" — o que não quer dizer nada para algo que é gasto no uso.
+ */
+{
+  const equipamento = extra => {
+    const sys = padroes(M.EquipamentoDataModel.defineSchema());
+    fundir(sys, extra);
+    Object.setPrototypeOf(sys, M.EquipamentoDataModel.prototype);
+    sys.prepareDerivedData();
+    return { type: "equipamento", name: extra.nome ?? "Item", system: sys };
+  };
+
+  /* Consumível não é vestível */
+  const remedio = equipamento({ tipo: "Item Especial", categoria: "Fármaco", consumivel: true });
+  confere("Consumível: não é equipável", remedio.system.equipavel, false);
+
+  const anel = equipamento({
+    tipo: "Item Especial",
+    categoria: "Acessório",
+    consumivel: false,
+    equipado: true,
+    efeitos: [{ alvo: "atributo", chave: "sabedoria", valor: 2, proficiencia: "" }]
+  });
+  confere("Acessório: continua equipável", anel.system.equipavel, true);
+
+  /* Mesmo marcado como equipado, um consumível não concede bônus passivo */
+  const personagem = sys => {
+    sys.detalhes.nivel = 5;
+    sys.atributos.sabedoria.value = 14;
+    sys.recursos.pv = { value: 60, max: 60, perdidos: 0, ajuste: 40 };
+    sys.recursos.integridade = { value: 60, max: 60, perdidos: 0, ajuste: 0 };
+  };
+  const consumivelLigado = equipamento({
+    tipo: "Item Especial",
+    categoria: "Fármaco",
+    consumivel: true,
+    equipado: true,
+    efeitos: [{ alvo: "atributo", chave: "sabedoria", valor: 2, proficiencia: "" }]
+  });
+  const comConsumivel = prepararAtor(M.CharacterDataModel, personagem, [consumivelLigado]);
+  confere(
+    "Consumível marcado como equipado não concede bônus",
+    comConsumivel.atributos.sabedoria.total,
+    14
+  );
+
+  const comAnel = prepararAtor(M.CharacterDataModel, personagem, [anel]);
+  confere("Acessório equipado concede o bônus", comAnel.atributos.sabedoria.total, 16);
+
+  /* O aviso de "guardado" só aparece em quem dá para equipar e muda números */
+  const anelGuardado = equipamento({
+    tipo: "Item Especial",
+    consumivel: false,
+    efeitos: [{ alvo: "atributo", chave: "sabedoria", valor: 2, proficiencia: "" }]
+  });
+  confere("Guardado: acessório com efeito avisa", anelGuardado.system.equipavelComEfeito, true);
+  confere("Guardado: consumível não avisa", remedio.system.equipavelComEfeito, false);
+
+  /* A curadoria do livro é a mesma que o compêndio usa e que o reparo aplica */
+  confere(
+    "Reparo: a curadoria conhece os Anéis do Conhecimento",
+    JSON.stringify(FNM.efeitosPorItem["Anéis do Conhecimento"]),
+    JSON.stringify([{ alvo: "atributo", chave: "sabedoria", valor: 2 }])
+  );
+  const linha = linhaDeEfeito(FNM.efeitosPorItem["Anéis do Conhecimento"][0]);
+  confere(
+    "Reparo: a linha sai completa para o schema",
+    Object.keys(linha).sort().join(),
+    "alvo,chave,proficiencia,valor"
+  );
 }
 
 if (problemas) {

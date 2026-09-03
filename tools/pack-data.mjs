@@ -8,7 +8,7 @@
 import crypto from "node:crypto";
 import fs from "node:fs";
 import path from "node:path";
-import { FNM } from "../module/config.mjs";
+import { FNM, linhaDeEfeito } from "../module/config.mjs";
 
 /**
  * Habilidades de Especialização, transcritas do capítulo 4 do Livro de Regras
@@ -80,48 +80,11 @@ const semAjustes = { pv: 0, pe: 0, defesa: 0, deslocamento: 0, reducaoDano: 0 };
 
 /** Campos comuns a todo equipamento; cada família sobrescreve o que lhe importa. */
 /**
- * O que cada Item Especial faz na ficha, em número.
- *
- * O livro descreve os benefícios em prosa, e só uma leitura humana transforma
- * "os anéis aumentam o valor de Sabedoria do usuário em 2" em um efeito que a
- * ficha soma sozinha. Por isso esta tabela é escrita à mão e cobre só o que é
- * *sempre ativo e numérico*: bônus fixos de atributo, perícia, PV e CD.
- *
- * Ficam de fora, de propósito, e continuam valendo pelo texto do item:
- *
- *  - o que depende de uma escolha na hora ("treinado em uma perícia à sua
- *    escolha", da Pulseira Magistral) — o jogador acrescenta a linha na ficha
- *    do item dizendo qual perícia;
- *  - o que é gatilho ou evento (Chaveiro Absorsor, Laço da Vida);
- *  - o que é consumido em um uso (fármacos, talismãs, misturas).
+ * Os efeitos que o livro dá a um item, completados com os campos que o schema
+ * espera. A curadoria mora em FNM.efeitosPorItem, para o compêndio e o reparo
+ * de mundos antigos lerem exatamente a mesma tabela.
  */
-const EFEITOS_ITENS = {
-  // Custo 1
-  "Chaveiro Canalizador": [{ alvo: "cdAmaldicoada", valor: 1 }],
-  // Custo 2
-  "Amuleto do Vislumbre": [{ alvo: "pericia", chave: "percepcao", valor: 2 }],
-  "Bracelete do Vigor": [{ alvo: "pv", valor: 10 }],
-  // Custo 3
-  "Anéis do Conhecimento": [{ alvo: "atributo", chave: "sabedoria", valor: 2 }],
-  "Bracelete da Força": [{ alvo: "atributo", chave: "forca", valor: 2 }],
-  "Cinturão do Inabalável": [{ alvo: "atributo", chave: "constituicao", valor: 2 }],
-  "Faixas Céleres": [{ alvo: "atributo", chave: "destreza", valor: 2 }],
-  "Ombreiras do Vigor Superior": [{ alvo: "pv", valor: 20 }],
-  "Ornamento Fascinante": [{ alvo: "atributo", chave: "presenca", valor: 2 }],
-  "Pingente do Intelecto": [{ alvo: "atributo", chave: "inteligencia", valor: 2 }]
-};
-
-/** Uniformes e escudos com benefício além da Defesa e da RD que já têm campo. */
-const EFEITOS_EQUIPAMENTO = {
-  "Uniforme Sob Medida": [
-    { alvo: "pericia", chave: "acrobacia", valor: 2 },
-    { alvo: "pericia", chave: "furtividade", valor: 2 }
-  ]
-};
-
-/** Completa uma linha de efeito com os campos que o schema espera. */
-const efeitos = (mapa, nome) =>
-  (mapa[nome] ?? []).map(e => ({ alvo: "defesa", chave: "", valor: 0, proficiencia: "", ...e }));
+const efeitos = nome => (FNM.efeitosPorItem[nome] ?? []).map(linhaDeEfeito);
 
 const equipamentoBase = () => ({
   categoria: "",
@@ -908,7 +871,7 @@ export const PACKS = {
           penalidade: u.penalidade,
           custo: u.custo,
           espacos: u.espacos,
-          efeitos: efeitos(EFEITOS_EQUIPAMENTO, u.nome)
+          efeitos: efeitos(u.nome)
         }
       })),
 
@@ -965,7 +928,7 @@ export const PACKS = {
             i.descricao,
           tipo: "Item Especial",
           // Acessórios sempre ativos entram automatizados; o resto fica no texto
-          efeitos: efeitos(EFEITOS_ITENS, i.nome),
+          efeitos: efeitos(i.nome),
           categoria: i.categoria,
           acao: i.acao,
           consumivel: i.consumivel,

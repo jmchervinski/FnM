@@ -545,6 +545,10 @@ export class FnmBaseActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) 
   static async onItemToggle(event, target) {
     const item = this.#itemDe(target);
     if (!item) return;
+    // Consumível é gasto no uso, não vestido: não há o que equipar
+    if (item.system.equipavel === false) {
+      return ui.notifications.warn(`${item.name} é um consumível: não dá para equipar.`);
+    }
     const campo =
       item.type === "arma" ? "equipada" : item.type === "equipamento" ? "equipado" : "ativo";
     await item.update({ [`system.${campo}`]: !item.system[campo] });
