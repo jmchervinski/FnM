@@ -475,7 +475,9 @@ export class FnmActor extends Actor {
       grupo: sys.grupo,
       alcance: sys.alcance,
       propriedades: sys.propriedades,
-      somaAtributoNoDano: true,
+      // Uma ação de criatura traz o dano já fechado pelas tabelas por ND do
+      // Grimório (p. 53); uma arma do livro básico soma o atributo (p. 306)
+      somaAtributoNoDano: !sys.danoFechado,
       // Condições que a arma inflige — o efeito de crítico do grupo usa a CD
       // de Especialização (p. 308)
       condicoes: this._condicoesDoItem(item, { cd: this.system.cdEspecializacao }),
@@ -664,19 +666,36 @@ export class FnmActor extends Actor {
   _modificadoresAtaque(perfil, atributo, alvo = null) {
     const s = this.system;
     const linha = s.ataques?.[perfil.linhaAtaque];
-    const mods = [
-      { rotulo: FNM.atributos[atributo]?.nome ?? atributo, valor: s.atributos[atributo].mod },
-      { rotulo: "Metade do nível", valor: s.metadeNivel }
-    ];
 
-    if (perfil.treinado) {
-      mods.push({ rotulo: "Bônus de Treinamento", valor: s.bonusTreinamento });
-    } else {
+    /**
+     * Um inimigo do Grimório tem um Acerto fechado, vindo das tabelas por ND
+     * (p. 23-52) — ele não é montado a partir de atributo + metade do ND +
+     * Bônus de Treinamento como o de um personagem. Quando a ficha declara esse
+     * total, ele É a base da jogada, e as três parcelas do jogador saem de cena.
+     * O bônus da própria ação e as condições continuam entrando por cima.
+     */
+    const mods = [];
+    if (s.acertoFechado !== null && s.acertoFechado !== undefined) {
       mods.push({
-        rotulo: "Sem treinamento",
-        valor: 0,
-        nota: `não soma o Bônus de Treinamento de +${s.bonusTreinamento} (p. 279)`
+        rotulo: "Acerto da criatura",
+        valor: s.acertoFechado,
+        nota: "total fechado da ficha; não soma atributo, metade do ND nem Treinamento"
       });
+    } else {
+      mods.push(
+        { rotulo: FNM.atributos[atributo]?.nome ?? atributo, valor: s.atributos[atributo].mod },
+        { rotulo: "Metade do nível", valor: s.metadeNivel }
+      );
+
+      if (perfil.treinado) {
+        mods.push({ rotulo: "Bônus de Treinamento", valor: s.bonusTreinamento });
+      } else {
+        mods.push({
+          rotulo: "Sem treinamento",
+          valor: 0,
+          nota: `não soma o Bônus de Treinamento de +${s.bonusTreinamento} (p. 279)`
+        });
+      }
     }
 
     if (linha?.outros) {

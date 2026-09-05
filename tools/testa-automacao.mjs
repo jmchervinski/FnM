@@ -1858,6 +1858,95 @@ const npcBase = sys => {
   );
 }
 
+/* -------- A jogada de ataque de um inimigo usa o Acerto dele -------- */
+
+/**
+ * Um inimigo do Grimório tem um Acerto fechado, vindo das tabelas por ND. Se a
+ * rolagem montar atributo + metade do ND + Bônus de Treinamento como a de um
+ * personagem, ela erra por muito e em silêncio: a ficha mostra um número e o
+ * dado soma outro. O mesmo vale para o dano, que já vem fechado da tabela e não
+ * pode receber o modificador do atributo por cima.
+ */
+{
+  globalThis.Actor ??= class {};
+  const { FnmActor } = await import(new URL("../module/documents/actor.mjs", import.meta.url));
+
+  const criatura = lerArquivo(
+    JSON.parse(fs.readFileSync(path.join(ROOT, "tools/dados/exemplo-inimigo-completo.json"), "utf8"))
+  )[0];
+  const mapeado = mapearInimigo(criatura);
+  const arma = mapeado.itens.find(i => i.type === "arma");
+
+  const semCondicoes = { totalAtaque: 0, totalAtaqueCorpoACorpo: 0, ativas: [] };
+  const montarNpc = ajustar => {
+    const sys = prepararAtor(
+      M.NpcDataModel,
+      s => {
+        fundir(s, foundry.utils.expandObject(mapeado.system));
+        ajustar?.(s);
+      },
+      mapeado.itens.map(i => ({ type: i.type, system: i.system }))
+    );
+    sys.condicoes ??= semCondicoes;
+    return { system: sys, _condicoesDoItem: () => [] };
+  };
+
+  const perfilDe = (falso, item) =>
+    FnmActor.prototype._perfilArma.call(falso, { name: item.name, img: "", system: item.system });
+  const somaDe = (falso, perfil, attr) =>
+    FnmActor.prototype._modificadoresAtaque
+      .call(falso, perfil, attr)
+      .reduce((n, m) => n + m.valor, 0);
+
+  const npc = montarNpc();
+  const perfilArma = perfilDe(npc, arma);
+  confere(
+    "Ataque do inimigo: a rolagem bate com o toHit do arquivo",
+    somaDe(npc, perfilArma, "forca"),
+    criatura.actions.list[0].toHit
+  );
+  confere(
+    "Ataque do inimigo: o dano não soma o atributo por cima da tabela",
+    perfilArma.somaAtributoNoDano,
+    false
+  );
+
+  // Desligar os valores manuais devolve o inimigo à fórmula do livro básico
+  const semManuais = montarNpc(s => {
+    s.detalhes.valoresManuais = false;
+  });
+  confere(
+    "Ataque do inimigo sem valores manuais: volta para a fórmula do livro",
+    somaDe(semManuais, perfilDe(semManuais, arma), "forca"),
+    semManuais.system.atributos.forca.mod +
+      semManuais.system.metadeNivel +
+      semManuais.system.bonusTreinamento +
+      arma.system.bonusAtaque
+  );
+
+  // E o personagem nunca deixou de montar a jogada pela fórmula
+  const pc = prepararAtor(M.CharacterDataModel, s => {
+    s.atributos.forca.value = 16;
+  });
+  pc.condicoes ??= semCondicoes;
+  const falsoPc = { system: pc, _condicoesDoItem: () => [] };
+  const katana = {
+    name: "Katana",
+    system: {
+      tipo: "Corpo a Corpo", categoria: "Simples", treinado: true, bonusAtaque: 0, critico: 20,
+      dano: "1d8", danoVersatil: "", tipoDano: "cortante", danoFechado: false, fineza: false,
+      grau: "", grupo: "", alcance: "", propriedades: "", atributoDano: "", atributoAtaque: ""
+    }
+  };
+  const perfilPc = perfilDe(falsoPc, katana);
+  confere(
+    "Ataque do personagem: segue somando atributo + metade do nível + Treinamento",
+    somaDe(falsoPc, perfilPc, "forca"),
+    pc.atributos.forca.mod + pc.metadeNivel + pc.bonusTreinamento
+  );
+  confere("Dano do personagem: segue somando o atributo", perfilPc.somaAtributoNoDano, true);
+}
+
 if (problemas) {
   console.log(`\n${problemas} problema(s) de automação encontrado(s).`);
   process.exit(1);

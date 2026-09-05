@@ -337,6 +337,10 @@
           {{/each}}
         </select>
       </label>
+      <label class="checkbox largo" title="Marque para ações de criatura, cujo dano já vem fechado das tabelas por ND">
+        <input type="checkbox" name="system.danoFechado" {{#if system.danoFechado}}checked{{/if}} />
+        Dano já fechado (não soma o atributo)
+      </label>
       <label title="Qual ação do turno o ataque consome — é por ela que a aba de Ações do NPC agrupa">Ação
         <select name="system.acao">
           {{#each config.conjuracoes as |a|}}

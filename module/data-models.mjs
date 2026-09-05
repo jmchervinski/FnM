@@ -1255,8 +1255,15 @@ export class NpcDataModel extends BaseActorModel {
    * fechado dele com o -2, e não sem.
    */
   _aplicarValoresManuais() {
+    // Um número aqui quer dizer "esta criatura tem um Acerto fechado": as
+    // jogadas de ataque param de somar atributo + metade do ND + Bônus de
+    // Treinamento e passam a partir deste total, que é o que as tabelas por ND
+    // do Grimório dão. `null` devolve tudo para a fórmula do livro básico.
+    this.acertoFechado = null;
+
     if (!this.detalhes.valoresManuais) return;
     const m = this.manuais;
+    if (m.acerto !== null) this.acertoFechado = m.acerto;
     const cond = this.condicoes;
 
     if (this.combate.defesaManual > 0) {
@@ -2201,6 +2208,14 @@ export class ArmaDataModel extends BaseItemModel {
       encantamentos: new StringField({ required: true, blank: true }),
       // Fineza permite trocar Força por Destreza no ataque e no dano (p. 279)
       fineza: new BooleanField({ required: true, initial: false }),
+      /**
+       * O dado de dano já é o total, e não soma o modificador do atributo.
+       *
+       * É o caso das ações de criatura do Grimório: o dano sai das tabelas por
+       * ND (p. 53), que já embutem tudo — somar a Força por cima inflaria o
+       * golpe. Uma arma comum do livro básico continua somando (p. 306).
+       */
+      danoFechado: new BooleanField({ required: true, initial: false }),
       /**
        * Atributo fixado para o acerto e para o dano, quando a arma foge do
        * padrão. Em branco, valem as regras do livro: Destreza a distância,

@@ -592,6 +592,9 @@ function montarAcao(acao, acertoBase, margemAtaque) {
       grau: "",
       encantamentos: "",
       fineza: false,
+      // O dano vem fechado das tabelas por ND: somar o atributo por cima
+      // inflaria o golpe (Grimório, p. 53)
+      danoFechado: true,
       treinado: true,
       equipada: true,
       bonusAtaque,
